@@ -119,8 +119,10 @@ export interface RemovedResponses {
   /**
    * The responses that are removed
    */
-  responses: OpenAPIV3.ResponseObject[];
+  responses: RemovedResponse[];
 }
+
+export type RemovedResponse = { code: string } & OpenAPIV3.ResponseObject;
 
 export interface ChangedParameters {
   /**
@@ -136,16 +138,18 @@ export interface ChangedParameters {
   /**
    * The parameters that are changed between the old specification and the new specification
    */
-  changes: {
-    /**
-     * The parameter in the old specification
-     */
-    from: OpenAPIV3.ParameterObject;
-    /**
-     * The parameter in the new specification
-     */
-    to: OpenAPIV3.ParameterObject;
-  }[];
+  changes: ChangedParameter[];
+}
+
+export interface ChangedParameter {
+  /**
+   * The parameter in the old specification
+   */
+  from: OpenAPIV3.ParameterObject;
+  /**
+   * The parameter in the new specification
+   */
+  to: OpenAPIV3.ParameterObject;
 }
 
 export interface ChangedResponses {
@@ -162,17 +166,19 @@ export interface ChangedResponses {
   /**
    * The responses that are changed between the old specification and the new specification
    */
-  changes: {
-    /**
-     * The response in the old specification
-     */
-    from: OpenAPIV3.ResponseObject;
+  changes: ChangedResponse[];
+}
 
-    /**
-     * The response in the new specification
-     */
-    to: OpenAPIV3.ResponseObject;
-  }[];
+export interface ChangedResponse {
+  /**
+   * The response in the old specification
+   */
+  from: OpenAPIV3.ResponseObject;
+
+  /**
+   * The response in the new specification
+   */
+  to: OpenAPIV3.ResponseObject;
 }
 
 export interface NonBreakingDiffs {
@@ -184,15 +190,18 @@ export interface NonBreakingDiffs {
      * The operations that are present in the new specification but not in the old specification
      */
     operations: AddedOperation[];
+
     /**
      * The parameters that are present in the new specification but not in the old specification
      */
     parameters: AddedParameters[];
+
     /**
      * The responses that are present in the new specification but not in the old specification
      */
     responses: AddedResponses[];
   };
+
   /**
    * The objects that are deprecated in the new specification but not in the old specification
    */
@@ -201,14 +210,11 @@ export interface NonBreakingDiffs {
      * The operations that are deprecated in the new specification but not in the old specification
      */
     operations: DeprecatedOperation[];
+
     /**
      * The parameters that are deprecated in the new specification but not in the old specification
      */
-    parameters: DeprecatedParameter[];
-    /**
-     * The responses that are deprecated in the new specification but not in the old specification
-     */
-    responses: DeprecatedResponse[];
+    parameters: DeprecatedParameters[];
   };
 }
 
@@ -255,8 +261,10 @@ export interface AddedResponses {
   /**
    * The responses that are added
    */
-  responses: OpenAPIV3.ResponseObject[];
+  responses: AddedResponse[];
 }
+
+export type AddedResponse = { code: string } & OpenAPIV3.ResponseObject;
 
 export type DeprecatedOperation = {
   /**
@@ -270,7 +278,7 @@ export type DeprecatedOperation = {
   method: HttpMethod;
 } & OpenAPIV3.OperationObject;
 
-export interface DeprecatedParameter {
+export interface DeprecatedParameters {
   /**
    * The path of the operation where the parameters that are deprecated
    */
@@ -285,23 +293,6 @@ export interface DeprecatedParameter {
    * The parameters that are deprecated
    */
   parameters: OpenAPIV3.ParameterObject[];
-}
-
-export interface DeprecatedResponse {
-  /**
-   * The path of the operation where the responses that are deprecated
-   */
-  path: string;
-
-  /**
-   * The method of the operation where the responses that are deprecated
-   */
-  method: HttpMethod;
-
-  /**
-   * The responses that are deprecated
-   */
-  responses: OpenAPIV3.ResponseObject[];
 }
 
 export const HttpMethods = ["get", "put", "post", "delete", "options", "head", "patch", "trace"] as const;

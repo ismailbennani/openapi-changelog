@@ -1,38 +1,55 @@
 import { readFile } from "node:fs/promises";
 import { DiffResponse } from "./types.js";
-import { extractVersionDiff } from "./version-diff.js";
-import { extractRemovedOperations } from "./removed-operations-diff.js";
 import { OpenAPIV3 } from "openapi-types";
-import { extractRemovedParameters } from "./removed-parameters-diff.js";
-import { extractRemovedResponses } from "./removed-responses-diff.js";
+import * as util from "node:util";
+import winston from "winston";
+import { extractIntermediateRepresentation } from "./intermediate-representation.js";
+import { extractVersionDiff } from "./version-diff.js";
+import { extractOperationsDiff } from "./operations-diff.js";
+import { extractParametersDiff } from "./parameters-diff.js";
+import { extractResponsesDiff } from "./responses-diff.js";
 
 export async function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Promise<Readonly<DiffResponse>> {
   const oldSpec = await readOpenApiSpecification(oldOpenApiSpec);
   const newSpec = await readOpenApiSpecification(newOpenApiSpec);
 
+  const oldSpecIR = extractIntermediateRepresentation(oldSpec);
+  const newSpecIR = extractIntermediateRepresentation(newSpec);
+
+  const { added: addedOperations, deprecated: deprecatedOperations, removed: removedOperations } = extractOperationsDiff(oldSpecIR, newSpecIR);
+  const { added: addedParameters, changed: changedParameters, deprecated: deprecatedParameters, removed: removedParameters } = extractParametersDiff(oldSpecIR, newSpecIR);
+  const { added: addedResponses, changed: changedResponses, removed: removedResponses } = extractResponsesDiff(oldSpecIR, newSpecIR);
+
+  winston.debug("==== OLD SPEC");
+  winston.debug(util.inspect(oldSpecIR, false, null, true));
+  winston.debug("");
+
+  winston.debug("==== NEW SPEC");
+  winston.debug(util.inspect(newSpecIR, false, null, true));
+  winston.debug("");
+
   return {
-    version: extractVersionDiff(oldSpec, newSpec),
+    version: extractVersionDiff(oldSpecIR, newSpecIR),
     breaking: {
       removed: {
-        operations: extractRemovedOperations(oldSpec, newSpec),
-        parameters: extractRemovedParameters(oldSpec, newSpec),
-        responses: extractRemovedResponses(oldSpec, newSpec),
+        operations: removedOperations,
+        parameters: removedParameters,
+        responses: removedResponses,
       },
       changed: {
-        parameters: [],
-        responses: [],
+        parameters: changedParameters,
+        responses: changedResponses,
       },
     },
     nonBreaking: {
       added: {
-        operations: [],
-        parameters: [],
-        responses: [],
+        operations: addedOperations,
+        parameters: addedParameters,
+        responses: addedResponses,
       },
       deprecated: {
-        operations: [],
-        parameters: [],
-        responses: [],
+        operations: deprecatedOperations,
+        parameters: deprecatedParameters,
       },
     },
   };

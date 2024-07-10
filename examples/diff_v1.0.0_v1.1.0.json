@@ -1,0 +1,148 @@
+{
+  "version": {
+    "from": "1.0.0",
+    "to": "1.1.0",
+    "changed": {
+      "major": false,
+      "minor": true,
+      "patch": false
+    }
+  },
+  "breaking": {
+    "removed": {
+      "operations": [],
+      "parameters": [],
+      "responses": []
+    },
+    "changed": {
+      "parameters": [],
+      "responses": []
+    }
+  },
+  "nonBreaking": {
+    "added": {
+      "operations": [
+        {
+          "path": "/weatherforecast",
+          "method": "post",
+          "tags": [
+            "TestApi"
+          ],
+          "description": "Create new weather forecasts",
+          "operationId": "PostWeatherForecast",
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        },
+        {
+          "path": "/weatherforecast",
+          "method": "delete",
+          "tags": [
+            "TestApi"
+          ],
+          "operationId": "Delete the weather forecast",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeatherForecast"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/problem+json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "parameters": [
+        {
+          "path": "/weatherforecast",
+          "method": "get",
+          "parameters": [
+            {
+              "name": "from",
+              "in": "query",
+              "required": true,
+              "deprecated": true,
+              "style": "form",
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            {
+              "name": "to",
+              "in": "query",
+              "required": true,
+              "style": "form",
+              "schema": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          ]
+        }
+      ],
+      "responses": [
+        {
+          "path": "/weatherforecast",
+          "method": "get",
+          "responses": [
+            {
+              "code": "400",
+              "description": "Bad Request",
+              "content": {
+                "application/problem+json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "deprecated": {
+      "operations": [
+        {
+          "path": "/weatherforecast",
+          "method": "get",
+          "tags": [
+            "TestApi"
+          ],
+          "operationId": "GetWeatherForecast",
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/WeatherForecast"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "parameters": []
+    }
+  }
+}

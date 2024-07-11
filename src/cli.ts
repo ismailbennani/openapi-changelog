@@ -5,7 +5,8 @@ import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
 import * as util from "node:util";
 import fs from "node:fs/promises";
-import { diff } from "./diff/diff.js";
+import { diff as diffFn } from "./diff/diff.js";
+import { changelog as changelogFn } from "./changelog/changelog.js";
 
 winston.add(new winston.transports.Console({ format: format.combine(format.colorize(), format.simple()), stderrLevels: ["error", "warn", "info"], level: "info" }));
 
@@ -51,15 +52,15 @@ await yargsInstance
     async (args) => {
       winston.info(`Computing diff\n\tfrom:\t ${args.old_openapi_spec}\n\tto:\t ${args.new_openapi_spec}`);
 
-      const result = await diff(args.old_openapi_spec, args.new_openapi_spec);
-      const formattedResult = args.diff === true ? JSON.stringify(result, null, 2) : "CHANGELOG (not implemented)";
+      const differences = await diffFn(args.old_openapi_spec, args.new_openapi_spec);
+      const changelog = args.diff === true ? JSON.stringify(differences, null, 2) : await changelogFn(differences);
 
       if (args.output !== undefined) {
         winston.info(`Writing result to ${args.output}`);
-        await fs.writeFile(args.output, formattedResult, { encoding: "utf8", flag: "w" });
+        await fs.writeFile(args.output, changelog, { encoding: "utf8", flag: "w" });
         winston.info(`Done.`);
       } else {
-        process.stdout.write(formattedResult);
+        process.stdout.write(changelog);
       }
     },
   )

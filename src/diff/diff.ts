@@ -28,26 +28,39 @@ export async function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Prom
   winston.debug(util.inspect(newSpecIR, false, null, true));
   winston.debug("");
 
+  const anyRemoval = removedOperations.length > 0 || removedParameters.length > 0 || removedResponses.length > 0;
+  const anyChange = changedParameters.length > 0 || changedResponses.length > 0;
+  const anyBreaking = anyRemoval || anyChange;
+  const anyAddition = addedOperations.length > 0 || addedParameters.length > 0 || addedResponses.length > 0;
+  const anyDeprecation = deprecatedOperations.length > 0 || deprecatedParameters.length > 0;
+  const anyNonBreaking = anyAddition || anyDeprecation;
+
   return {
     version: extractVersionDiff(oldSpecIR, newSpecIR),
     breaking: {
+      any: anyBreaking,
       removed: {
+        any: anyRemoval,
         operations: removedOperations,
         parameters: removedParameters,
         responses: removedResponses,
       },
       changed: {
+        any: anyChange,
         parameters: changedParameters,
         responses: changedResponses,
       },
     },
     nonBreaking: {
+      any: anyNonBreaking,
       added: {
+        any: anyAddition,
         operations: addedOperations,
         parameters: addedParameters,
         responses: addedResponses,
       },
       deprecated: {
+        any: anyDeprecation,
         operations: deprecatedOperations,
         parameters: deprecatedParameters,
       },

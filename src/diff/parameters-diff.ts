@@ -16,7 +16,7 @@ export function extractParametersDiff(
 
     const parameters: OpenAPIV3.ParameterObject[] = [];
     for (const parameter of operation.parameters) {
-      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name == parameter.name);
+      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name === parameter.name);
 
       if (!parameterInNewSpec) {
         parameters.push(parameter.value);
@@ -39,7 +39,7 @@ export function extractParametersDiff(
     const changes: ChangedParameter[] = [];
     const deprecations: OpenAPIV3.ParameterObject[] = [];
     for (const parameter of operation.parameters) {
-      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name == parameter.name);
+      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name === parameter.name);
 
       if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
         if (parameterInNewSpec.value.deprecated && !parameter.value.deprecated) {
@@ -70,7 +70,7 @@ export function extractParametersDiff(
 
     const parameters: OpenAPIV3.ParameterObject[] = [];
     for (const parameter of operation.parameters) {
-      const parameterInOldSpec = operationInOldSpec.parameters.find((p) => p.name == parameter.name);
+      const parameterInOldSpec = operationInOldSpec.parameters.find((p) => p.name === parameter.name);
       if (!parameterInOldSpec) {
         parameters.push(parameter.value);
       }

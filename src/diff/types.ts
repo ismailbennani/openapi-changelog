@@ -45,9 +45,19 @@ export interface VersionDiff {
 
 export interface BreakingDiffs {
   /**
+   * Are there any breaking changes
+   */
+  any: boolean;
+
+  /**
    * The objects that are present in the old specification but not in the new specification
    */
   removed: {
+    /**
+     * Are there any objects removed
+     */
+    any: boolean;
+
     /**
      * The operations that are present in the old specification but not in the new specification
      */
@@ -65,6 +75,11 @@ export interface BreakingDiffs {
    * The objects that are present in both the old specification and the new specification but with different values
    */
   changed: {
+    /**
+     * Are there any objects changed
+     */
+    any: boolean;
+
     /**
      * The parameters that are present in both the old specification and the new specification but with different values
      */
@@ -183,9 +198,19 @@ export interface ChangedResponse {
 
 export interface NonBreakingDiffs {
   /**
+   * Are there any non-breaking changes
+   */
+  any: boolean;
+
+  /**
    * The objects that are present in the new specification but not in the old specification
    */
   added: {
+    /**
+     * Are there any objects added
+     */
+    any: boolean;
+
     /**
      * The operations that are present in the new specification but not in the old specification
      */
@@ -206,6 +231,11 @@ export interface NonBreakingDiffs {
    * The objects that are deprecated in the new specification but not in the old specification
    */
   deprecated: {
+    /**
+     * Are there any objects deprecated
+     */
+    any: boolean;
+
     /**
      * The operations that are deprecated in the new specification but not in the old specification
      */

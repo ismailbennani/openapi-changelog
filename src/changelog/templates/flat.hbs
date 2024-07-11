@@ -1,0 +1,72 @@
+Version {{ version.to }}
+
+{{#if breaking.any }}
+  > BREAKING CHANGES
+  {{!-- Operations --}}
+  {{#each breaking.removed.operations}}
+    - Removed operation {{upper method }} {{ path }}
+  {{/each}}
+  {{!-- Parameters --}}
+  {{#each breaking.removed.parameters}}
+    - In operation {{upper method }} {{ path }}
+    {{#each parameters}}
+      - Removed parameter {{ name }}
+    {{/each}}
+  {{/each}}
+  {{!-- Responses --}}
+  {{#each breaking.removed.responses}}
+    - In operation {{upper method }} {{ path }}
+    {{#each responses}}
+      - Removed response code {{ code }}
+    {{/each}}
+  {{/each}}
+  {{!-- Parameters --}}
+  {{#each breaking.changed.parameters}}
+    - In operation {{upper method }} {{ path }}
+    {{#each parameters}}
+      - Changed parameter {{ name }}
+    {{/each}}
+  {{/each}}
+  {{!-- Responses --}}
+  {{#each breaking.changed.responses}}
+    - In operation {{upper method }} {{ path }}
+    {{#each responses}}
+      - Changed response code {{ code }}
+    {{/each}}
+  {{/each}}
+{{/if}}
+{{#if nonBreaking.any }}
+  > Changes
+  {{!-- Operations --}}
+  {{#each nonBreaking.added.operations}}
+    - Added operation {{upper method }} {{ path }}
+  {{/each}}
+  {{!-- Parameters --}}
+  {{#each nonBreaking.added.parameters}}
+    - In operation {{upper method }} {{ path }}
+    {{#each parameters}}
+      - Added parameter {{ name }}
+    {{/each}}
+  {{/each}}
+  {{!-- Responses --}}
+  {{#each nonBreaking.added.responses}}
+    - In operation {{upper method }} {{ path }}
+    {{#each responses}}
+      - Added response code {{ code }}
+    {{/each}}
+  {{/each}}
+  {{!-- Parameters --}}
+  {{#each nonBreaking.deprecated.parameters}}
+    - In operation {{upper method }} {{ path }}
+    {{#each parameters}}
+      - Deprecated parameter {{ name }}
+    {{/each}}
+  {{/each}}
+  {{!-- Responses --}}
+  {{#each nonBreaking.deprecated.responses}}
+    - In operation {{upper method }} {{ path }}
+    {{#each responses}}
+      - Deprecated response code {{ code }}
+    {{/each}}
+  {{/each}}
+{{/if}}

@@ -15,7 +15,7 @@ export function extractResponsesDiff(
 
     const responses: AddedResponse[] = [];
     for (const response of operation.responses) {
-      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code == response.code);
+      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code === response.code);
       if (!responseInNewSpec) {
         responses.push({ code: response.code, ...response.value });
       }
@@ -35,7 +35,7 @@ export function extractResponsesDiff(
 
     const changes: ChangedResponse[] = [];
     for (const response of operation.responses) {
-      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code == response.code);
+      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code === response.code);
 
       if (responseInNewSpec && !isDeepStrictEqual(response, responseInNewSpec)) {
         changes.push({ from: response.value, to: responseInNewSpec.value });
@@ -56,7 +56,7 @@ export function extractResponsesDiff(
 
     const responses: RemovedResponse[] = [];
     for (const response of operation.responses) {
-      const responseInOldSpec = operationInOldSpec.responses.find((p) => p.code == response.code);
+      const responseInOldSpec = operationInOldSpec.responses.find((p) => p.code === response.code);
       if (!responseInOldSpec) {
         responses.push({ code: response.code, ...response.value });
       }

@@ -1,6 +1,5 @@
-import { IntermediateRepresentation, Operation } from "./intermediate-representation.js";
+import { IntermediateRepresentation } from "./intermediate-representation.js";
 import { AddedOperation, DeprecatedOperation, RemovedOperation } from "./types";
-import { isDeepStrictEqual } from "node:util";
 
 export function extractOperationsDiff(
   oldSpec: IntermediateRepresentation,

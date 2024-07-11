@@ -60,6 +60,7 @@ await yargsInstance
         await fs.writeFile(args.output, changelog, { encoding: "utf8", flag: "w" });
         winston.info(`Done.`);
       } else {
+        winston.info(`Writing output below\n`);
         process.stdout.write(changelog);
       }
     },

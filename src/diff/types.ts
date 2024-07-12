@@ -19,11 +19,11 @@ export interface VersionDiff {
   /**
    * The old version
    */
-  from: string;
+  old: string;
   /**
    * The new version
    */
-  to: string;
+  new: string;
   /**
    * The changes in versions
    */
@@ -43,286 +43,228 @@ export interface VersionDiff {
   };
 }
 
-export interface BreakingDiffs {
-  /**
-   * Are there any breaking changes
-   */
-  any: boolean;
+export type BreakingDiffs = OperationBreakingDiff[];
 
-  /**
-   * The objects that are present in the old specification but not in the new specification
-   */
-  removed: {
-    /**
-     * Are there any objects removed
-     */
-    any: boolean;
+export type OperationBreakingDiff = OperationRemoved | OperationBreakingChange;
 
-    /**
-     * The operations that are present in the old specification but not in the new specification
-     */
-    operations: RemovedOperation[];
-    /**
-     * The parameters that are present in the old specification but not in the new specification
-     */
-    parameters: RemovedParameters[];
-    /**
-     * The responses that are present in the old specification but not in the new specification
-     */
-    responses: RemovedResponses[];
-  };
+export type OperationRemoved = OperationChangeBase & {
   /**
-   * The objects that are present in both the old specification and the new specification but with different values
+   * The operation has been removed
    */
-  changed: {
-    /**
-     * Are there any objects changed
-     */
-    any: boolean;
-
-    /**
-     * The parameters that are present in both the old specification and the new specification but with different values
-     */
-    parameters: ChangedParameters[];
-    /**
-     * The responses that are present in both the old specification and the new specification but with different values
-     */
-    responses: ChangedResponses[];
-  };
-}
-
-export type RemovedOperation = {
-  /**
-   * The path of the operation that is removed
-   */
-  path: string;
+  removed: true;
 
   /**
-   * The method of the operation that is removed
+   * The operation in the old specification
    */
-  method: HttpMethod;
-} & OpenAPIV3.OperationObject;
+  old: OpenAPIV3.OperationObject;
+};
 
-export interface RemovedParameters {
+export type OperationBreakingChange = OperationChangeBase & {
   /**
-   * The path of the operation where the parameters that are removed
+   * The parameter has changed
    */
-  path: string;
-
-  /**
-   * The method of the operation where the parameters that are removed
-   */
-  method: HttpMethod;
+  changed: true;
 
   /**
-   * The parameters that are removed
+   * The parameters that have changed
    */
-  parameters: OpenAPIV3.ParameterObject[];
-}
-
-export interface RemovedResponses {
-  /**
-   * The path of the operation where the responses that are removed
-   */
-  path: string;
+  parameters: ParameterBreakingChange[];
 
   /**
-   * The method of the operation where the responses that are removed
+   * The responses that have changed
    */
-  method: HttpMethod;
+  responses: ResponseBreakingChange[];
 
   /**
-   * The responses that are removed
+   * The operation in the old specification
    */
-  responses: RemovedResponse[];
-}
-
-export type RemovedResponse = { code: string } & OpenAPIV3.ResponseObject;
-
-export interface ChangedParameters {
-  /**
-   * The path of the operation where the parameters that are changed
-   */
-  path: string;
+  old: OpenAPIV3.OperationObject;
 
   /**
-   * The method of the operation where the parameters that are changed
+   * The operation in the new specification
    */
-  method: HttpMethod;
+  new: OpenAPIV3.OperationObject;
+};
 
+export type ParameterBreakingChange = ParameterRemoved | ParameterChanged;
+
+export type ParameterRemoved = ParameterChangeBase & {
   /**
-   * The parameters that are changed between the old specification and the new specification
+   * The parameter has been removed
    */
-  changes: ChangedParameter[];
-}
+  removed: true;
 
-export interface ChangedParameter {
   /**
    * The parameter in the old specification
    */
-  from: OpenAPIV3.ParameterObject;
+  old: OpenAPIV3.ParameterObject;
+};
+
+export type ParameterChanged = ParameterChangeBase & {
+  /**
+   * The parameter has changed
+   */
+  changed: true;
+
+  /**
+   * The parameter in the old specification
+   */
+  old: OpenAPIV3.ParameterObject;
+
   /**
    * The parameter in the new specification
    */
-  to: OpenAPIV3.ParameterObject;
-}
+  new: OpenAPIV3.ParameterObject;
+};
 
-export interface ChangedResponses {
+export type ResponseBreakingChange = ResponseRemoved | ResponseChanged;
+
+export type ResponseRemoved = ResponseChangeBase & {
   /**
-   * The path of the operation where the response that has changed
+   * The response has been removed
    */
-  path: string;
+  removed: true;
 
-  /**
-   * The method of the operation where the response that has changed
-   */
-  method: HttpMethod;
-
-  /**
-   * The responses that are changed between the old specification and the new specification
-   */
-  changes: ChangedResponse[];
-}
-
-export interface ChangedResponse {
   /**
    * The response in the old specification
    */
-  from: OpenAPIV3.ResponseObject;
+  old: OpenAPIV3.ResponseObject;
+};
+
+export type ResponseChanged = ResponseChangeBase & {
+  /**
+   * The response has not been removed
+   */
+  changed: true;
+
+  /**
+   * The response in the old specification
+   */
+  old: OpenAPIV3.ResponseObject;
 
   /**
    * The response in the new specification
    */
-  to: OpenAPIV3.ResponseObject;
+  new: OpenAPIV3.ResponseObject;
+};
+
+export type NonBreakingDiffs = OperationNonBreakingDiff[];
+
+export type OperationNonBreakingDiff = OperationAdded | OperationChanged;
+
+export type OperationAdded = OperationChangeBase & {
+  /**
+   * The operation has been added
+   */
+  added: true;
+
+  /**
+   * The operation in the new specification
+   */
+  new: OpenAPIV3.OperationObject;
+};
+
+export type OperationChanged = OperationChangeBase & {
+  /**
+   * Has the operation been deprecated
+   */
+  changed: true;
+
+  /**
+   * Has the operation been deprecated
+   */
+  deprecated: boolean;
+
+  /**
+   * The parameters that have changed
+   */
+  parameters: ParameterChange[];
+
+  /**
+   * The responses that have changed
+   */
+  responses: ResponseChange[];
+
+  /**
+   * The operation in the old specification
+   */
+  old: OpenAPIV3.OperationObject;
+
+  /**
+   * The operation in the new specification
+   */
+  new: OpenAPIV3.OperationObject;
+};
+
+export type ParameterChange = ParameterAdded | ParameterDeprecated;
+
+export type ParameterAdded = ParameterChangeBase & {
+  /**
+   * The parameter has been added
+   */
+  added: true;
+
+  /**
+   * The parameter in the new specification
+   */
+  new: OpenAPIV3.ParameterObject;
+};
+
+export type ParameterDeprecated = ParameterChangeBase & {
+  /**
+   * The parameter has been deprecated
+   */
+  deprecated: true;
+
+  /**
+   * The parameter in the old specification
+   */
+  old: OpenAPIV3.ParameterObject;
+
+  /**
+   * The parameter in the new specification
+   */
+  new: OpenAPIV3.ParameterObject;
+};
+
+export type ResponseChange = ResponseAdded;
+
+export type ResponseAdded = ResponseChangeBase & {
+  /**
+   * The parameter has been added
+   */
+  added: true;
+
+  /**
+   * The parameter in the new specification
+   */
+  new: OpenAPIV3.ResponseObject;
+};
+
+export interface OperationChangeBase {
+  /**
+   * The path of the operation that has changed
+   */
+  path: string;
+
+  /**
+   * The method of the operation that has changed
+   */
+  method: HttpMethod;
 }
 
-export interface NonBreakingDiffs {
+export interface ParameterChangeBase {
   /**
-   * Are there any non-breaking changes
+   * The name of the parameter
    */
-  any: boolean;
-
-  /**
-   * The objects that are present in the new specification but not in the old specification
-   */
-  added: {
-    /**
-     * Are there any objects added
-     */
-    any: boolean;
-
-    /**
-     * The operations that are present in the new specification but not in the old specification
-     */
-    operations: AddedOperation[];
-
-    /**
-     * The parameters that are present in the new specification but not in the old specification
-     */
-    parameters: AddedParameters[];
-
-    /**
-     * The responses that are present in the new specification but not in the old specification
-     */
-    responses: AddedResponses[];
-  };
-
-  /**
-   * The objects that are deprecated in the new specification but not in the old specification
-   */
-  deprecated: {
-    /**
-     * Are there any objects deprecated
-     */
-    any: boolean;
-
-    /**
-     * The operations that are deprecated in the new specification but not in the old specification
-     */
-    operations: DeprecatedOperation[];
-
-    /**
-     * The parameters that are deprecated in the new specification but not in the old specification
-     */
-    parameters: DeprecatedParameters[];
-  };
+  name: string;
 }
 
-export type AddedOperation = {
+export interface ResponseChangeBase {
   /**
-   * The path of the operation that is added
+   * The http status code of the response
    */
-  path: string;
-
-  /**
-   * The method of the operation that is added
-   */
-  method: HttpMethod;
-} & OpenAPIV3.OperationObject;
-
-export interface AddedParameters {
-  /**
-   * The path of the operation where the parameters that are added
-   */
-  path: string;
-
-  /**
-   * The method of the operation where the parameters that are added
-   */
-  method: HttpMethod;
-
-  /**
-   * The parameters that are added
-   */
-  parameters: OpenAPIV3.ParameterObject[];
-}
-
-export interface AddedResponses {
-  /**
-   * The path of the operation where the responses that are added
-   */
-  path: string;
-
-  /**
-   * The method of the operation where the responses that are added
-   */
-  method: HttpMethod;
-
-  /**
-   * The responses that are added
-   */
-  responses: AddedResponse[];
-}
-
-export type AddedResponse = { code: string } & OpenAPIV3.ResponseObject;
-
-export type DeprecatedOperation = {
-  /**
-   * The path of the operation that is deprecated
-   */
-  path: string;
-
-  /**
-   * The method of the operation that is deprecated
-   */
-  method: HttpMethod;
-} & OpenAPIV3.OperationObject;
-
-export interface DeprecatedParameters {
-  /**
-   * The path of the operation where the parameters that are deprecated
-   */
-  path: string;
-
-  /**
-   * The method of the operation where the parameters that are deprecated
-   */
-  method: HttpMethod;
-
-  /**
-   * The parameters that are deprecated
-   */
-  parameters: OpenAPIV3.ParameterObject[];
+  code: string;
 }
 
 export const HttpMethods = ["get", "put", "post", "delete", "options", "head", "patch", "trace"] as const;

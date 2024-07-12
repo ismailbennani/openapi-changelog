@@ -77,7 +77,8 @@
         "tags": [
           "TestApi"
         ],
-        "operationId": "Delete the weather forecast",
+        "description": "Delete the weather forecast",
+        "operationId": "DeleteWeatherForecast",
         "requestBody": {
           "content": {
             "application/json": {

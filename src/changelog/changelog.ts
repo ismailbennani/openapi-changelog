@@ -11,6 +11,10 @@ export async function changelog(diff: DiffResponse): Promise<string> {
     return str.toUpperCase();
   });
 
+  Handlebars.registerHelper("pad", function (str: string, amount: number) {
+    return str.length >= amount ? str : " ".repeat(amount - str.length) + str;
+  });
+
   const template = Handlebars.compile(templateContent, { noEscape: true });
   return template(diff);
 }

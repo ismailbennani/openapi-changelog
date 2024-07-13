@@ -2,19 +2,16 @@
 
 ## Examples
 
-From [examples/weather-v1.0.0.openapi.json](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/weather-v1.0.0.openapi.json)\
-To [examples/weather-v1.1.0.openapi.json](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/weather-v1.1.0.openapi.json)
+### [OpenAI v1.3](https://github.com/openai/openai-openapi/releases/tag/1.3.0) to [OpenAI v2](https://github.com/openai/openai-openapi/releases/tag/2.0.0)
 
 ```
-Version 1.1.0 - MINOR
+> openapi-changelog examples/openapi-v1.3.0.yaml examples/openapi-v2.0.0.yaml
+Version 2.0.0 - MAJOR
 
-> Changes
-  - Added operation DELETE /weatherforecast
-    Delete the weather forecast
-    -> Responses: 
-      - 400: Bad Request
-  - In operation GET /weatherforecast
-    - Added parameter from
-    - Added parameter to
-    - Added response 400
+> BREAKING CHANGES
+  - Removed operation GET /engines
+  - Removed operation GET /engines/{engine_id}
+  - Removed operation POST /engines/{engine_id}/search
+  - Removed operation POST /answers
+  - Removed operation POST /classifications
 ```

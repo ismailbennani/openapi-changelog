@@ -1,4 +1,3 @@
-import { readFile } from "node:fs/promises";
 import { DiffResponse, HttpMethod, OperationBreakingChange, OperationBreakingDiff, OperationChanged, OperationNonBreakingDiff } from "./types.js";
 import { OpenAPIV3 } from "openapi-types";
 import * as util from "node:util";

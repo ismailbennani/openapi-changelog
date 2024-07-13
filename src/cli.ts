@@ -7,8 +7,6 @@ import * as util from "node:util";
 import fs, { readFile } from "node:fs/promises";
 import { diff as diffFn } from "./diff/diff.js";
 import { changelog as changelogFn } from "./changelog/changelog.js";
-import { OpenAPIV3 } from "openapi-types";
-import { OpenapiChangelog } from "./index";
 
 winston.add(new winston.transports.Console({ format: format.combine(format.colorize(), format.simple()), stderrLevels: ["error", "warn", "info"], level: "info" }));
 
@@ -57,16 +55,21 @@ await yargsInstance
       const oldSpec = await readFile(args.old_openapi_spec, "utf8");
       const newSpec = await readFile(args.new_openapi_spec, "utf8");
 
-      const differences = OpenapiChangelog.diff(oldSpec, newSpec);
-      const changelog = args.diff === true ? JSON.stringify(differences, null, 2) : await changelogFn(differences);
+      let result: string;
+      if (args.diff === true) {
+        const differences = diffFn(oldSpec, newSpec);
+        result = JSON.stringify(differences, null, 2);
+      } else {
+        result = await changelogFn(oldSpec, newSpec);
+      }
 
       if (args.output !== undefined) {
         winston.info(`Writing result to ${args.output}`);
-        await fs.writeFile(args.output, changelog, { encoding: "utf8", flag: "w" });
+        await fs.writeFile(args.output, result, { encoding: "utf8", flag: "w" });
         winston.info(`Done.`);
       } else {
         winston.info(`Writing output below\n`);
-        process.stdout.write(changelog);
+        process.stdout.write(result);
       }
     },
   )

@@ -5,7 +5,7 @@
 ### [OpenAI v1.3](https://github.com/openai/openai-openapi/releases/tag/1.3.0) to [OpenAI v2](https://github.com/openai/openai-openapi/releases/tag/2.0.0)
 
 ```
-> openapi-changelog examples/openapi-v1.3.0.yaml examples/openapi-v2.0.0.yaml
+> openapi-changelog examples/openai/v1.3.0.yaml examples/v2.0.0.yaml
 Version 2.0.0 - MAJOR
 
 > BREAKING CHANGES

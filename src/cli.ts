@@ -7,8 +7,8 @@ import * as util from "node:util";
 import fs, { readFile } from "node:fs/promises";
 import { diff as diffFn } from "./diff/diff.js";
 import { changelog as changelogFn } from "./changelog/changelog.js";
-
-winston.add(new winston.transports.Console({ format: format.combine(format.colorize(), format.simple()), stderrLevels: ["error", "warn", "info"], level: "info" }));
+import { OpenAPIV3 } from "openapi-types";
+import { load } from "js-yaml";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -41,9 +41,12 @@ await yargsInstance
         .alias("o", "output")
         .describe("output", "Write the result to the corresponding file instead of stdout")
         .group("output", "Changelog options")
-        .string("verbose")
-        .describe("verbose", "Print more stuff")
+        .boolean("verbose")
+        .describe("verbose", "Log stuff")
         .group("verbose", "Common options")
+        .string("debug")
+        .describe("debug", "Log debug information to log file")
+        .group("debug", "Common options")
         .help("h")
         .alias("h", "help")
         .group("help", "Common options")
@@ -52,8 +55,8 @@ await yargsInstance
     async (args) => {
       winston.info(`Computing diff\n\tfrom:\t ${args.old_openapi_spec}\n\tto:\t ${args.new_openapi_spec}`);
 
-      const oldSpec = await readFile(args.old_openapi_spec, "utf8");
-      const newSpec = await readFile(args.new_openapi_spec, "utf8");
+      const oldSpec = await parseOpenapiSpecFile(args.old_openapi_spec);
+      const newSpec = await parseOpenapiSpecFile(args.new_openapi_spec);
 
       let result: string;
       if (args.diff === true) {
@@ -75,11 +78,37 @@ await yargsInstance
   )
   .parse();
 
-function verboseMiddleware(args: ArgumentsCamelCase<{ verbose: string | undefined }>): void {
-  if (args.verbose !== undefined) {
-    const fileName = args.verbose === "" ? "debug.log" : args.verbose;
+function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; debug: string | undefined }>): void {
+  const consoleTransport = new winston.transports.Console({
+    format: format.combine(format.colorize(), format.simple()),
+    // If output is not set, the output is stdout so we need to log everything to stderr instead of stdout
+    stderrLevels: args.output === undefined ? ["error", "warn", "info"] : ["error", "warn"],
+    level: "info",
+  });
+  winston.add(consoleTransport);
+
+  if (args.verbose !== true) {
+    consoleTransport.silent = true;
+  }
+
+  if (args.debug !== undefined) {
+    const fileName = args.debug === "" ? "debug.log" : args.debug;
     winston.info(`Verbose: writing debug logs to ${fileName}`);
     winston.add(new winston.transports.File({ filename: fileName, format: format.combine(format.uncolorize(), format.simple()), level: "debug", options: { flags: "w" } }));
     winston.debug(`ARGS: ${util.inspect(args, false, null, true)}`);
   }
+}
+
+async function parseOpenapiSpecFile(path: string): Promise<OpenAPIV3.Document> {
+  if (path.endsWith(".yml") || path.endsWith(".yaml")) {
+    const specContent = await readFile(path, "utf8");
+    return load(specContent) as OpenAPIV3.Document;
+  }
+
+  if (path.endsWith(".json")) {
+    const specContent = await readFile(path, "utf8");
+    return JSON.parse(specContent) as OpenAPIV3.Document;
+  }
+
+  throw new Error("Invalid file format, expected JSON or YAML");
 }

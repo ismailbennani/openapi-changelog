@@ -3,8 +3,9 @@ import path from "node:path";
 import fs from "node:fs/promises";
 import Handlebars from "handlebars";
 import { diff } from "../diff/diff.js";
+import { OpenAPIV3 } from "openapi-types";
 
-export function changelog(oldSpec: string, newSpec: string): Promise<string> {
+export function changelog(oldSpec: OpenAPIV3.Document, newSpec: OpenAPIV3.Document): Promise<string> {
   const diffResult = diff(oldSpec, newSpec);
   return changelogInternal(diffResult);
 }

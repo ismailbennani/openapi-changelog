@@ -8,10 +8,7 @@ import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
 import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
 import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
 
-export function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Readonly<DiffResponse> {
-  const oldSpec = JSON.parse(oldOpenApiSpec) as OpenAPIV3.Document;
-  const newSpec = JSON.parse(newOpenApiSpec) as OpenAPIV3.Document;
-
+export function diff(oldSpec: OpenAPIV3.Document, newSpec: OpenAPIV3.Document): Readonly<DiffResponse> {
   const oldSpecIR = extractIntermediateRepresentation(oldSpec);
 
   winston.debug("==== OLD SPEC");

@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from "openapi-types";
 
-export interface DiffResponse {
+export interface OpenapiChangelogDiff {
   /**
    * The change in versions between the old and the new specifications
    */

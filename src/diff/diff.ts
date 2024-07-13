@@ -1,6 +1,6 @@
-import { DiffResponse, HttpMethod, OperationBreakingChange, OperationBreakingDiff, OperationChanged, OperationNonBreakingDiff } from "./types.js";
+import { OpenapiChangelogDiff, HttpMethod, OperationBreakingChange, OperationBreakingDiff, OperationChanged, OperationNonBreakingDiff } from "./types.js";
 import { OpenAPIV3 } from "openapi-types";
-import * as util from "node:util";
+import * as util from "util";
 import winston from "winston";
 import { extractIntermediateRepresentation } from "./intermediate-representation.js";
 import { extractVersionDiff } from "./version-diff.js";
@@ -8,7 +8,7 @@ import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
 import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
 import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
 
-export function diff(oldSpec: OpenAPIV3.Document, newSpec: OpenAPIV3.Document): Readonly<DiffResponse> {
+export function diff(oldSpec: OpenAPIV3.Document, newSpec: OpenAPIV3.Document): Readonly<OpenapiChangelogDiff> {
   const oldSpecIR = extractIntermediateRepresentation(oldSpec);
 
   winston.debug("==== OLD SPEC");

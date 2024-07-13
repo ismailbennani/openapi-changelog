@@ -1,5 +1,5 @@
 import { IntermediateRepresentation } from "./intermediate-representation";
-import { isDeepStrictEqual } from "node:util";
+import { isDeepStrictEqual } from "util";
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "./types";
 

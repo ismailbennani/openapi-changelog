@@ -1,6 +1,6 @@
 import { IntermediateRepresentation } from "./intermediate-representation";
 import { OpenAPIV3 } from "openapi-types";
-import { isDeepStrictEqual } from "node:util";
+import { isDeepStrictEqual } from "util";
 import { HttpMethod } from "./types";
 
 export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): ParameterDiff[] {

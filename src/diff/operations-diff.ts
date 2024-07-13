@@ -1,7 +1,7 @@
 import { IntermediateRepresentation } from "./intermediate-representation.js";
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "./types";
-import { isDeepStrictEqual } from "node:util";
+import { isDeepStrictEqual } from "util";
 
 export function extractOperationsDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): OperationDiff[] {
   const result: OperationDiff[] = [];

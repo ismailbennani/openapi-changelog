@@ -3,18 +3,18 @@ import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
-import * as util from "node:util";
 import fs, { readFile } from "node:fs/promises";
 import { diff as diffFn } from "./diff/diff.js";
 import { changelog as changelogFn } from "./changelog/changelog.js";
 import { OpenAPIV3 } from "openapi-types";
 import { load } from "js-yaml";
+import { inspect } from "util";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
 const maxWidth = 140;
 
-await yargsInstance
+void yargsInstance
   .wrap(terminalWidth > maxWidth ? maxWidth : terminalWidth)
   .scriptName("openapi-changelog")
   .usage(
@@ -63,7 +63,7 @@ await yargsInstance
         const differences = diffFn(oldSpec, newSpec);
         result = JSON.stringify(differences, null, 2);
       } else {
-        result = await changelogFn(oldSpec, newSpec);
+        result = changelogFn(oldSpec, newSpec);
       }
 
       if (args.output !== undefined) {
@@ -95,7 +95,7 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
     const fileName = args.debug === "" ? "debug.log" : args.debug;
     winston.info(`Verbose: writing debug logs to ${fileName}`);
     winston.add(new winston.transports.File({ filename: fileName, format: format.combine(format.uncolorize(), format.simple()), level: "debug", options: { flags: "w" } }));
-    winston.debug(`ARGS: ${util.inspect(args, false, null, true)}`);
+    winston.debug(`ARGS: ${inspect(args, false, null, true)}`);
   }
 }
 

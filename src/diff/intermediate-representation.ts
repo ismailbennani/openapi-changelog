@@ -3,15 +3,23 @@ import { HttpMethod, isHttpMethod } from "./types.js";
 import winston from "winston";
 
 export function extractIntermediateRepresentation(spec: OpenAPIV3.Document): IntermediateRepresentation {
+  const { operations, operationParameters, operationResponses } = extractOperations(spec);
+
   return {
     title: spec.info.title,
     version: spec.info.version,
-    operations: extractOperations(spec),
+    operations,
+    operationParameters,
+    operationResponses,
+    parameters: extractParameters(spec),
+    schemas: extractSchemas(spec),
   };
 }
 
-function extractOperations(spec: OpenAPIV3.Document): Operation[] {
-  const result: Operation[] = [];
+function extractOperations(spec: OpenAPIV3.Document): { operations: Operation[]; operationParameters: OperationParameter[]; operationResponses: OperationResponse[] } {
+  const operations: Operation[] = [];
+  const operationParameters: OperationParameter[] = [];
+  const operationResponses: OperationResponse[] = [];
 
   for (let [path, methods] of Object.entries(spec.paths)) {
     if (!methods || isReferenceObject(methods)) {
@@ -25,19 +33,26 @@ function extractOperations(spec: OpenAPIV3.Document): Operation[] {
       }
 
       operation = operation as OpenAPIV3.OperationObject;
-      result.push({ path, method, parameters: extractParameters(spec, path, method, operation), responses: extractResponses(spec, path, method, operation), value: operation });
+      operations.push({
+        path,
+        method,
+        value: operation,
+      });
+
+      operationParameters.push(...extractOperationParameters(spec, path, method, operation));
+      operationResponses.push(...extractOperationResponses(spec, path, method, operation));
     }
   }
 
-  return result;
+  return { operations, operationParameters, operationResponses };
 }
 
-function extractParameters(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): Parameter[] {
+function extractOperationParameters(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): OperationParameter[] {
   if (!operation.parameters) {
     return [];
   }
 
-  const result: Parameter[] = [];
+  const result: OperationParameter[] = [];
 
   for (const parameter of operation.parameters) {
     const evaluatedParameter = evaluateParameter(spec, parameter);
@@ -52,12 +67,12 @@ function extractParameters(spec: OpenAPIV3.Document, path: string, method: strin
   return result;
 }
 
-function extractResponses(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): Response[] {
+function extractOperationResponses(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): OperationResponse[] {
   if (!operation.responses) {
     return [];
   }
 
-  const result: Response[] = [];
+  const result: OperationResponse[] = [];
 
   for (const [code, response] of Object.entries(operation.responses)) {
     const evaluatedResponse = evaluateResponse(spec, response);
@@ -72,30 +87,84 @@ function extractResponses(spec: OpenAPIV3.Document, path: string, method: string
   return result;
 }
 
+function extractParameters(spec: OpenAPIV3.Document) {
+  if (!spec.components?.parameters) {
+    return [];
+  }
+
+  const result: NamedParameter[] = [];
+
+  for (const [name, parameter] of Object.entries(spec.components.parameters)) {
+    const evaluatedParameter = evaluateParameter(spec, parameter);
+    if (!evaluatedParameter) {
+      winston.warn(`At parameter ${name}: could not evaluate parameter ${JSON.stringify(parameter)}`);
+      continue;
+    }
+
+    result.push({ name, value: parameter, actualValue: evaluatedParameter });
+  }
+
+  return result;
+}
+
+function extractSchemas(spec: OpenAPIV3.Document) {
+  if (!spec.components?.schemas) {
+    return [];
+  }
+
+  const result: Schema[] = [];
+
+  for (const [name, schema] of Object.entries(spec.components.schemas)) {
+    const evaluatedSchema = evaluateSchema(spec, schema);
+    if (!evaluatedSchema) {
+      winston.warn(`At parameter ${name}: could not evaluate parameter ${JSON.stringify(schema)}`);
+      continue;
+    }
+
+    result.push({ name, value: schema, actualValue: evaluatedSchema });
+  }
+
+  return result;
+}
+
 export interface IntermediateRepresentation {
   title: string;
   version: string;
   operations: Operation[];
+  operationParameters: OperationParameter[];
+  operationResponses: OperationResponse[];
+  parameters: NamedParameter[];
+  schemas: Schema[];
 }
 
 export interface Operation {
   path: string;
   method: HttpMethod;
-  parameters: Parameter[];
-  responses: Response[];
   value: OpenAPIV3.OperationObject;
 }
 
-export interface Parameter {
+export interface OperationParameter {
   name: string;
   value: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject;
   actualValue: OpenAPIV3.ParameterObject;
 }
 
-export interface Response {
+export interface OperationResponse {
   code: string;
   value: OpenAPIV3.ReferenceObject | OpenAPIV3.ResponseObject;
   actualValue: OpenAPIV3.ResponseObject;
+}
+
+export interface NamedParameter {
+  name: string;
+  value: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
+  actualValue: OpenAPIV3.ParameterObject;
+}
+
+export interface Schema {
+  name: string;
+  value: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject;
+  actualValue: OpenAPIV3.SchemaObject;
 }
 
 function evaluateParameter(spec: OpenAPIV3.Document, parameter: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject): OpenAPIV3.ParameterObject | undefined {
@@ -124,6 +193,20 @@ function evaluateResponse(spec: OpenAPIV3.Document, response: OpenAPIV3.Referenc
   }
 
   return response;
+}
+
+function evaluateSchema(spec: OpenAPIV3.Document, schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject): OpenAPIV3.SchemaObject | undefined {
+  if (isReferenceObject(schema)) {
+    const name = schema.$ref;
+    const refOrSchema = spec.components?.schemas?.[name];
+    if (!refOrSchema) {
+      return undefined;
+    }
+
+    return evaluateSchema(spec, refOrSchema);
+  }
+
+  return schema;
 }
 
 function isReferenceObject(obj: object): obj is { $ref: string } {

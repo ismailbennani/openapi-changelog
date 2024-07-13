@@ -12,8 +12,8 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
       continue;
     }
 
-    for (const parameter of operation.parameters) {
-      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name === parameter.name);
+    for (const parameter of oldSpec.operationParameters) {
+      const parameterInNewSpec = newSpec.operationParameters.find((p) => p.name === parameter.name);
 
       if (!parameterInNewSpec) {
         result.push({
@@ -38,8 +38,8 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
       continue;
     }
 
-    for (const parameter of operation.parameters) {
-      const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name === parameter.name);
+    for (const parameter of oldSpec.operationParameters) {
+      const parameterInNewSpec = newSpec.operationParameters.find((p) => p.name === parameter.name);
 
       if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
         if (parameterInNewSpec.actualValue.deprecated === true && parameter.actualValue.deprecated !== true) {
@@ -83,8 +83,8 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
       continue;
     }
 
-    for (const parameter of operation.parameters) {
-      const parameterInOldSpec = operationInOldSpec.parameters.find((p) => p.name === parameter.name);
+    for (const parameter of newSpec.operationParameters) {
+      const parameterInOldSpec = oldSpec.operationParameters.find((p) => p.name === parameter.name);
       if (!parameterInOldSpec) {
         result.push({
           path: operation.path,

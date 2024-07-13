@@ -12,8 +12,8 @@ export function extractResponsesDiff(oldSpec: IntermediateRepresentation, newSpe
       continue;
     }
 
-    for (const response of operation.responses) {
-      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code === response.code);
+    for (const response of oldSpec.operationResponses) {
+      const responseInNewSpec = newSpec.operationResponses.find((p) => p.code === response.code);
       if (!responseInNewSpec) {
         result.push({
           path: operation.path,
@@ -36,8 +36,8 @@ export function extractResponsesDiff(oldSpec: IntermediateRepresentation, newSpe
       continue;
     }
 
-    for (const response of operation.responses) {
-      const responseInNewSpec = operationInNewSpec.responses.find((p) => p.code === response.code);
+    for (const response of oldSpec.operationResponses) {
+      const responseInNewSpec = newSpec.operationResponses.find((p) => p.code === response.code);
 
       if (responseInNewSpec && !isDeepStrictEqual(response, responseInNewSpec)) {
         result.push({
@@ -62,8 +62,8 @@ export function extractResponsesDiff(oldSpec: IntermediateRepresentation, newSpe
       continue;
     }
 
-    for (const response of operation.responses) {
-      const responseInOldSpec = operationInOldSpec.responses.find((p) => p.code === response.code);
+    for (const response of newSpec.operationResponses) {
+      const responseInOldSpec = oldSpec.operationResponses.find((p) => p.code === response.code);
       if (!responseInOldSpec) {
         result.push({
           path: operation.path,

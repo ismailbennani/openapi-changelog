@@ -4,12 +4,19 @@ import { diff } from "../diff/diff.js";
 import { OpenAPIV3 } from "openapi-types";
 import * as fs from "fs";
 
-export function changelog(...specs: OpenAPIV3.Document[]): string {
-  const diffResult = diff(...specs);
-  return changelogInternal(...diffResult.map((d) => d.diff));
+export interface OpenapiChangelogOptions {
+  template?: string;
 }
 
-function changelogInternal(...diffs: OpenapiChangelogDiff[]): string {
+export function changelog(specs: OpenAPIV3.Document[], options?: OpenapiChangelogOptions): string {
+  const diffResult = diff(...specs);
+  return changelogInternal(
+    diffResult.map((d) => d.diff),
+    options,
+  );
+}
+
+function changelogInternal(diffs: OpenapiChangelogDiff[], options?: OpenapiChangelogOptions): string {
   Handlebars.registerHelper("upper", function (str: string) {
     return str.toUpperCase();
   });
@@ -18,7 +25,8 @@ function changelogInternal(...diffs: OpenapiChangelogDiff[]): string {
     return str.length >= amount ? str : " ".repeat(amount - str.length) + str;
   });
 
-  const simpleTemplate = fs.readFileSync(`${import.meta.dirname}/templates/simple.hbs`, "utf8");
+  const templatePath = options?.template ?? `${import.meta.dirname}/templates/simple.hbs`;
+  const simpleTemplate = fs.readFileSync(templatePath, "utf8");
   const template = Handlebars.compile(simpleTemplate, { noEscape: true });
 
   let result = "";

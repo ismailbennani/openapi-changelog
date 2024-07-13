@@ -34,6 +34,10 @@ void yargsInstance
           type: "boolean",
           describe: "Output a JSON containing the differences between the two specifications instead of a nicely formatted changelog",
         })
+        .option("template", {
+          type: "string",
+          describe: "Handlebars template to use to generate the changelog",
+        })
         .option("output", {
           alias: "o",
           type: "string",
@@ -77,7 +81,7 @@ void yargsInstance
         const differences = diff(...specs);
         result = JSON.stringify(differences, null, 2);
       } else {
-        result = changelog(...specs);
+        result = changelog(specs, { template: args.template });
       }
 
       if (args.output !== undefined) {

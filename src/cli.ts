@@ -38,6 +38,13 @@ void yargsInstance
           type: "string",
           describe: "Handlebars template to use to generate the changelog",
         })
+        .option("limit", {
+          alias: "n",
+          type: "number",
+          describe:
+            "Max number of versions to consider when computing changelog. " +
+            "The limit will be applied AFTER sorting the versions, the changelog will contain the N most recent versions.",
+        })
         .option("output", {
           alias: "o",
           type: "string",
@@ -76,12 +83,15 @@ void yargsInstance
         }
       }
 
+      const diffOptions = { limit: args.limit };
+
       let result: string;
       if (args.diff === true) {
-        const differences = diff(...specs);
+        const differences = diff(specs, diffOptions);
         result = JSON.stringify(differences, null, 2);
       } else {
-        result = changelog(specs, { template: args.template });
+        const changelogOptions = { ...diffOptions, template: args.template };
+        result = changelog(specs, changelogOptions);
       }
 
       if (args.output !== undefined) {

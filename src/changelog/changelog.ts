@@ -1,15 +1,15 @@
 import { OpenapiChangelogDiff } from "../diff/types";
 import Handlebars from "handlebars";
-import { diff } from "../diff/diff.js";
+import { diff, OpenapiDiffOptions } from "../diff/diff.js";
 import { OpenAPIV3 } from "openapi-types";
 import * as fs from "fs";
 
-export interface OpenapiChangelogOptions {
+export interface OpenapiChangelogOptions extends OpenapiDiffOptions {
   template?: string;
 }
 
 export function changelog(specs: OpenAPIV3.Document[], options?: OpenapiChangelogOptions): string {
-  const diffResult = diff(...specs);
+  const diffResult = diff(specs, options);
   return changelogInternal(
     diffResult.map((d) => d.diff),
     options,

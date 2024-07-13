@@ -9,9 +9,20 @@ import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
 import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
 import semver from "semver";
 
-export function diff(...specs: OpenAPIV3.Document[]): readonly { old: OpenAPIV3.Document; new: OpenAPIV3.Document; diff: OpenapiChangelogDiff }[] {
+export interface OpenapiDiffOptions {
+  limit?: number;
+}
+
+export function diff(specs: OpenAPIV3.Document[], options?: OpenapiDiffOptions): readonly { old: OpenAPIV3.Document; new: OpenAPIV3.Document; diff: OpenapiChangelogDiff }[] {
   if (specs.length < 2) {
     throw new Error("Expected at least two specifications");
+  }
+
+  specs.sort((a, b) => -semver.compareBuild(a.info.version, b.info.version, { loose: true }));
+
+  if (options?.limit !== undefined && specs.length > options.limit) {
+    winston.info(`Changelog limit set to ${options.limit}, dropping last ${specs.length - options.limit} versions.`);
+    specs = specs.slice(0, options.limit);
   }
 
   winston.info("Computing differences...");
@@ -26,8 +37,6 @@ export function diff(...specs: OpenAPIV3.Document[]): readonly { old: OpenAPIV3.
     winston.debug(util.inspect(specIR, false, null, true));
     winston.debug("");
   }
-
-  specIRs.sort((a, b) => -semver.compareBuild(a.version, b.version, { loose: true }));
 
   winston.info("Found specifications:");
   for (const spec of specIRs) {

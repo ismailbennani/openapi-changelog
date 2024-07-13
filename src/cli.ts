@@ -34,23 +34,38 @@ void yargsInstance
           demandOption: true,
           normalize: true,
         })
-        .boolean("diff")
-        .describe("diff", "Output a JSON containing the differences between the two specifications instead of a nicely formatted changelog")
-        .group("diff", "Diff options")
-        .string("output")
-        .alias("o", "output")
-        .describe("output", "Write the result to the corresponding file instead of stdout")
-        .group("output", "Changelog options")
-        .boolean("verbose")
-        .describe("verbose", "Log stuff")
-        .group("verbose", "Common options")
-        .string("debug")
-        .describe("debug", "Log debug information to log file")
-        .group("debug", "Common options")
-        .help("h")
-        .alias("h", "help")
-        .group("help", "Common options")
-        .group("version", "Common options")
+        .option("diff", {
+          type: "boolean",
+          describe: "Output a JSON containing the differences between the two specifications instead of a nicely formatted changelog",
+        })
+        .option("output", {
+          alias: "o",
+          type: "string",
+          default: undefined,
+          describe: "Write the result to the corresponding file instead of stdout",
+          global: true,
+        })
+        .option("verbose", {
+          alias: "v",
+          type: "boolean",
+          default: false,
+          describe: "Log stuff",
+          global: true,
+        })
+        .option("debug", {
+          alias: "D",
+          type: "string",
+          default: undefined,
+          describe: "Log debug information to log file (default: debug.log)",
+          global: true,
+        })
+        .option("help", {
+          alias: "h",
+          global: true,
+        })
+        .option("version", {
+          global: true,
+        })
         .middleware([verboseMiddleware]),
     async (args) => {
       winston.info(`Computing diff\n\tfrom:\t ${args.old_openapi_spec}\n\tto:\t ${args.new_openapi_spec}`);

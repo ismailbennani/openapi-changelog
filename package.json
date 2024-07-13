@@ -15,7 +15,8 @@
   "main": "dist/index.js",
   "bin": "dist/cli.js",
   "scripts": {
-    "build": "rimraf dist & tsup"
+    "build": "rimraf dist & tsup --config tsup.config.ts",
+    "pack": "rimraf dist & tsup --config tsup.pack.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",

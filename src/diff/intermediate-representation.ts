@@ -45,7 +45,7 @@ function extractParameters(spec: OpenAPIV3.Document, path: string, method: strin
       continue;
     }
 
-    result.push({ name: evaluatedParameter.name, value: evaluatedParameter });
+    result.push({ name: evaluatedParameter.name, value: parameter, actualValue: evaluatedParameter });
   }
 
   return result;
@@ -65,7 +65,7 @@ function extractResponses(spec: OpenAPIV3.Document, path: string, method: string
       continue;
     }
 
-    result.push({ code, value: evaluatedResponse });
+    result.push({ code, value: response, actualValue: evaluatedResponse });
   }
 
   return result;
@@ -86,12 +86,14 @@ export interface Operation {
 
 export interface Parameter {
   name: string;
-  value: OpenAPIV3.ParameterObject;
+  value: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject;
+  actualValue: OpenAPIV3.ParameterObject;
 }
 
 export interface Response {
   code: string;
-  value: OpenAPIV3.ResponseObject;
+  value: OpenAPIV3.ReferenceObject | OpenAPIV3.ResponseObject;
+  actualValue: OpenAPIV3.ResponseObject;
 }
 
 function evaluateParameter(spec: OpenAPIV3.Document, parameter: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject): OpenAPIV3.ParameterObject | undefined {

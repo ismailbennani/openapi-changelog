@@ -22,7 +22,7 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
           name: parameter.name,
           oldOperation: operation.value,
           newOperation: operationInNewSpec.value,
-          old: parameter.value,
+          old: parameter.actualValue,
           added: false,
           changed: false,
           deprecated: false,
@@ -42,15 +42,15 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
       const parameterInNewSpec = operationInNewSpec.parameters.find((p) => p.name === parameter.name);
 
       if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
-        if (parameterInNewSpec.value.deprecated === true && parameter.value.deprecated !== true) {
+        if (parameterInNewSpec.actualValue.deprecated === true && parameter.actualValue.deprecated !== true) {
           result.push({
             path: operation.path,
             method: operation.method,
             name: parameter.name,
             oldOperation: operation.value,
             newOperation: operationInNewSpec.value,
-            old: parameter.value,
-            new: parameterInNewSpec.value,
+            old: parameter.actualValue,
+            new: parameterInNewSpec.actualValue,
             added: false,
             changed: false,
             deprecated: true,
@@ -65,8 +65,8 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
             name: parameter.name,
             oldOperation: operation.value,
             newOperation: operationInNewSpec.value,
-            old: parameter.value,
-            new: parameterInNewSpec.value,
+            old: parameter.actualValue,
+            new: parameterInNewSpec.actualValue,
             added: false,
             changed: true,
             deprecated: false,
@@ -92,7 +92,7 @@ export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSp
           name: parameter.name,
           oldOperation: operationInOldSpec.value,
           newOperation: operation.value,
-          new: parameter.value,
+          new: parameter.actualValue,
           added: true,
           changed: false,
           deprecated: false,

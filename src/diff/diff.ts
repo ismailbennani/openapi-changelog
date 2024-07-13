@@ -2,12 +2,12 @@ import { HttpMethod, OpenapiChangelogDiff, OperationBreakingChange, OperationBre
 import { OpenAPIV3 } from "openapi-types";
 import * as util from "util";
 import winston from "winston";
+import semver from "semver";
 import { extractIntermediateRepresentation } from "./intermediate-representation.js";
 import { extractVersionDiff } from "./version-diff.js";
 import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
 import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
 import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
-import semver from "semver";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -50,41 +50,20 @@ export function diff(specs: OpenAPIV3.Document[], options?: OpenapiDiffOptions):
     const oldSpecIR = specIRs[i];
     const newSpecIR = specIRs[i + 1];
 
-    winston.debug(`== DIFFS ${oldSpec.info.title} v${oldSpec.info.version} -> ${newSpec.info.title} v${newSpec.info.version}`);
-
     const versionDiffs = extractVersionDiff(oldSpecIR, newSpecIR);
+    const operationDiffs = extractOperationsDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
+    const parameterDiffs = extractParametersDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
+    const responseDiffs = extractResponsesDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
 
-    winston.debug("==== VERSION DIFFS");
-    winston.debug(util.inspect(versionDiffs, false, null, true));
-    winston.debug("");
-
-    const operationDiffs = extractOperationsDiff(oldSpecIR, newSpecIR);
-
-    winston.debug("==== OPERATION DIFFS");
-    winston.debug(util.inspect(operationDiffs, false, null, true));
-    winston.debug("");
-
-    const parameterDiffs = extractParametersDiff(oldSpecIR, newSpecIR);
-
-    winston.debug("==== PARAMETER DIFFS");
-    winston.debug(util.inspect(parameterDiffs, false, null, true));
-    winston.debug("");
-
-    const responseDiffs = extractResponsesDiff(oldSpecIR, newSpecIR);
-
-    winston.debug("==== RESPONSE DIFFS");
-    winston.debug(util.inspect(responseDiffs, false, null, true));
-    winston.debug("");
-
-    const diffs = transformDiffs(operationDiffs, parameterDiffs, responseDiffs);
+    const transformed = transformDiffs(operationDiffs, parameterDiffs, responseDiffs);
 
     result.push({
       old: oldSpec,
       new: newSpec,
       diff: {
         version: versionDiffs,
-        breaking: diffs.breaking,
-        nonBreaking: diffs.nonBreaking,
+        breaking: transformed.breaking,
+        nonBreaking: transformed.nonBreaking,
       },
     });
   }

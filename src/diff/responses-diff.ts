@@ -3,80 +3,75 @@ import { isDeepStrictEqual } from "util";
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "./types";
 
-export function extractResponsesDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): ResponseDiff[] {
+interface Input {
+  spec: OpenAPIV3.Document;
+  ir: IntermediateRepresentation;
+}
+
+export function extractResponsesDiff(oldSpec: Input, newSpec: Input): ResponseDiff[] {
   const result: ResponseDiff[] = [];
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const response of oldSpec.ir.operationResponses) {
+    const operationInOldSpec = newSpec.spec.paths[response.path]?.[response.method]!;
+    const operationInNewSpec = newSpec.spec.paths[response.path]?.[response.method];
     if (!operationInNewSpec) {
       continue;
     }
 
-    for (const response of oldSpec.operationResponses) {
-      const responseInNewSpec = newSpec.operationResponses.find((p) => p.code === response.code);
-      if (!responseInNewSpec) {
-        result.push({
-          path: operation.path,
-          method: operation.method,
-          code: response.code,
-          oldOperation: operation.value,
-          newOperation: operationInNewSpec.value,
-          old: response.actualValue,
-          added: false,
-          changed: false,
-          removed: true,
-        });
-      }
+    const responseInOldSpec = operationInOldSpec.responses[response.code];
+    const responseInNewSpec = operationInNewSpec.responses[response.code];
+
+    if (!responseInNewSpec) {
+      result.push({
+        path: response.path,
+        method: response.method,
+        code: response.code,
+        oldOperation: operationInOldSpec,
+        newOperation: operationInNewSpec,
+        old: responseInOldSpec,
+        added: false,
+        changed: false,
+        removed: true,
+      });
+    }
+
+    if (responseInNewSpec && !isDeepStrictEqual(response, responseInNewSpec)) {
+      result.push({
+        path: response.path,
+        method: response.method,
+        code: response.code,
+        oldOperation: operationInOldSpec,
+        newOperation: operationInNewSpec,
+        old: responseInOldSpec,
+        new: responseInNewSpec,
+        added: false,
+        changed: true,
+        removed: false,
+      });
     }
   }
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
-    if (!operationInNewSpec) {
-      continue;
-    }
-
-    for (const response of oldSpec.operationResponses) {
-      const responseInNewSpec = newSpec.operationResponses.find((p) => p.code === response.code);
-
-      if (responseInNewSpec && !isDeepStrictEqual(response, responseInNewSpec)) {
-        result.push({
-          path: operation.path,
-          method: operation.method,
-          code: response.code,
-          oldOperation: operation.value,
-          newOperation: operationInNewSpec.value,
-          old: response.actualValue,
-          new: responseInNewSpec.actualValue,
-          added: false,
-          changed: true,
-          removed: false,
-        });
-      }
-    }
-  }
-
-  for (const operation of newSpec.operations) {
-    const operationInOldSpec = oldSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const response of newSpec.ir.operationResponses) {
+    const operationInOldSpec = newSpec.spec.paths[response.path]?.[response.method];
+    const operationInNewSpec = newSpec.spec.paths[response.path]?.[response.method]!;
     if (!operationInOldSpec) {
       continue;
     }
 
-    for (const response of newSpec.operationResponses) {
-      const responseInOldSpec = oldSpec.operationResponses.find((p) => p.code === response.code);
-      if (!responseInOldSpec) {
-        result.push({
-          path: operation.path,
-          method: operation.method,
-          code: response.code,
-          oldOperation: operationInOldSpec.value,
-          newOperation: operation.value,
-          new: response.actualValue,
-          added: true,
-          changed: false,
-          removed: false,
-        });
-      }
+    const responseInOldSpec = operationInOldSpec.responses[response.code];
+    const responseInNewSpec = operationInNewSpec.responses[response.code];
+    if (!responseInOldSpec) {
+      result.push({
+        path: response.path,
+        method: response.method,
+        code: response.code,
+        oldOperation: operationInOldSpec,
+        newOperation: operationInNewSpec,
+        new: responseInNewSpec,
+        added: true,
+        changed: false,
+        removed: false,
+      });
     }
   }
 
@@ -95,7 +90,7 @@ export interface ResponseAdded {
   added: true;
   changed: false;
   removed: false;
-  new: OpenAPIV3.ResponseObject;
+  new: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject;
 }
 
 export interface ResponseChanged {
@@ -108,8 +103,8 @@ export interface ResponseChanged {
   added: false;
   changed: true;
   removed: false;
-  old: OpenAPIV3.ResponseObject;
-  new: OpenAPIV3.ResponseObject;
+  old: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject;
+  new: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject;
 }
 
 export interface ResponseRemoved {
@@ -122,5 +117,5 @@ export interface ResponseRemoved {
   added: false;
   changed: false;
   removed: true;
-  old: OpenAPIV3.ResponseObject;
+  old: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject;
 }

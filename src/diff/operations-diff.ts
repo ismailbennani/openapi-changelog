@@ -1,18 +1,23 @@
 import { IntermediateRepresentation } from "./intermediate-representation.js";
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "./types";
-import { isDeepStrictEqual } from "util";
 
-export function extractOperationsDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): OperationDiff[] {
+interface Input {
+  spec: OpenAPIV3.Document;
+  ir: IntermediateRepresentation;
+}
+
+export function extractOperationsDiff(oldSpec: Input, newSpec: Input): OperationDiff[] {
   const result: OperationDiff[] = [];
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const operation of oldSpec.ir.operations) {
+    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method]!;
+    const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method];
     if (!operationInNewSpec) {
       result.push({
         path: operation.path,
         method: operation.method,
-        old: operation.value,
+        old: operationInOldSpec,
         added: false,
         changed: false,
         deprecated: false,
@@ -21,18 +26,19 @@ export function extractOperationsDiff(oldSpec: IntermediateRepresentation, newSp
     }
   }
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const operation of oldSpec.ir.operations) {
+    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method]!;
+    const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method];
     if (!operationInNewSpec) {
       continue;
     }
 
-    if (operationInNewSpec.value.deprecated === true && operation.value.deprecated !== true) {
+    if (operationInNewSpec.deprecated === true && operationInOldSpec.deprecated !== true) {
       result.push({
         path: operation.path,
         method: operation.method,
-        old: operation.value,
-        new: operationInNewSpec.value,
+        old: operationInOldSpec,
+        new: operationInNewSpec,
         added: false,
         deprecated: true,
         removed: false,
@@ -40,14 +46,15 @@ export function extractOperationsDiff(oldSpec: IntermediateRepresentation, newSp
     }
   }
 
-  for (const operation of newSpec.operations) {
-    const operationInOldSpec = oldSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const operation of newSpec.ir.operations) {
+    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method];
+    const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method]!;
 
     if (!operationInOldSpec) {
       result.push({
         path: operation.path,
         method: operation.method,
-        new: operation.value,
+        new: operationInNewSpec,
         added: true,
         changed: false,
         deprecated: false,

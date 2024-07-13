@@ -34,9 +34,9 @@ function extractOperations(spec: OpenAPIV3.Document): { operations: Operation[];
 
       operation = operation as OpenAPIV3.OperationObject;
       operations.push({
+        key: `OPERATION_${method}_${path}`,
         path,
         method,
-        value: operation,
       });
 
       operationParameters.push(...extractOperationParameters(spec, path, method, operation));
@@ -47,7 +47,7 @@ function extractOperations(spec: OpenAPIV3.Document): { operations: Operation[];
   return { operations, operationParameters, operationResponses };
 }
 
-function extractOperationParameters(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): OperationParameter[] {
+function extractOperationParameters(spec: OpenAPIV3.Document, path: string, method: HttpMethod, operation: OpenAPIV3.OperationObject): OperationParameter[] {
   if (!operation.parameters) {
     return [];
   }
@@ -61,13 +61,18 @@ function extractOperationParameters(spec: OpenAPIV3.Document, path: string, meth
       continue;
     }
 
-    result.push({ name: evaluatedParameter.name, value: parameter, actualValue: evaluatedParameter });
+    result.push({
+      key: `OPERATION_${method}_${path}_${evaluatedParameter.name}`,
+      path,
+      method,
+      name: evaluatedParameter.name,
+    });
   }
 
   return result;
 }
 
-function extractOperationResponses(spec: OpenAPIV3.Document, path: string, method: string, operation: OpenAPIV3.OperationObject): OperationResponse[] {
+function extractOperationResponses(spec: OpenAPIV3.Document, path: string, method: HttpMethod, operation: OpenAPIV3.OperationObject): OperationResponse[] {
   if (!operation.responses) {
     return [];
   }
@@ -81,7 +86,12 @@ function extractOperationResponses(spec: OpenAPIV3.Document, path: string, metho
       continue;
     }
 
-    result.push({ code, value: response, actualValue: evaluatedResponse });
+    result.push({
+      key: `OPERATION_${method}_${path}_${code}`,
+      path,
+      method,
+      code,
+    });
   }
 
   return result;
@@ -92,7 +102,7 @@ function extractParameters(spec: OpenAPIV3.Document) {
     return [];
   }
 
-  const result: NamedParameter[] = [];
+  const result: Parameter[] = [];
 
   for (const [name, parameter] of Object.entries(spec.components.parameters)) {
     const evaluatedParameter = evaluateParameter(spec, parameter);
@@ -101,7 +111,10 @@ function extractParameters(spec: OpenAPIV3.Document) {
       continue;
     }
 
-    result.push({ name, value: parameter, actualValue: evaluatedParameter });
+    result.push({
+      key: `$PARAMETER_${evaluatedParameter.name}`,
+      name,
+    });
   }
 
   return result;
@@ -121,7 +134,10 @@ function extractSchemas(spec: OpenAPIV3.Document) {
       continue;
     }
 
-    result.push({ name, value: schema, actualValue: evaluatedSchema });
+    result.push({
+      key: `SCHEMA_${name}`,
+      name,
+    });
   }
 
   return result;
@@ -133,38 +149,38 @@ export interface IntermediateRepresentation {
   operations: Operation[];
   operationParameters: OperationParameter[];
   operationResponses: OperationResponse[];
-  parameters: NamedParameter[];
+  parameters: Parameter[];
   schemas: Schema[];
 }
 
 export interface Operation {
+  key: string;
   path: string;
   method: HttpMethod;
-  value: OpenAPIV3.OperationObject;
 }
 
 export interface OperationParameter {
+  key: string;
+  path: string;
+  method: HttpMethod;
   name: string;
-  value: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject;
-  actualValue: OpenAPIV3.ParameterObject;
 }
 
 export interface OperationResponse {
+  key: string;
+  path: string;
+  method: HttpMethod;
   code: string;
-  value: OpenAPIV3.ReferenceObject | OpenAPIV3.ResponseObject;
-  actualValue: OpenAPIV3.ResponseObject;
 }
 
-export interface NamedParameter {
+export interface Parameter {
+  key: string;
   name: string;
-  value: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
-  actualValue: OpenAPIV3.ParameterObject;
 }
 
 export interface Schema {
+  key: string;
   name: string;
-  value: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject;
-  actualValue: OpenAPIV3.SchemaObject;
 }
 
 function evaluateParameter(spec: OpenAPIV3.Document, parameter: OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject): OpenAPIV3.ParameterObject | undefined {

@@ -3,102 +3,97 @@ import { OpenAPIV3 } from "openapi-types";
 import { isDeepStrictEqual } from "util";
 import { HttpMethod } from "./types";
 
-export function extractParametersDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): ParameterDiff[] {
+interface Input {
+  spec: OpenAPIV3.Document;
+  ir: IntermediateRepresentation;
+}
+
+export function extractParametersDiff(oldSpec: Input, newSpec: Input): ParameterDiff[] {
   const result: ParameterDiff[] = [];
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
+  for (const parameter of oldSpec.ir.operationParameters) {
+    const operationInOldSpec = oldSpec.spec.paths[parameter.path]?.[parameter.method]!;
+    const operationInNewSpec = newSpec.spec.paths[parameter.path]?.[parameter.method];
     if (!operationInNewSpec) {
       continue;
     }
 
-    for (const parameter of oldSpec.operationParameters) {
-      const parameterInNewSpec = newSpec.operationParameters.find((p) => p.name === parameter.name);
+    const parameterInOldSpec = operationInOldSpec.parameters?.find((p) => (p as OpenAPIV3.ParameterObject).name == parameter.name)!;
+    const parameterInNewSpec = operationInNewSpec.parameters?.find((p) => (p as OpenAPIV3.ParameterObject).name == parameter.name);
 
-      if (!parameterInNewSpec) {
+    if (!parameterInNewSpec) {
+      result.push({
+        path: parameter.path,
+        method: parameter.method,
+        name: parameter.name,
+        oldOperation: operationInOldSpec,
+        newOperation: operationInNewSpec,
+        old: parameterInOldSpec,
+        added: false,
+        changed: false,
+        deprecated: false,
+        removed: true,
+      });
+    }
+
+    if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
+      if ((parameterInNewSpec as OpenAPIV3.ParameterObject).deprecated && !(parameterInOldSpec as OpenAPIV3.ParameterObject).deprecated) {
         result.push({
-          path: operation.path,
-          method: operation.method,
+          path: parameter.path,
+          method: parameter.method,
           name: parameter.name,
-          oldOperation: operation.value,
-          newOperation: operationInNewSpec.value,
-          old: parameter.actualValue,
+          oldOperation: operationInOldSpec,
+          newOperation: operationInNewSpec,
+          old: parameterInOldSpec,
+          new: parameterInNewSpec,
           added: false,
           changed: false,
-          deprecated: false,
-          removed: true,
+          deprecated: true,
+          removed: false,
         });
       }
-    }
-  }
 
-  for (const operation of oldSpec.operations) {
-    const operationInNewSpec = newSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
-    if (!operationInNewSpec) {
-      continue;
-    }
-
-    for (const parameter of oldSpec.operationParameters) {
-      const parameterInNewSpec = newSpec.operationParameters.find((p) => p.name === parameter.name);
-
-      if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
-        if (parameterInNewSpec.actualValue.deprecated === true && parameter.actualValue.deprecated !== true) {
-          result.push({
-            path: operation.path,
-            method: operation.method,
-            name: parameter.name,
-            oldOperation: operation.value,
-            newOperation: operationInNewSpec.value,
-            old: parameter.actualValue,
-            new: parameterInNewSpec.actualValue,
-            added: false,
-            changed: false,
-            deprecated: true,
-            removed: false,
-          });
-        }
-
-        if (!isDeepStrictEqual({ ...parameter, deprecated: false }, { ...parameterInNewSpec, deprecated: false })) {
-          result.push({
-            path: operation.path,
-            method: operation.method,
-            name: parameter.name,
-            oldOperation: operation.value,
-            newOperation: operationInNewSpec.value,
-            old: parameter.actualValue,
-            new: parameterInNewSpec.actualValue,
-            added: false,
-            changed: true,
-            deprecated: false,
-            removed: false,
-          });
-        }
-      }
-    }
-  }
-
-  for (const operation of newSpec.operations) {
-    const operationInOldSpec = oldSpec.operations.find((op) => op.path === operation.path && op.method === operation.method);
-    if (!operationInOldSpec) {
-      continue;
-    }
-
-    for (const parameter of newSpec.operationParameters) {
-      const parameterInOldSpec = oldSpec.operationParameters.find((p) => p.name === parameter.name);
-      if (!parameterInOldSpec) {
+      if (!isDeepStrictEqual({ ...parameter, deprecated: false }, { ...parameterInNewSpec, deprecated: false })) {
         result.push({
-          path: operation.path,
-          method: operation.method,
+          path: parameter.path,
+          method: parameter.method,
           name: parameter.name,
-          oldOperation: operationInOldSpec.value,
-          newOperation: operation.value,
-          new: parameter.actualValue,
-          added: true,
-          changed: false,
+          oldOperation: operationInOldSpec,
+          newOperation: operationInNewSpec,
+          old: parameterInOldSpec,
+          new: parameterInNewSpec,
+          added: false,
+          changed: true,
           deprecated: false,
           removed: false,
         });
       }
+    }
+  }
+
+  for (const parameter of newSpec.ir.operationParameters) {
+    const operationInOldSpec = oldSpec.spec.paths[parameter.path]?.[parameter.method];
+    const operationInNewSpec = newSpec.spec.paths[parameter.path]?.[parameter.method]!;
+    if (!operationInOldSpec) {
+      continue;
+    }
+
+    const parameterInOldSpec = operationInOldSpec.parameters?.find((p) => (p as OpenAPIV3.ParameterObject).name == parameter.name);
+    const parameterInNewSpec = operationInNewSpec.parameters?.find((p) => (p as OpenAPIV3.ParameterObject).name == parameter.name)!;
+
+    if (!parameterInOldSpec) {
+      result.push({
+        path: parameter.path,
+        method: parameter.method,
+        name: parameter.name,
+        oldOperation: operationInOldSpec,
+        newOperation: operationInNewSpec,
+        new: parameterInNewSpec,
+        added: true,
+        changed: false,
+        deprecated: false,
+        removed: false,
+      });
     }
   }
 
@@ -118,7 +113,7 @@ export interface ParameterAdded {
   changed: false;
   deprecated: false;
   removed: false;
-  new: OpenAPIV3.ParameterObject;
+  new: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
 }
 
 export interface ParameterChanged {
@@ -132,8 +127,8 @@ export interface ParameterChanged {
   changed: true;
   deprecated: false;
   removed: false;
-  old: OpenAPIV3.ParameterObject;
-  new: OpenAPIV3.ParameterObject;
+  old: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
+  new: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
 }
 
 export interface ParameterDeprecated {
@@ -147,8 +142,8 @@ export interface ParameterDeprecated {
   changed: false;
   deprecated: true;
   removed: false;
-  old: OpenAPIV3.ParameterObject;
-  new: OpenAPIV3.ParameterObject;
+  old: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
+  new: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
 }
 
 export interface ParameterRemoved {
@@ -162,5 +157,5 @@ export interface ParameterRemoved {
   changed: false;
   deprecated: false;
   removed: true;
-  old: OpenAPIV3.ParameterObject;
+  old: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject;
 }

@@ -61,12 +61,12 @@ export type OperationBreakingChange = Operation &
   };
 
 export type ParameterBreakingChange = ParameterRemoved | ParameterChanged;
-export type ParameterRemoved = Parameter & Removal<OpenAPIV3.ParameterObject>;
-export type ParameterChanged = Parameter & BreakingChange<OpenAPIV3.ParameterObject>;
+export type ParameterRemoved = Parameter & Removal<OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>;
+export type ParameterChanged = Parameter & BreakingChange<OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>;
 
 export type ResponseBreakingChange = ResponseRemoved | ResponseChanged;
-export type ResponseRemoved = Response & Removal<OpenAPIV3.ResponseObject>;
-export type ResponseChanged = Response & BreakingChange<OpenAPIV3.ResponseObject>;
+export type ResponseRemoved = Response & Removal<OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject>;
+export type ResponseChanged = Response & BreakingChange<OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject>;
 
 export type NonBreakingDiffs = OperationNonBreakingDiff[];
 
@@ -86,11 +86,11 @@ export type OperationChanged = Operation &
   };
 
 export type ParameterChange = ParameterAdded | ParameterDeprecated;
-export type ParameterAdded = Parameter & Addition<OpenAPIV3.ParameterObject>;
-export type ParameterDeprecated = Parameter & Deprecation<OpenAPIV3.ParameterObject>;
+export type ParameterAdded = Parameter & Addition<OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>;
+export type ParameterDeprecated = Parameter & Deprecation<OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject>;
 
 export type ResponseChange = ResponseAdded;
-export type ResponseAdded = Response & Addition<OpenAPIV3.ResponseObject>;
+export type ResponseAdded = Response & Addition<OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject>;
 
 export const HttpMethods = ["get", "put", "post", "delete", "options", "head", "patch", "trace"] as const;
 export type HttpMethod = (typeof HttpMethods)[number];

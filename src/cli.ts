@@ -4,11 +4,12 @@ import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
 import fs, { readFile } from "node:fs/promises";
-import { diff as diffFn } from "./diff/diff.js";
-import { changelog as changelogFn } from "./changelog/changelog.js";
+import { diff as diff } from "./diff/diff.js";
+import { changelog as changelog } from "./changelog/changelog.js";
 import { OpenAPIV3 } from "openapi-types";
 import { load } from "js-yaml";
 import { inspect } from "util";
+import { glob } from "glob";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -18,21 +19,16 @@ void yargsInstance
   .wrap(terminalWidth > maxWidth ? maxWidth : terminalWidth)
   .scriptName("openapi-changelog")
   .usage(
-    "$0 <old_openapi_spec> <new_openapi_spec> [options]",
+    "$0 <specifications...>",
     "Compute the changelog between the old and the new openapi specifications",
     (yargs) =>
       yargs
-        .positional("old_openapi_spec", {
-          describe: "Path or url to the old openapi specification",
+        .positional("specifications", {
+          describe: "Path or url to the openapi specifications",
           type: "string",
           demandOption: true,
           normalize: true,
-        })
-        .positional("new_openapi_spec", {
-          describe: "Path or url to the new openapi specification",
-          type: "string",
-          demandOption: true,
-          normalize: true,
+          array: true,
         })
         .option("diff", {
           type: "boolean",
@@ -55,30 +51,33 @@ void yargsInstance
         .option("debug", {
           alias: "D",
           type: "string",
-          default: undefined,
-          describe: "Log debug information to log file (default: debug.log)",
+          describe: "Log additional debug information to log file",
           global: true,
         })
-        .option("help", {
-          alias: "h",
-          global: true,
-        })
-        .option("version", {
-          global: true,
-        })
+        .help()
         .middleware([verboseMiddleware]),
     async (args) => {
-      winston.info(`Computing diff\n\tfrom:\t ${args.old_openapi_spec}\n\tto:\t ${args.new_openapi_spec}`);
+      const files = (await Promise.all(args.specifications.map(async (s) => await expandGlobPattern(s)))).flatMap((d) => d);
 
-      const oldSpec = await parseOpenapiSpecFile(args.old_openapi_spec);
-      const newSpec = await parseOpenapiSpecFile(args.new_openapi_spec);
+      winston.info(`Parsing ${files.length} files...`);
+      const specs = [];
+      for (const file of files) {
+        const spec = await parseFiles(file);
+
+        if (spec.result) {
+          specs.push(spec.result);
+          winston.info(`OK ${file}`);
+        } else {
+          winston.warn(`KO ${file}: ${spec.errorMessage}`);
+        }
+      }
 
       let result: string;
       if (args.diff === true) {
-        const differences = diffFn(oldSpec, newSpec);
+        const differences = diff(...specs);
         result = JSON.stringify(differences, null, 2);
       } else {
-        result = changelogFn(oldSpec, newSpec);
+        result = changelog(...specs);
       }
 
       if (args.output !== undefined) {
@@ -114,16 +113,36 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
   }
 }
 
-async function parseOpenapiSpecFile(path: string): Promise<OpenAPIV3.Document> {
+async function expandGlobPattern(globPath: string): Promise<string[]> {
+  return glob(globPath.replaceAll("\\", "/"), { posix: true, nodir: true });
+}
+
+async function parseFiles(path: string): Promise<{ result?: OpenAPIV3.Document; errorMessage?: string }> {
   if (path.endsWith(".yml") || path.endsWith(".yaml")) {
-    const specContent = await readFile(path, "utf8");
-    return load(specContent) as OpenAPIV3.Document;
+    try {
+      return { result: await parseYaml(path) };
+    } catch (e) {
+      return { errorMessage: JSON.stringify(e) };
+    }
   }
 
   if (path.endsWith(".json")) {
-    const specContent = await readFile(path, "utf8");
-    return JSON.parse(specContent) as OpenAPIV3.Document;
+    try {
+      return { result: await parseJson(path) };
+    } catch (e) {
+      return { errorMessage: JSON.stringify(e) };
+    }
   }
 
-  throw new Error("Invalid file format, expected JSON or YAML");
+  return { errorMessage: "Invalid format" };
+}
+
+async function parseYaml(path: string): Promise<OpenAPIV3.Document> {
+  const specContent = await readFile(path, "utf8");
+  return load(specContent) as OpenAPIV3.Document;
+}
+
+async function parseJson(path: string): Promise<OpenAPIV3.Document> {
+  const specContent = await readFile(path, "utf8");
+  return JSON.parse(specContent) as OpenAPIV3.Document;
 }

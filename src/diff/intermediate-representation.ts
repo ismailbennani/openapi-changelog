@@ -4,6 +4,7 @@ import winston from "winston";
 
 export function extractIntermediateRepresentation(spec: OpenAPIV3.Document): IntermediateRepresentation {
   return {
+    title: spec.info.title,
     version: spec.info.version,
     operations: extractOperations(spec),
   };
@@ -72,6 +73,7 @@ function extractResponses(spec: OpenAPIV3.Document, path: string, method: string
 }
 
 export interface IntermediateRepresentation {
+  title: string;
   version: string;
   operations: Operation[];
 }

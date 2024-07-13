@@ -112,6 +112,7 @@ function transformDiffs(
 
     if (operationDiff.added) {
       diffs[operationDiff.path][operationDiff.method].nonBreaking = {
+        breaking: false,
         path: operationDiff.path,
         method: operationDiff.method,
         added: true,
@@ -123,6 +124,7 @@ function transformDiffs(
       diffs[operationDiff.path][operationDiff.method].nonBreaking = {
         path: operationDiff.path,
         method: operationDiff.method,
+        breaking: false,
         changed: true,
         deprecated: true,
         parameters: [],
@@ -134,6 +136,7 @@ function transformDiffs(
 
     if (operationDiff.removed) {
       diffs[operationDiff.path][operationDiff.method].breaking = {
+        breaking: true,
         path: operationDiff.path,
         method: operationDiff.method,
         removed: true,
@@ -147,6 +150,7 @@ function transformDiffs(
       const diff = getOrCreateOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
+        breaking: false,
         added: true,
         new: parameterDiff.new,
       });
@@ -156,6 +160,7 @@ function transformDiffs(
       const diff = getOrCreateBreakingOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
+        breaking: true,
         changed: true,
         old: parameterDiff.old,
         new: parameterDiff.new,
@@ -166,6 +171,8 @@ function transformDiffs(
       const diff = getOrCreateOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
+        breaking: false,
+        changed: true,
         deprecated: true,
         old: parameterDiff.old,
         new: parameterDiff.new,
@@ -176,6 +183,7 @@ function transformDiffs(
       const diff = getOrCreateBreakingOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
+        breaking: true,
         removed: true,
         old: parameterDiff.old,
       });
@@ -187,6 +195,7 @@ function transformDiffs(
       const diff = getOrCreateOperationChange(diffs, responseDiff.path, responseDiff.method, responseDiff.oldOperation, responseDiff.newOperation);
       diff.responses.push({
         code: responseDiff.code,
+        breaking: false,
         added: true,
         new: responseDiff.new,
       });
@@ -196,6 +205,7 @@ function transformDiffs(
       const diff = getOrCreateBreakingOperationChange(diffs, responseDiff.path, responseDiff.method, responseDiff.oldOperation, responseDiff.newOperation);
       diff.responses.push({
         code: responseDiff.code,
+        breaking: true,
         changed: true,
         old: responseDiff.old,
         new: responseDiff.new,
@@ -206,6 +216,7 @@ function transformDiffs(
       const diff = getOrCreateBreakingOperationChange(diffs, responseDiff.path, responseDiff.method, responseDiff.oldOperation, responseDiff.newOperation);
       diff.responses.push({
         code: responseDiff.code,
+        breaking: true,
         removed: true,
         old: responseDiff.old,
       });
@@ -265,7 +276,16 @@ function getOrCreateOperationChange(
   }
 
   if (!diffs[path][method].nonBreaking) {
-    diffs[path][method].nonBreaking = { path, method, changed: true, deprecated: false, parameters: [], responses: [], old: oldOperation, new: newOperation };
+    diffs[path][method].nonBreaking = {
+      path,
+      method,
+      breaking: false,
+      changed: true,
+      parameters: [],
+      responses: [],
+      old: oldOperation,
+      new: newOperation,
+    };
   }
 
   return diffs[path][method].nonBreaking as OperationChanged;
@@ -296,7 +316,16 @@ function getOrCreateBreakingOperationChange(
   }
 
   if (!diffs[path][method].breaking) {
-    diffs[path][method].breaking = { path, method, changed: true, parameters: [], responses: [], old: oldOperation, new: newOperation };
+    diffs[path][method].breaking = {
+      path,
+      method,
+      breaking: true,
+      changed: true,
+      parameters: [],
+      responses: [],
+      old: oldOperation,
+      new: newOperation,
+    };
   }
 
   return diffs[path][method].breaking as OperationBreakingChange;

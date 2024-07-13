@@ -10,8 +10,8 @@ Version {{ version/new }}
     {{/if}}
   {{/if}}
 {{/if}}
-
 {{#if breaking }}
+
 > BREAKING CHANGES
   {{#each breaking}}
     {{!-- Removed operations --}}
@@ -42,8 +42,8 @@ Version {{ version/new }}
     {{/if}}
   {{/each}}
 {{/if}}
-
 {{#if nonBreaking}}
+  
 > Changes
   {{#each nonBreaking}}
     {{!-- New operations --}}

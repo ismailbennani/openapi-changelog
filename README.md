@@ -3,7 +3,7 @@
 ## Examples
 
 From [examples/weather-v1.0.0.openapi.json](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/weather-v1.0.0.openapi.json)\
-To `[examples/weather-v1.1.0.openapi.json](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/weather-v1.1.0.openapi.json)\
+To [examples/weather-v1.1.0.openapi.json](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/weather-v1.1.0.openapi.json)
 
 ```
 Version 1.1.0 - MINOR

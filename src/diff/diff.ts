@@ -9,32 +9,41 @@ import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
 import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
 import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
 
-export async function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Promise<Readonly<DiffResponse>> {
-  const oldSpec = await readOpenApiSpecification(oldOpenApiSpec);
-  const newSpec = await readOpenApiSpecification(newOpenApiSpec);
+export function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Readonly<DiffResponse> {
+  const oldSpec = JSON.parse(oldOpenApiSpec) as OpenAPIV3.Document;
+  const newSpec = JSON.parse(newOpenApiSpec) as OpenAPIV3.Document;
 
   const oldSpecIR = extractIntermediateRepresentation(oldSpec);
-  const newSpecIR = extractIntermediateRepresentation(newSpec);
 
   winston.debug("==== OLD SPEC");
   winston.debug(util.inspect(oldSpecIR, false, null, true));
   winston.debug("");
 
+  const newSpecIR = extractIntermediateRepresentation(newSpec);
+
   winston.debug("==== NEW SPEC");
   winston.debug(util.inspect(newSpecIR, false, null, true));
   winston.debug("");
 
+  const versionDiffs = extractVersionDiff(oldSpecIR, newSpecIR);
+
+  winston.debug("==== VERSION DIFFS");
+  winston.debug(util.inspect(versionDiffs, false, null, true));
+  winston.debug("");
+
   const operationDiffs = extractOperationsDiff(oldSpecIR, newSpecIR);
-  const parameterDiffs = extractParametersDiff(oldSpecIR, newSpecIR);
-  const responseDiffs = extractResponsesDiff(oldSpecIR, newSpecIR);
 
   winston.debug("==== OPERATION DIFFS");
   winston.debug(util.inspect(operationDiffs, false, null, true));
   winston.debug("");
 
+  const parameterDiffs = extractParametersDiff(oldSpecIR, newSpecIR);
+
   winston.debug("==== PARAMETER DIFFS");
   winston.debug(util.inspect(parameterDiffs, false, null, true));
   winston.debug("");
+
+  const responseDiffs = extractResponsesDiff(oldSpecIR, newSpecIR);
 
   winston.debug("==== RESPONSE DIFFS");
   winston.debug(util.inspect(responseDiffs, false, null, true));
@@ -43,15 +52,10 @@ export async function diff(oldOpenApiSpec: string, newOpenApiSpec: string): Prom
   const diffs = transformDiffs(operationDiffs, parameterDiffs, responseDiffs);
 
   return {
-    version: extractVersionDiff(oldSpecIR, newSpecIR),
+    version: versionDiffs,
     breaking: diffs.breaking,
     nonBreaking: diffs.nonBreaking,
   };
-}
-
-async function readOpenApiSpecification(path: string): Promise<OpenAPIV3.Document> {
-  const stringContent = await readFile(path, "utf8");
-  return JSON.parse(stringContent) as OpenAPIV3.Document;
 }
 
 function transformDiffs(

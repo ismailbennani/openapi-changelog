@@ -4,9 +4,11 @@ import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
 import * as util from "node:util";
-import fs from "node:fs/promises";
+import fs, { readFile } from "node:fs/promises";
 import { diff as diffFn } from "./diff/diff.js";
 import { changelog as changelogFn } from "./changelog/changelog.js";
+import { OpenAPIV3 } from "openapi-types";
+import { OpenapiChangelog } from "./index";
 
 winston.add(new winston.transports.Console({ format: format.combine(format.colorize(), format.simple()), stderrLevels: ["error", "warn", "info"], level: "info" }));
 
@@ -52,7 +54,10 @@ await yargsInstance
     async (args) => {
       winston.info(`Computing diff\n\tfrom:\t ${args.old_openapi_spec}\n\tto:\t ${args.new_openapi_spec}`);
 
-      const differences = await diffFn(args.old_openapi_spec, args.new_openapi_spec);
+      const oldSpec = await readFile(args.old_openapi_spec, "utf8");
+      const newSpec = await readFile(args.new_openapi_spec, "utf8");
+
+      const differences = OpenapiChangelog.diff(oldSpec, newSpec);
       const changelog = args.diff === true ? JSON.stringify(differences, null, 2) : await changelogFn(differences);
 
       if (args.output !== undefined) {

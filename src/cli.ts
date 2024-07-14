@@ -90,7 +90,7 @@ void yargsInstance
         const differences = diff(specs, diffOptions);
         result = JSON.stringify(differences, null, 2);
       } else {
-        const changelogOptions = { ...diffOptions, template: args.template };
+        const changelogOptions = { ...diffOptions, template: args.template, printWidth: 120 };
         result = changelog(specs, changelogOptions);
       }
 

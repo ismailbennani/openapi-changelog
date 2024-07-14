@@ -100,6 +100,30 @@ export function isHttpMethod(value: string): value is HttpMethod {
   return methods.includes(value);
 }
 
+export function isAddition<T>(obj: unknown): obj is Addition<T> {
+  return (obj as Addition<T>).added;
+}
+
+export function isChange<T>(obj: unknown): obj is BreakingChange<T> {
+  return (obj as BreakingChange<T>).changed && (obj as BreakingChange<T>).breaking;
+}
+
+export function isBreakingChange<T>(obj: unknown): obj is BreakingChange<T> {
+  return (obj as BreakingChange<T>).changed && (obj as BreakingChange<T>).breaking;
+}
+
+export function isNonBreakingChange<T>(obj: unknown): obj is NonBreakingChange<T> {
+  return (obj as NonBreakingChange<T>).changed && !(obj as BreakingChange<T>).breaking;
+}
+
+export function isDeprecation<T>(obj: unknown): obj is Deprecation<T> {
+  return (obj as Deprecation<T>).deprecated;
+}
+
+export function isRemoved<T>(obj: unknown): obj is Removal<T> {
+  return (obj as Removal<T>).removed;
+}
+
 interface Operation {
   /**
    * The path of the operation that has changed
@@ -135,6 +159,18 @@ interface Addition<T> {
   readonly new: T;
 }
 
+interface Change<T> {
+  changed: true;
+  /**
+   * The value in the old specification
+   */
+  readonly old: T;
+  /**
+   * The value in the new specification
+   */
+  readonly new: T;
+}
+
 interface Removal<T> {
   breaking: true;
   removed: true;
@@ -144,32 +180,14 @@ interface Removal<T> {
   readonly old: T;
 }
 
-interface BreakingChange<T> {
-  breaking: true;
-  changed: true;
-  /**
-   * The value in the old specification
-   */
-  readonly old: T;
-  /**
-   * The value in the new specification
-   */
-  readonly new: T;
-}
-
-interface NonBreakingChange<T> {
-  breaking: false;
-  changed: true;
-  /**
-   * The value in the old specification
-   */
-  readonly old: T;
-  /**
-   * The value in the new specification
-   */
-  readonly new: T;
-}
-
 type Deprecation<T> = NonBreakingChange<T> & {
   deprecated: true;
+};
+
+type BreakingChange<T> = Change<T> & {
+  breaking: true;
+};
+
+type NonBreakingChange<T> = Change<T> & {
+  breaking: false;
 };

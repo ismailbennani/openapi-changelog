@@ -14,8 +14,8 @@ export function join(lines: string[], sep?: string): string {
 
 //#region References
 
-export function isReferenceObject(obj: object): obj is { $ref: string } {
-  return Object.keys(obj).includes("$ref");
+export function isReferenceObject(obj: unknown): obj is { $ref: string } {
+  return obj === undefined || obj === null ? false : Object.keys(obj).includes("$ref");
 }
 
 export function evaluateParameterOrRef(spec: OpenAPIV3.Document, parameter: { $ref: string } | OpenAPIV3.ParameterObject): OpenAPIV3.ParameterObject | undefined {

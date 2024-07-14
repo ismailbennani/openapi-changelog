@@ -4,12 +4,15 @@ import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
 import fs, { readFile } from "node:fs/promises";
-import { diff as diff } from "./diff/diff";
 import { changelog as changelog } from "./changelog/changelog";
 import { OpenAPIV3 } from "openapi-types";
 import { load } from "js-yaml";
 import { inspect } from "util";
 import { glob } from "glob";
+import { diff } from "./diff/diff";
+import { OpenapiDocumentChange } from "./diff/openapi-document-changes";
+import { DEBUG_FOLDER_NAME } from "./core/constants";
+import { ensureDir } from "./core/fs-utils";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -45,6 +48,16 @@ void yargsInstance
             "Max number of versions to consider when computing changelog. " +
             "The limit will be applied AFTER sorting the versions, the changelog will contain the N most recent versions.",
         })
+        .option("exclude", {
+          alias: "x",
+          type: "string",
+          array: true,
+          describe: "Type of changes that should be excluded from the output",
+        })
+        .option("include-minor", {
+          type: "boolean",
+          describe: "Include minor changes such as documentation changes in the output",
+        })
         .option("output", {
           alias: "o",
           type: "string",
@@ -59,10 +72,20 @@ void yargsInstance
           describe: "Log stuff",
           global: true,
         })
-        .option("debug", {
+        .option("vverbose", {
           alias: "D",
-          type: "string",
-          describe: "Log additional debug information to log file",
+          type: "boolean",
+          describe: "[DEBUG] Very verbose, log debug information to a debug.log file",
+          global: true,
+        })
+        .option("dump-ir", {
+          type: "boolean",
+          describe: "[DEBUG] Dump the intermediate representation generated for each openapi document in .ir files",
+          global: true,
+        })
+        .option("dump-changes", {
+          type: "boolean",
+          describe: "[DEBUG] Dump the changes computed between each openapi document couple in .changes files",
           global: true,
         })
         .help()
@@ -70,7 +93,7 @@ void yargsInstance
     async (args) => {
       const files = (await Promise.all(args.specifications.map(async (s) => await expandGlobPattern(s)))).flatMap((d) => d);
 
-      winston.info(`Parsing ${files.length} files...`);
+      winston.info(`Parsing ${files.length.toString()} files...`);
       const specs = [];
       for (const file of files) {
         const spec = await parseFiles(file);
@@ -79,19 +102,23 @@ void yargsInstance
           specs.push(spec.result);
           winston.info(`OK ${file}`);
         } else {
-          winston.warn(`KO ${file}: ${spec.errorMessage}`);
+          winston.warn(`KO ${file}: ${spec.errorMessage ?? ""}`);
         }
       }
 
-      const diffOptions = { limit: args.limit };
+      const diffOptions = { limit: args.limit, dumpIntermediateRepresentations: args.dumpIr, dumpChanges: args.dumpChanges };
 
       let result: string;
       if (args.diff === true) {
         const differences = diff(specs, diffOptions);
         result = JSON.stringify(differences, null, 2);
       } else {
-        const changelogOptions = { ...diffOptions, template: args.template, printWidth: 120 };
-        result = changelog(specs, changelogOptions);
+        const exclude: OpenapiDocumentChange["type"][] = args.exclude?.map((e) => e as OpenapiDocumentChange["type"]) ?? [];
+        if (args.includeMinor !== true) {
+          exclude.push("operation-parameter-documentation-change", "operation-response-documentation-change");
+        }
+
+        result = changelog(specs, { ...diffOptions, printWidth: 120, exclude });
       }
 
       if (args.output !== undefined) {
@@ -106,7 +133,7 @@ void yargsInstance
   )
   .parse();
 
-function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; debug: string | undefined }>): void {
+async function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): Promise<void> {
   const consoleTransport = new winston.transports.Console({
     format: format.combine(format.colorize(), format.simple()),
     // If output is not set, the output is stdout so we need to log everything to stderr instead of stdout
@@ -119,8 +146,9 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
     consoleTransport.silent = true;
   }
 
-  if (args.debug !== undefined) {
-    const fileName = args.debug === "" ? "debug.log" : args.debug;
+  if (args.vverbose !== undefined) {
+    ensureDir(DEBUG_FOLDER_NAME);
+    const fileName = `${DEBUG_FOLDER_NAME}/debug.log`;
     winston.info(`Verbose: writing debug logs to ${fileName}`);
     winston.add(new winston.transports.File({ filename: fileName, format: format.combine(format.uncolorize(), format.simple()), level: "debug", options: { flags: "w" } }));
     winston.debug(`ARGS: ${inspect(args, false, null, true)}`);

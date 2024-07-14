@@ -1,11 +1,10 @@
 import { OpenAPIV3 } from "openapi-types";
-import { HttpMethod, isHttpMethod } from "../diff/types";
-import { isReferenceObject, join } from "./core";
+import { HttpMethod, isHttpMethod } from "../core/http-methods";
+import { join } from "./utils";
 import { extractOperationParameters, OperationParameterIntermediateRepresentation } from "./operation-parameters-ir";
 import { extractOperationResponses, OperationResponseIntermediateRepresentation } from "./operation-responses-ir";
 
 export interface OperationIntermediateRepresentation {
-  key: string;
   path: string;
   method: HttpMethod;
   description: string | undefined;
@@ -18,7 +17,7 @@ export function extractOperations(document: OpenAPIV3.Document): OperationInterm
   const operations: OperationIntermediateRepresentation[] = [];
 
   for (const [path, methods] of Object.entries(document.paths)) {
-    if (!methods || isReferenceObject(methods)) {
+    if (!methods) {
       continue;
     }
 
@@ -29,7 +28,6 @@ export function extractOperations(document: OpenAPIV3.Document): OperationInterm
 
       const operationObj = operation as OpenAPIV3.OperationObject;
       operations.push({
-        key: `OPERATION_${method}_${path}`,
         path,
         method,
         description: extractOperationDescription(operationObj),

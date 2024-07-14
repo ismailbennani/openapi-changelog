@@ -1,9 +1,8 @@
 import { OpenAPIV3 } from "openapi-types";
-import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./core";
+import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./utils";
 import winston from "winston";
 
 export interface SchemaIntermediateRepresentation {
-  key: string;
   name: string;
   description: string | undefined;
   examples: string | undefined;
@@ -24,7 +23,6 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
     }
 
     result.push({
-      key: `SCHEMA_${name}`,
       name,
       description: evaluatedSchema.description,
       examples: extractSchemaExamples(schema),

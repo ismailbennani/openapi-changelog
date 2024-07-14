@@ -1,11 +1,10 @@
 import { OpenAPIV3 } from "openapi-types";
-import { HttpMethod } from "../diff/types";
-import { evaluateParameterOrRef, isReferenceObject } from "./core";
+import { HttpMethod } from "../core/http-methods";
+import { evaluateParameterOrRef, isReferenceObject } from "./utils";
 import winston from "winston";
 import { extractParameterExamples, extractParameterType } from "./parameters-ir";
 
 export interface OperationParameterIntermediateRepresentation {
-  key: string;
   path: string;
   method: HttpMethod;
   name: string;
@@ -21,7 +20,7 @@ const parameterLocations = ["path", "query", "header", "body", "formData", "cook
 export type ParameterLocation = (typeof parameterLocations)[number];
 
 export function extractOperationParameters(document: OpenAPIV3.Document, path: string, method: HttpMethod): OperationParameterIntermediateRepresentation[] {
-  const parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[] = Object.values(document.components?.parameters ?? {});
+  const parameters: (OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject)[] = [];
 
   const pathObj = document.paths[path];
   if (pathObj !== undefined) {
@@ -49,10 +48,9 @@ export function extractOperationParameters(document: OpenAPIV3.Document, path: s
     }
 
     result.push({
-      key: `OPERATION_${method}_${path}_${evaluatedParameter.name}`,
       path,
       method,
-      name: evaluatedParameter.name,
+      name: isReferenceObject(parameter) ? parameter.$ref : parameter.name,
       type: extractParameterType(parameter),
       location: isParameterLocation(evaluatedParameter.in) ? evaluatedParameter.in : undefined,
       deprecated: isReferenceObject(parameter) ? undefined : parameter.deprecated ?? false,

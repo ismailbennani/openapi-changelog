@@ -1,8 +1,7 @@
 import { OpenAPIV3 } from "openapi-types";
-import { HttpMethod } from "../diff/types";
+import { HttpMethod } from "../core/http-methods";
 
 export interface OperationResponseIntermediateRepresentation {
-  key: string;
   path: string;
   method: HttpMethod;
   code: string;

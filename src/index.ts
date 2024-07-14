@@ -1,4 +1,7 @@
-export type { OpenapiChangelogDiff } from "./diff/types";
+export type { OpenapiDocumentChanges } from "./diff/openapi-document-changes";
+export { compare } from "./diff/openapi-document-changes";
+
+export type { OpenapiDiffOptions } from "./diff/diff";
 export { diff } from "./diff/diff";
 
 export type { OpenapiChangelogOptions } from "./changelog/changelog";

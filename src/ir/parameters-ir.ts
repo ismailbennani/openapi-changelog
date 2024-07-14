@@ -1,10 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
-import { evaluateParameterOrRef, isReferenceObject, join } from "./core";
+import { evaluateParameterOrRef, isReferenceObject, join } from "./utils";
 import winston from "winston";
 import { extractTypeFromSchema } from "./schemas-ir";
 
 export interface ParameterIntermediateRepresentation {
-  key: string;
   name: string;
   type: string;
   description: string | undefined;
@@ -26,7 +25,6 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
     }
 
     result.push({
-      key: `$PARAMETER_${evaluatedParameter.name}`,
       name: name,
       type: extractParameterType(parameter),
       description: isReferenceObject(parameter) ? undefined : parameter.description,

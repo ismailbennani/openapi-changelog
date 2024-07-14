@@ -35,47 +35,59 @@ function header(diff: OpenapiDocumentChanges): string[] {
 function breakingChange(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
-  breaking: OpenapiDocumentBreakingChange,
+  change: OpenapiDocumentBreakingChange,
   options?: OpenapiChangelogOptions,
 ): string[] {
-  switch (breaking.type) {
+  switch (change.type) {
     case "operation-removal":
-      return [`- Removed operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Removed operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-removal":
-      return [`- Removed parameter ${breaking.name} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Removed parameter ${change.name} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-type-change":
-      return [`- Changed type of parameter ${breaking.name} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed type of parameter ${change.name} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-unclassified":
-      return [`- Changed parameter ${breaking.name} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed parameter ${change.name} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-response-removal":
-      return [`- Removed response ${breaking.code} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Removed response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-response-type-change":
-      return [`- Changed type of response ${breaking.code} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed type of response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-response-unclassified":
-      return [`- Changed response ${breaking.code} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+    case "parameter-type-change":
+      return [`- Changed type of parameter ${change.name} referenced by ?? objects`];
+    case "parameter-unclassified":
+      return [`- Changed parameter ${change.name} referenced by ?? objects`];
+    case "schema-unclassified":
+      return [`- Changed schema ${change.name}`];
   }
 }
 
 function nonBreakingChange(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
-  breaking: OpenapiDocumentNonBreakingChange,
+  change: OpenapiDocumentNonBreakingChange,
   options?: OpenapiChangelogOptions,
 ): string[] {
-  switch (breaking.type) {
+  switch (change.type) {
     case "operation-addition":
-      return [`- Added operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Added operation ${change.method.toUpperCase()} ${change.path}`];
+    case "operation-documentation-change":
+      return [`- Changed documentation of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-deprecation":
-      return [`- Deprecated operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Deprecated operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-addition":
-      return [`- Added parameter ${breaking.name} to operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Added parameter ${change.name} to operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-deprecation":
-      return [`- Deprecated parameter ${breaking.name} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Deprecated parameter ${change.name} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-parameter-documentation-change":
-      return [`- Changed documentation of parameter ${breaking.name} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed documentation of parameter ${change.name} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "operation-response-addition":
-      return [`- Added response ${breaking.code} to ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Added response ${change.code} to ${change.method.toUpperCase()} ${change.path}`];
     case "operation-response-documentation-change":
-      return [`- Changed documentation of response ${breaking.code} of operation ${breaking.method.toUpperCase()} ${breaking.path}`];
+      return [`- Changed documentation of response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+    case "parameter-documentation-change":
+      return [`- Changed documentation of parameter ${change.name} referenced by ?? objects`];
+    case "schema-documentation-change":
+      return [`- Changed documentation of schema ${change.name}`];
   }
 }

@@ -40,7 +40,7 @@ export function extractOperationParametersChange(
         });
       }
 
-      if (parameterInNewOperation.description !== parameterInOldOperation.description) {
+      if (parameterInNewOperation.description !== parameterInOldOperation.description || parameterInNewOperation.examples !== parameterInOldOperation.examples) {
         result.push({
           path: parameterInOldOperation.path,
           method: parameterInOldOperation.method,

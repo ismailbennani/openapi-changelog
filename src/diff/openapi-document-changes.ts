@@ -2,6 +2,8 @@ import { OpenAPIV3 } from "openapi-types";
 import { extractVersionChange, VersionChange } from "./version-change";
 import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { extractOperationsChange, OperationBreakingChange, OperationNonBreakingChange } from "./operations-change";
+import { extractParametersChange, ParameterBreakingChange, ParameterNonBreakingChange } from "./parameters-change";
+import { SchemaBreakingChange, SchemaNonBreakingChange } from "./schemas-change";
 
 export interface OpenapiDocumentChanges {
   /**
@@ -15,8 +17,8 @@ export interface OpenapiDocumentChanges {
 }
 
 export type OpenapiDocumentChange = OpenapiDocumentBreakingChange | OpenapiDocumentNonBreakingChange;
-export type OpenapiDocumentBreakingChange = OperationBreakingChange;
-export type OpenapiDocumentNonBreakingChange = OperationNonBreakingChange;
+export type OpenapiDocumentBreakingChange = OperationBreakingChange | ParameterBreakingChange | SchemaBreakingChange;
+export type OpenapiDocumentNonBreakingChange = OperationNonBreakingChange | ParameterNonBreakingChange | SchemaNonBreakingChange;
 
 export function compare(oldDocument: OpenAPIV3.Document, newDocument: OpenAPIV3.Document): OpenapiDocumentChanges {
   const oldDocumentIr = extractIntermediateRepresentation(oldDocument);
@@ -31,9 +33,10 @@ export function compareIntermediateRepresentations(
 ): OpenapiDocumentChanges {
   const versionChanges = extractVersionChange(oldDocument, newDocument);
   const operationChanges = extractOperationsChange(oldDocument, newDocument);
+  const parameterChanges = extractParametersChange(oldDocument, newDocument);
 
   return {
     version: versionChanges,
-    changes: [...operationChanges],
+    changes: [...operationChanges, ...parameterChanges],
   };
 }

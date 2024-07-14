@@ -21,12 +21,20 @@ export function extractOperationsChange(
         breaking: true,
       });
     } else if (!isDeepStrictEqual(operationInOldDocument, operationInNewDocument)) {
-      const deprecated = operationInNewDocument.deprecated && !operationInOldDocument.deprecated;
-      if (deprecated) {
+      if (operationInNewDocument.deprecated && !operationInOldDocument.deprecated) {
         result.push({
           path: operationInOldDocument.path,
           method: operationInOldDocument.method,
           type: "operation-deprecation",
+          breaking: false,
+        });
+      }
+
+      if (operationInNewDocument.description !== operationInOldDocument.description) {
+        result.push({
+          path: operationInOldDocument.path,
+          method: operationInOldDocument.method,
+          type: "operation-documentation-change",
           breaking: false,
         });
       }
@@ -59,7 +67,7 @@ interface OperationChange {
 
 export type OperationBreakingChange = (BreakingChange<"operation-removal"> | OperationParameterBreakingChange | OperationResponseBreakingChange) & OperationChange;
 export type OperationNonBreakingChange = (
-  | NonBreakingChange<"operation-addition" | "operation-deprecation">
+  | NonBreakingChange<"operation-addition" | "operation-documentation-change" | "operation-deprecation">
   | OperationParameterNonBreakingChange
   | OperationResponseNonBreakingChange
 ) &

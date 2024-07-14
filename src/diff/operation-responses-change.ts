@@ -30,7 +30,7 @@ export function extractOperationResponsesChange(
         });
       }
 
-      if (responseInNewOperation.description !== responseInOldOperation.description) {
+      if (responseInNewOperation.description !== responseInOldOperation.description || responseInNewOperation.examples !== responseInOldOperation.examples) {
         result.push({
           path: responseInOldOperation.path,
           method: responseInOldOperation.method,

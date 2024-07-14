@@ -6,6 +6,7 @@ import { extractTypeFromSchema } from "./schemas-ir";
 export interface ParameterIntermediateRepresentation {
   name: string;
   type: string;
+  nOccurrences: number;
   description: string | undefined;
   examples: string | undefined;
 }
@@ -27,6 +28,7 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
     result.push({
       name: name,
       type: extractParameterType(parameter),
+      nOccurrences: countOccurrences(document, name),
       description: isReferenceObject(parameter) ? undefined : parameter.description,
       examples: isReferenceObject(parameter) ? undefined : extractParameterExamples(parameter),
     });
@@ -78,6 +80,55 @@ export function extractParameterExamples(parameter: OpenAPIV3.ParameterObject | 
   }
 
   return join(result, "\n");
+}
+
+function countOccurrences(document: OpenAPIV3.Document, name: string): number {
+  let result = 0;
+
+  for (const methods of Object.values(document.paths)) {
+    if (methods === undefined) {
+      continue;
+    }
+
+    if (methods.parameters !== undefined) {
+      for (const parameter of methods.parameters) {
+        if (isReferenceOfParameter(parameter, name)) {
+          result++;
+        }
+      }
+    }
+
+    for (const operation of Object.values(methods)) {
+      const parameters = (operation as OpenAPIV3.OperationObject).parameters;
+      if (parameters === undefined) {
+        continue;
+      }
+
+      for (const parameter of parameters) {
+        if (isReferenceOfParameter(parameter, name)) {
+          result++;
+        }
+      }
+    }
+  }
+
+  if (document.components?.parameters !== undefined) {
+    for (const [otherParameterName, parameter] of Object.entries(document.components.parameters)) {
+      if (isReferenceOfParameter(parameter, otherParameterName)) {
+        result += countOccurrences(document, otherParameterName);
+      }
+    }
+  }
+
+  return result;
+}
+
+function isReferenceOfParameter(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject, name: string): boolean {
+  if (isReferenceObject(parameter)) {
+    return parameter.$ref === `#/components/parameters/${name}`;
+  }
+
+  return false;
 }
 
 function extractTypeFromContent(content: OpenAPIV3.MediaTypeObject): string {

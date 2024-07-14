@@ -1,6 +1,8 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { OpenapiDocumentBreakingChange, OpenapiDocumentChanges, OpenapiDocumentNonBreakingChange } from "../diff/openapi-document-changes";
 import { OpenapiChangelogOptions } from "./changelog";
+import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/parameters-change";
+import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 
 export function formatDocumentChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -54,11 +56,48 @@ function breakingChange(
     case "operation-response-unclassified":
       return [`- Changed response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "parameter-type-change":
-      return [`- Changed type of parameter ${change.name} referenced by ?? objects`];
     case "parameter-unclassified":
-      return [`- Changed parameter ${change.name} referenced by ?? objects`];
+      return parameterBreakingChange(oldDocument, newDocument, change, options);
     case "schema-unclassified":
-      return [`- Changed schema ${change.name}`];
+      return schemaBreakingChange(oldDocument, newDocument, change, options);
+  }
+}
+
+function parameterBreakingChange(
+  oldDocument: OpenapiDocumentIntermediateRepresentation,
+  newDocument: OpenapiDocumentIntermediateRepresentation,
+  change: ParameterBreakingChange,
+  options?: OpenapiChangelogOptions,
+): string[] {
+  const parameterInOldDocument = oldDocument.parameters.find((p) => p.name === change.name);
+  const parameterInNewDocument = oldDocument.parameters.find((p) => p.name === change.name);
+  if (parameterInOldDocument === undefined || parameterInNewDocument === undefined) {
+    return [];
+  }
+
+  switch (change.type) {
+    case "parameter-type-change":
+      return [`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
+    case "parameter-unclassified":
+      return [`- Changed parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
+  }
+}
+
+function schemaBreakingChange(
+  oldDocument: OpenapiDocumentIntermediateRepresentation,
+  newDocument: OpenapiDocumentIntermediateRepresentation,
+  change: SchemaBreakingChange,
+  options?: OpenapiChangelogOptions,
+): string[] {
+  const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
+  const schemaInNewDocument = oldDocument.schemas.find((p) => p.name === change.name);
+  if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
+    return [];
+  }
+
+  switch (change.type) {
+    case "schema-unclassified":
+      return [`- Changed schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
   }
 }
 
@@ -86,8 +125,44 @@ function nonBreakingChange(
     case "operation-response-documentation-change":
       return [`- Changed documentation of response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
     case "parameter-documentation-change":
-      return [`- Changed documentation of parameter ${change.name} referenced by ?? objects`];
+      return parameterNonBreakingChange(oldDocument, newDocument, change, options);
     case "schema-documentation-change":
-      return [`- Changed documentation of schema ${change.name}`];
+      return schemaNonBreakingChange(oldDocument, newDocument, change, options);
+  }
+}
+
+function parameterNonBreakingChange(
+  oldDocument: OpenapiDocumentIntermediateRepresentation,
+  newDocument: OpenapiDocumentIntermediateRepresentation,
+  change: ParameterNonBreakingChange,
+  options?: OpenapiChangelogOptions,
+): string[] {
+  const parameterInOldDocument = oldDocument.parameters.find((p) => p.name === change.name);
+  const parameterInNewDocument = oldDocument.parameters.find((p) => p.name === change.name);
+  if (parameterInOldDocument === undefined || parameterInNewDocument === undefined) {
+    return [];
+  }
+
+  switch (change.type) {
+    case "parameter-documentation-change":
+      return [`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
+  }
+}
+
+function schemaNonBreakingChange(
+  oldDocument: OpenapiDocumentIntermediateRepresentation,
+  newDocument: OpenapiDocumentIntermediateRepresentation,
+  change: SchemaNonBreakingChange,
+  options?: OpenapiChangelogOptions,
+): string[] {
+  const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
+  const schemaInNewDocument = oldDocument.schemas.find((p) => p.name === change.name);
+  if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
+    return [];
+  }
+
+  switch (change.type) {
+    case "schema-documentation-change":
+      return [`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
   }
 }

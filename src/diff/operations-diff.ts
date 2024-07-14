@@ -1,4 +1,4 @@
-import { IntermediateRepresentation } from "./intermediate-representation.js";
+import { IntermediateRepresentation } from "../ir/types";
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "./types";
 
@@ -11,9 +11,10 @@ export function extractOperationsDiff(oldSpec: Input, newSpec: Input): Operation
   const result: OperationDiff[] = [];
 
   for (const operation of oldSpec.ir.operations) {
-    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method]!;
+    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method];
     const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method];
-    if (!operationInNewSpec) {
+
+    if (operationInOldSpec && !operationInNewSpec) {
       result.push({
         path: operation.path,
         method: operation.method,
@@ -27,9 +28,10 @@ export function extractOperationsDiff(oldSpec: Input, newSpec: Input): Operation
   }
 
   for (const operation of oldSpec.ir.operations) {
-    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method]!;
+    const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method];
     const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method];
-    if (!operationInNewSpec) {
+
+    if (operationInOldSpec === undefined || operationInNewSpec === undefined) {
       continue;
     }
 
@@ -48,9 +50,9 @@ export function extractOperationsDiff(oldSpec: Input, newSpec: Input): Operation
 
   for (const operation of newSpec.ir.operations) {
     const operationInOldSpec = oldSpec.spec.paths[operation.path]?.[operation.method];
-    const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method]!;
+    const operationInNewSpec = newSpec.spec.paths[operation.path]?.[operation.method];
 
-    if (!operationInOldSpec) {
+    if (!operationInOldSpec && operationInNewSpec) {
       result.push({
         path: operation.path,
         method: operation.method,

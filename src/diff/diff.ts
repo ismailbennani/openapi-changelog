@@ -1,13 +1,20 @@
-import { HttpMethod, OpenapiChangelogDiff, OperationBreakingChange, OperationBreakingDiff, OperationChanged, OperationNonBreakingDiff } from "./types.js";
 import { OpenAPIV3 } from "openapi-types";
 import * as util from "util";
 import winston from "winston";
 import semver from "semver";
-import { extractIntermediateRepresentation } from "./intermediate-representation.js";
-import { extractVersionDiff } from "./version-diff.js";
-import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
-import { extractOperationParametersDiff, ParameterDiff } from "./operation-parameters-diff.js";
-import { extractOperationResponsesDiff, ResponseDiff } from "./operation-responses-diff.js";
+import { HttpMethod, OpenapiChangelogDiff, OperationBreakingChange, OperationBreakingDiff, OperationChanged, OperationNonBreakingDiff } from "./types";
+import { extractVersionDiff } from "./version-diff";
+import { extractOperationsDiff, OperationDiff } from "./operations-diff";
+import {
+  extractOperationParametersDiff,
+  ParameterAddition,
+  ParameterDeprecation,
+  ParameterDiff,
+  ParameterRemoval,
+  UnclassifiedParameterBreakingChange,
+} from "./operation-parameters-diff";
+import { extractOperationResponsesDiff, ResponseDiff } from "./operation-responses-diff";
+import { extractIntermediateRepresentation } from "../ir/openapi-document-ir";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -134,46 +141,46 @@ function transformDiffs(
   }
 
   for (const parameterDiff of parameterDiffs) {
-    if (parameterDiff.added) {
+    if (!(parameterDiff as ParameterAddition).addition) {
       const diff = getOrCreateOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
         breaking: false,
         added: true,
-        new: parameterDiff.new,
+        new: undefined!,
       });
     }
 
-    if (parameterDiff.changed) {
+    if ((parameterDiff as UnclassifiedParameterBreakingChange).breakingChange) {
       const diff = getOrCreateBreakingOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
         breaking: true,
         changed: true,
-        old: parameterDiff.old,
-        new: parameterDiff.new,
+        old: undefined!,
+        new: undefined!,
       });
     }
 
-    if (parameterDiff.deprecated) {
+    if ((parameterDiff as ParameterDeprecation).deprecated) {
       const diff = getOrCreateOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
         breaking: false,
         changed: true,
         deprecated: true,
-        old: parameterDiff.old,
-        new: parameterDiff.new,
+        old: undefined!,
+        new: undefined!,
       });
     }
 
-    if (parameterDiff.removed) {
+    if ((parameterDiff as ParameterRemoval).removed) {
       const diff = getOrCreateBreakingOperationChange(diffs, parameterDiff.path, parameterDiff.method, parameterDiff.oldOperation, parameterDiff.newOperation);
       diff.parameters.push({
         name: parameterDiff.name,
         breaking: true,
         removed: true,
-        old: parameterDiff.old,
+        old: undefined!,
       });
     }
   }

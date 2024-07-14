@@ -11,8 +11,8 @@ import {
   ParameterChange,
   ResponseBreakingChange,
   ResponseChange,
-} from "../diff/types.js";
-import { diff, OpenapiDiffOptions } from "../diff/diff.js";
+} from "../diff/types";
+import { diff, OpenapiDiffOptions } from "../diff/diff";
 
 export type OpenapiChangelogOptions = OpenapiDiffOptions & {
   template?: string;
@@ -108,34 +108,42 @@ function nonBreakingChange(breaking: OperationNonBreakingDiff, options?: Openapi
   if (isAddition(breaking)) {
     const result: string[] = [`- Added operation ${breaking.method.toUpperCase()} ${breaking.path}`];
 
-    if (breaking.new.summary || breaking.new.description || breaking.new.externalDocs) {
+    if (breaking.new.summary !== undefined || breaking.new.description !== undefined || breaking.new.externalDocs !== undefined) {
       result[0] += ":";
 
-      if (breaking.new.summary) {
+      if (breaking.new.summary !== undefined) {
         result.push(
           "",
           ...block(breaking.new.summary, {
-            maxLineLength: options?.printWidth ? options.printWidth - 2 : undefined,
+            maxLineLength: options?.printWidth !== undefined ? options.printWidth - 2 : undefined,
             padding: 2,
           }),
         );
       }
 
-      if (breaking.new.description) {
+      if (breaking.new.description !== undefined) {
         result.push(
           "",
           ...block(breaking.new.description, {
-            maxLineLength: options?.printWidth ? options.printWidth - 2 : undefined,
+            maxLineLength: options?.printWidth !== undefined ? options.printWidth - 2 : undefined,
             padding: 2,
           }),
         );
       }
 
-      if (breaking.new.externalDocs) {
+      if (breaking.new.externalDocs !== undefined) {
+        let entry = "External docupmentation: ";
+
+        if (breaking.new.externalDocs.description !== undefined) {
+          entry += `${breaking.new.externalDocs.description} (${breaking.new.externalDocs.url})`;
+        } else {
+          entry += breaking.new.externalDocs.url;
+        }
+
         result.push(
           "",
-          ...block(`Link: ${breaking.new.externalDocs}`, {
-            maxLineLength: options?.printWidth ? options.printWidth - 2 : undefined,
+          ...block(entry, {
+            maxLineLength: options?.printWidth !== undefined ? options.printWidth - 2 : undefined,
             padding: 2,
           }),
         );
@@ -162,42 +170,31 @@ function nonBreakingChange(breaking: OperationNonBreakingDiff, options?: Openapi
 
 function parameterNonBreakingChange(parameter: ParameterChange, options?: OpenapiChangelogOptions): string[] {
   if (isAddition(parameter)) {
+    const parameterObject: OpenAPIV3.ParameterObject = parameter.new as OpenAPIV3.ParameterObject;
+
     const result: string[] = [`- Added parameter ${parameter.name}`];
 
-    if ((parameter.new as OpenAPIV3.ParameterObject).description || (parameter.new as OpenAPIV3.ParameterObject).example || (parameter.new as OpenAPIV3.ParameterObject).examples) {
+    if (parameterObject.description !== undefined || parameterObject.example !== undefined || parameterObject.examples !== undefined) {
       result[0] += ":";
 
-      if ((parameter.new as OpenAPIV3.ParameterObject).description) {
+      if (parameterObject.description !== undefined) {
         result.push(
           "",
-          ...block((parameter.new as OpenAPIV3.ParameterObject).description!, {
-            maxLineLength: options?.printWidth ? options.printWidth - 2 : undefined,
+          ...block(parameterObject.description, {
+            maxLineLength: options?.printWidth !== undefined ? options.printWidth - 2 : undefined,
             padding: 2,
           }),
         );
       }
 
-      if ((parameter.new as OpenAPIV3.ParameterObject).example) {
+      if (parameterObject.example !== undefined) {
+        const example = parameterObject.example as string;
         result.push(
           "",
-          ...block(`Example: ${(parameter.new as OpenAPIV3.ParameterObject).example}`, {
-            maxLineLength: options?.printWidth ? options.printWidth - 2 : undefined,
+          ...block(`Example: ${example}`, {
+            maxLineLength: options?.printWidth !== undefined ? options.printWidth - 2 : undefined,
             padding: 2,
           }),
-        );
-      }
-
-      if ((parameter.new as OpenAPIV3.ParameterObject).examples) {
-        result.push(
-          "",
-          "Examples:",
-          ...block(
-            (parameter.new as OpenAPIV3.ParameterObject).example.map((e: string) => `- ${e}`),
-            {
-              maxLineLength: options?.printWidth ? options.printWidth - 4 : undefined,
-              padding: 4,
-            },
-          ),
         );
       }
 
@@ -221,12 +218,12 @@ function responseNonBreakingChange(response: ResponseChange, options?: OpenapiCh
 }
 
 function block(str: string, options: BlockOptions): string[] {
-  const padding = options.padding && options.padding > 0 ? " ".repeat(options.padding) : "";
+  const padding = options.padding !== undefined && options.padding > 0 ? " ".repeat(options.padding) : "";
   const lineLength = options.maxLineLength ?? 9999;
 
   const lines = str.split("\n");
-  if (lines.length == 1) {
-    return options.dontPadFirstLine ? [str] : [padding + str];
+  if (lines.length === 1) {
+    return options.dontPadFirstLine !== undefined ? [str] : [padding + str];
   }
 
   const result: string[] = [];
@@ -255,10 +252,10 @@ function block(str: string, options: BlockOptions): string[] {
       split(line.length);
     }
 
-    function split(i: number) {
+    function split(i: number): void {
       const substr = line.substring(lastSplit, i);
 
-      if (!options.dontPadFirstLine || result.length > 0) {
+      if (options.dontPadFirstLine === false || result.length > 0) {
         result.push(padding + substr);
       } else {
         result.push(substr);

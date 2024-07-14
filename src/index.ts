@@ -1,5 +1,5 @@
-export type { OpenapiChangelogDiff } from "./diff/types.js";
-export { diff } from "./diff/diff.js";
+export type { OpenapiChangelogDiff } from "./diff/types";
+export { diff } from "./diff/diff";
 
-export type { OpenapiChangelogOptions } from "./changelog/changelog.js";
-export { changelog } from "./changelog/changelog.js";
+export type { OpenapiChangelogOptions } from "./changelog/changelog";
+export { changelog } from "./changelog/changelog";

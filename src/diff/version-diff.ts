@@ -1,6 +1,6 @@
-import { VersionDiff } from "./types.js";
+import { VersionDiff } from "./types";
 import { major, minor, patch, valid } from "semver";
-import { IntermediateRepresentation } from "./intermediate-representation";
+import { IntermediateRepresentation } from "../ir/intermediate-representation";
 
 export function extractVersionDiff(oldSpec: IntermediateRepresentation, newSpec: IntermediateRepresentation): VersionDiff {
   const oldVersion = valid(oldSpec.version);

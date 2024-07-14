@@ -42,7 +42,7 @@ function dumpDiffs(diffs: OpenapiChangelogDiff[], options?: OpenapiChangelogOpti
 function dumpDiff(diff: OpenapiChangelogDiff, options?: OpenapiChangelogOptions): string[] {
   const result = header(diff);
 
-  if (diff.breaking) {
+  if (diff.breaking.length > 0) {
     result.push("");
     result.push("> BREAKING CHANGES");
     for (const breaking of diff.breaking) {
@@ -50,7 +50,7 @@ function dumpDiff(diff: OpenapiChangelogDiff, options?: OpenapiChangelogOptions)
     }
   }
 
-  if (diff.nonBreaking) {
+  if (diff.nonBreaking.length > 0) {
     result.push("");
     result.push("> Changes");
     for (const nonBreaking of diff.nonBreaking) {
@@ -62,7 +62,8 @@ function dumpDiff(diff: OpenapiChangelogDiff, options?: OpenapiChangelogOptions)
 }
 
 function header(diff: OpenapiChangelogDiff, options?: OpenapiChangelogOptions): string[] {
-  return [diff.version.new, "", ""];
+  const updateType = diff.version.changed.major ? " - MAJOR" : diff.version.changed.minor ? " - MINOR" : diff.version.changed.patch ? " - PATCH" : " ";
+  return [`Version ${diff.version.new}${updateType}`];
 }
 
 function breakingChange(breaking: OperationBreakingDiff, options?: OpenapiChangelogOptions): string[] {

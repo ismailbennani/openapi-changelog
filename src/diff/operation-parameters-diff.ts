@@ -8,7 +8,7 @@ interface Input {
   ir: IntermediateRepresentation;
 }
 
-export function extractParametersDiff(oldSpec: Input, newSpec: Input): ParameterDiff[] {
+export function extractOperationParametersDiff(oldSpec: Input, newSpec: Input): ParameterDiff[] {
   const result: ParameterDiff[] = [];
 
   for (const parameter of oldSpec.ir.operationParameters) {
@@ -36,7 +36,7 @@ export function extractParametersDiff(oldSpec: Input, newSpec: Input): Parameter
       });
     }
 
-    if (parameterInNewSpec && !isDeepStrictEqual(parameter, parameterInNewSpec)) {
+    if (parameterInNewSpec && !isDeepStrictEqual(parameterInOldSpec, parameterInNewSpec)) {
       if ((parameterInNewSpec as OpenAPIV3.ParameterObject).deprecated && !(parameterInOldSpec as OpenAPIV3.ParameterObject).deprecated) {
         result.push({
           path: parameter.path,
@@ -53,7 +53,7 @@ export function extractParametersDiff(oldSpec: Input, newSpec: Input): Parameter
         });
       }
 
-      if (!isDeepStrictEqual({ ...parameter, deprecated: false }, { ...parameterInNewSpec, deprecated: false })) {
+      if (!isDeepStrictEqual({ ...parameterInOldSpec, deprecated: false }, { ...parameterInNewSpec, deprecated: false })) {
         result.push({
           path: parameter.path,
           method: parameter.method,

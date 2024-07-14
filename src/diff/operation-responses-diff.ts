@@ -8,11 +8,11 @@ interface Input {
   ir: IntermediateRepresentation;
 }
 
-export function extractResponsesDiff(oldSpec: Input, newSpec: Input): ResponseDiff[] {
+export function extractOperationResponsesDiff(oldSpec: Input, newSpec: Input): ResponseDiff[] {
   const result: ResponseDiff[] = [];
 
   for (const response of oldSpec.ir.operationResponses) {
-    const operationInOldSpec = newSpec.spec.paths[response.path]?.[response.method]!;
+    const operationInOldSpec = oldSpec.spec.paths[response.path]?.[response.method]!;
     const operationInNewSpec = newSpec.spec.paths[response.path]?.[response.method];
     if (!operationInNewSpec) {
       continue;
@@ -35,7 +35,7 @@ export function extractResponsesDiff(oldSpec: Input, newSpec: Input): ResponseDi
       });
     }
 
-    if (responseInNewSpec && !isDeepStrictEqual(response, responseInNewSpec)) {
+    if (responseInNewSpec && !isDeepStrictEqual(responseInOldSpec, responseInNewSpec)) {
       result.push({
         path: response.path,
         method: response.method,
@@ -52,7 +52,7 @@ export function extractResponsesDiff(oldSpec: Input, newSpec: Input): ResponseDi
   }
 
   for (const response of newSpec.ir.operationResponses) {
-    const operationInOldSpec = newSpec.spec.paths[response.path]?.[response.method];
+    const operationInOldSpec = oldSpec.spec.paths[response.path]?.[response.method];
     const operationInNewSpec = newSpec.spec.paths[response.path]?.[response.method]!;
     if (!operationInOldSpec) {
       continue;

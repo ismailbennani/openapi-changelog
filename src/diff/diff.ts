@@ -6,8 +6,8 @@ import semver from "semver";
 import { extractIntermediateRepresentation } from "./intermediate-representation.js";
 import { extractVersionDiff } from "./version-diff.js";
 import { extractOperationsDiff, OperationDiff } from "./operations-diff.js";
-import { extractParametersDiff, ParameterDiff } from "./parameters-diff.js";
-import { extractResponsesDiff, ResponseDiff } from "./responses-diff.js";
+import { extractOperationParametersDiff, ParameterDiff } from "./operation-parameters-diff.js";
+import { extractOperationResponsesDiff, ResponseDiff } from "./operation-responses-diff.js";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -52,8 +52,8 @@ export function diff(specs: OpenAPIV3.Document[], options?: OpenapiDiffOptions):
 
     const versionDiffs = extractVersionDiff(oldSpecIR, newSpecIR);
     const operationDiffs = extractOperationsDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
-    const parameterDiffs = extractParametersDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
-    const responseDiffs = extractResponsesDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
+    const parameterDiffs = extractOperationParametersDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
+    const responseDiffs = extractOperationResponsesDiff({ spec: oldSpec, ir: oldSpecIR }, { spec: newSpec, ir: newSpecIR });
 
     const transformed = transformDiffs(operationDiffs, parameterDiffs, responseDiffs);
 

@@ -70,7 +70,7 @@ export function parameterNonBreakingChanges(
           }
         }
 
-        return block(content, blockOptions);
+        result.push(...block(content, blockOptions));
       }
     }
   }

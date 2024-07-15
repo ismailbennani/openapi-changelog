@@ -61,7 +61,7 @@ export function schemaNonBreakingChanges(
           }
         }
 
-        return block(content, blockOptions);
+        result.push(...block(content, blockOptions));
       }
     }
   }

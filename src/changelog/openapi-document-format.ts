@@ -84,7 +84,7 @@ export function formatDocumentChanges(
         parameterNonBreakingChanges(
           oldDocument,
           newDocument,
-          nonBreaking.filter((c) => c.type.startsWith("parameters")).map((c) => c as ParameterNonBreakingChange),
+          nonBreaking.filter((c) => c.type.startsWith("parameter")).map((c) => c as ParameterNonBreakingChange),
           { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
@@ -96,7 +96,7 @@ export function formatDocumentChanges(
         schemaNonBreakingChanges(
           oldDocument,
           newDocument,
-          nonBreaking.filter((c) => c.type.startsWith("schemas")).map((c) => c as SchemaNonBreakingChange),
+          nonBreaking.filter((c) => c.type.startsWith("schema")).map((c) => c as SchemaNonBreakingChange),
           { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,

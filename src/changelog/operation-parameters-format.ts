@@ -64,27 +64,27 @@ export function operationParameterNonBreakingChange(
         header += ` of type ${parameterInNewDocument.type}`;
       }
 
-      const content = [header];
+      const result = [header];
 
       if (options.detailed === true && parameterInNewDocument !== undefined) {
-        content.push("", ...parameterAdditionDetails(parameterInNewDocument));
+        result.push("", ...parameterAdditionDetails(parameterInNewDocument));
       }
 
-      return block(content, blockOptions);
+      return block(result, blockOptions);
     }
     case "operation-parameter-deprecation":
       return [`- Deprecated parameter ${change.name}`];
     case "operation-parameter-documentation-change": {
-      const content = [`- Changed documentation of parameter ${change.name}`];
+      const result = [`- Changed documentation of parameter ${change.name}`];
 
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
         const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
         if (details !== undefined) {
-          content.push("", details);
+          result.push("", details);
         }
       }
 
-      return block(content, blockOptions);
+      return block(result, blockOptions);
     }
   }
 }

@@ -137,6 +137,8 @@ void yargsInstance
         winston.info(`Done.`);
       } else {
         winston.info(`Writing output below\n`);
+        winston.debug(result);
+
         process.stdout.write(result);
       }
     },

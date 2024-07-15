@@ -65,25 +65,25 @@ export function operationResponseNonBreakingChange(
         header += ` of type ${responseInNewDocument.type}`;
       }
 
-      const content = [header];
+      const result = [header];
 
       if (options.detailed === true && responseInNewDocument !== undefined) {
-        content.push("", ...responseAdditionDetails(responseInNewDocument));
+        result.push("", ...responseAdditionDetails(responseInNewDocument));
       }
 
-      return block(content, blockOptions);
+      return block(result, blockOptions);
     }
     case "operation-response-documentation-change": {
-      const content = [`- Changed documentation of response ${change.code}`];
+      const result = [`- Changed documentation of response ${change.code}`];
 
       if (options.detailed === true && responseInOldDocument !== undefined && responseInNewDocument !== undefined) {
         const details = responseDocumentationDetails(responseInOldDocument, responseInNewDocument);
         if (details !== undefined) {
-          content.push("", details);
+          result.push("", details);
         }
       }
 
-      return block(content, blockOptions);
+      return block(result, blockOptions);
     }
   }
 }

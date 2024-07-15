@@ -12,8 +12,6 @@ export function operationBreakingChanges(
   changes: OperationBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const groupedByOperation = Object.values(Object.groupBy(changes, (op) => `${op.method}_${op.path}}`));
-
   const blockOptions = {
     maxLineLength: options.printWidth,
     padding: 2,
@@ -21,6 +19,14 @@ export function operationBreakingChanges(
   };
 
   const result: string[] = [];
+
+  const removals = changes.filter((c) => c.type === "operation-removal");
+  for (const removal of removals) {
+    result.push(...block(`- Removed operation ${removal.method.toUpperCase()} ${removal.path}`, blockOptions));
+  }
+
+  const others = changes.filter((c) => c.type !== "operation-removal");
+  const groupedByOperation = Object.values(Object.groupBy(others, (op) => `${op.method}_${op.path}}`));
 
   for (const group of groupedByOperation) {
     if (group === undefined) {
@@ -30,13 +36,7 @@ export function operationBreakingChanges(
     group.sort((a, b) => a.type.localeCompare(b.type));
     let headerPrintedAlready = false;
     for (const change of group) {
-      const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
-      const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
-
       switch (change.type) {
-        case "operation-removal":
-          result.push(...block(`- Removed operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
-          break;
         case "operation-parameter-removal":
         case "operation-parameter-type-change":
         case "operation-parameter-unclassified":
@@ -70,8 +70,6 @@ export function operationNonBreakingChanges(
   changes: OperationNonBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const groupedByOperation = Object.values(Object.groupBy(changes, (op) => `${op.method}_${op.path}}`));
-
   const blockOptions = {
     maxLineLength: options.printWidth,
     padding: 2,
@@ -79,6 +77,22 @@ export function operationNonBreakingChanges(
   };
 
   const result: string[] = [];
+
+  const additions = changes.filter((c) => c.type === "operation-addition");
+  for (const addition of additions) {
+    const operationInNewDocument = newDocument.operations.find((p) => p.path === addition.path && p.method === addition.method);
+
+    const content = [`- Added operation ${addition.method.toUpperCase()} ${addition.path}`];
+
+    if (options.detailed === true && operationInNewDocument !== undefined) {
+      content.push("", ...operationAdditionDetails(operationInNewDocument));
+    }
+
+    result.push(...block(content, blockOptions));
+  }
+
+  const others = changes.filter((c) => c.type !== "operation-addition");
+  const groupedByOperation = Object.values(Object.groupBy(others, (op) => `${op.method}_${op.path}}`));
 
   for (const group of groupedByOperation) {
     if (group === undefined) {
@@ -91,16 +105,6 @@ export function operationNonBreakingChanges(
       const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
 
       switch (change.type) {
-        case "operation-addition": {
-          const content = [`- Added operation ${change.method.toUpperCase()} ${change.path}`];
-
-          if (options.detailed === true && operationInNewDocument !== undefined) {
-            content.push("", ...operationAdditionDetails(operationInNewDocument));
-          }
-
-          result.push(...block(content, blockOptions));
-          break;
-        }
         case "operation-documentation-change": {
           const content = [`- Changed documentation of operation ${change.method.toUpperCase()} ${change.path}`];
 

@@ -1,6 +1,6 @@
 import { load } from "js-yaml";
 import MarkdownIt from "markdown-it";
-import { changelog, detailedDiff } from "../dist";
+import { openapiChangelog, openapiCompare } from "../dist";
 
 let currentChangelogTab: "raw" | "markdown" = "raw";
 let currentlyDetailed: boolean = false;
@@ -125,7 +125,7 @@ function computeChangelog(detailed?: boolean | undefined) {
     document.getElementById("detailedChangelogButton")?.classList.add("btn-outline-primary");
   }
 
-  const raw = changelog([oldDocument, newDocument], { detailed: currentlyDetailed });
+  const raw = openapiChangelog([oldDocument, newDocument], { detailed: currentlyDetailed });
 
   switch (currentChangelogTab) {
     case "raw":
@@ -161,7 +161,7 @@ function computeDiff() {
     changelogTabs.style.visibility = "hidden";
   }
 
-  const result = detailedDiff([oldDocument, newDocument])[0];
+  const result = openapiCompare(oldDocument, newDocument);
   resultTextArea.value = JSON.stringify(result.changes, null, 2);
 }
 

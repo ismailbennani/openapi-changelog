@@ -43,7 +43,7 @@ Options:
 ### API
 
 ```ts
-import * as OpenApiChangelog from "openapi-changelog"
+import { openapiChangelog } from "openapi-changelog"
 import * as fs from "fs";
 
 const oldSpecificationContent = fs.readFileSync("path/to/new/spec.json", "utf8");
@@ -52,7 +52,7 @@ const oldSpecification = JSON.parse(oldSpecificationContent);
 const newSpecificationContent = fs.readFileSync("path/to/old/spec.json", "utf8");
 const newSpecification = JSON.parse(newSpecificationContent);
 
-const result: string = OpenApiChangelog.changelog([oldSpecification, newSpecification]);
+const result: string = openapiChangelog([oldSpecification, newSpecification]);
 console.log(result);
 ```
 

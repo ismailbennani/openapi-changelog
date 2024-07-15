@@ -119,7 +119,13 @@ void yargsInstance
       } else {
         const exclude: OpenapiDocumentChange["type"][] = args.exclude?.map((e) => e as OpenapiDocumentChange["type"]) ?? [];
         if (args.includeMinor !== true) {
-          exclude.push("operation-parameter-documentation-change", "operation-response-documentation-change", "parameter-documentation-change", "schema-documentation-change");
+          exclude.push(
+            "operation-documentation-change",
+            "operation-parameter-documentation-change",
+            "operation-response-documentation-change",
+            "parameter-documentation-change",
+            "schema-documentation-change",
+          );
         }
 
         result = changelog(specs, { ...diffOptions, printWidth: 120, exclude, detailed: args.detailed });

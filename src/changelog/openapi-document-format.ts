@@ -19,7 +19,7 @@ export function formatDocumentChanges(
 
   const breaking: OpenapiDocumentBreakingChange[] = changes.changes.filter((c) => c.breaking).filter((c) => options.exclude?.includes(c.type) === false);
   if (breaking.length > 0) {
-    result.push(...pad(["> BREAKING CHANGES"], 2));
+    result.push(...pad(["- BREAKING CHANGES"], 2));
 
     result.push(
       ...pad(
@@ -65,7 +65,7 @@ export function formatDocumentChanges(
   }
 
   if (nonBreaking.length > 0) {
-    result.push(...pad(["> Changes"], 2));
+    result.push(...pad(["- Changes"], 2));
 
     result.push(
       ...pad(
@@ -105,7 +105,7 @@ export function formatDocumentChanges(
   }
 
   if (breaking.length === 0 && nonBreaking.length === 0) {
-    result.push(...pad(["No changes"], 2));
+    result.push(...pad(["- No changes"], 2));
   }
 
   return result;

@@ -78,18 +78,40 @@ export function block(str: string[] | string, options: BlockOptions): string[] {
 }
 
 export function diffStrings(str1: string, str2: string): string {
-  const diff = fastDiff(str1, str2);
+  const str1Lines = str1.split("\n");
+  const str2Lines = str2.split("\n");
 
-  return diff
-    .map(([op, str]) => {
-      switch (op) {
-        case fastDiff.EQUAL:
-          return str;
-        case fastDiff.INSERT:
-          return `**${str}**`;
-        case fastDiff.DELETE:
-          return `~~${str}~~`;
-      }
-    })
-    .join("");
+  let result = "";
+
+  const n = str1Lines.length < str2Lines.length ? str1Lines.length : str2Lines.length;
+  for (let i = 0; i < n; i++) {
+    const diff = fastDiff(str1Lines[i], str2Lines[i]);
+
+    if (diff.length >= 10) {
+      result += `~~${str1Lines[i]}~~\n**${str2Lines[i]}**\n`;
+    } else {
+      result += `${diff
+        .map(([op, str]) => {
+          switch (op) {
+            case fastDiff.EQUAL:
+              return str;
+            case fastDiff.INSERT:
+              return `**${str}**`;
+            case fastDiff.DELETE:
+              return `~~${str}~~`;
+          }
+        })
+        .join("")}\n`;
+    }
+  }
+
+  for (let i = n; i < str1Lines.length; i++) {
+    result += `~~${str1Lines[i]}~~\n`;
+  }
+
+  for (let i = n; i < str2Lines.length; i++) {
+    result += `**${str2Lines[i]}**\n`;
+  }
+
+  return result;
 }

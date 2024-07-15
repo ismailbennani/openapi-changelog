@@ -100,6 +100,7 @@ export function operationNonBreakingChanges(
     }
 
     group.sort((a, b) => a.type.localeCompare(b.type));
+    let headerPrintedAlready = false;
     for (const change of group) {
       const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
       const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
@@ -125,11 +126,21 @@ export function operationNonBreakingChanges(
         case "operation-parameter-addition":
         case "operation-parameter-deprecation":
         case "operation-parameter-documentation-change": {
+          if (!headerPrintedAlready) {
+            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            headerPrintedAlready = true;
+          }
+
           result.push(...pad(operationParameterNonBreakingChange(oldDocument, newDocument, change, options), 2));
           break;
         }
         case "operation-response-addition":
         case "operation-response-documentation-change": {
+          if (!headerPrintedAlready) {
+            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            headerPrintedAlready = true;
+          }
+
           result.push(...pad(operationResponseNonBreakingChange(oldDocument, newDocument, change, options), 2));
           break;
         }

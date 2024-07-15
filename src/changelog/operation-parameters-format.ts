@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationParameterBreakingChange, OperationParameterNonBreakingChange } from "../diff/operation-parameters-change";
-import { block } from "./string-utils";
+import { block, diffStrings } from "./string-utils";
 import { OperationParameterIntermediateRepresentation } from "../ir/operation-parameters-ir";
 
 export function operationParameterBreakingChange(
@@ -78,7 +78,10 @@ export function operationParameterNonBreakingChange(
       const content = [`- Changed documentation of parameter ${change.name}`];
 
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
-        content.push("", ...parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument));
+        const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
+        if (details !== undefined) {
+          content.push("", details);
+        }
       }
 
       return block(content, blockOptions);
@@ -100,12 +103,14 @@ function parameterAdditionDetails(newParameter: OperationParameterIntermediateRe
   return result;
 }
 
-function parameterDocumentationDetails(oldParameter: OperationParameterIntermediateRepresentation, newParameter: OperationParameterIntermediateRepresentation): string[] {
-  const result: string[] = [];
-
-  if (newParameter.description !== undefined) {
-    result.push(newParameter.description);
+function parameterDocumentationDetails(oldParameter: OperationParameterIntermediateRepresentation, newParameter: OperationParameterIntermediateRepresentation): string | undefined {
+  if (oldParameter.description !== undefined && newParameter.description !== undefined) {
+    return diffStrings(oldParameter.description, newParameter.description);
   }
 
-  return result;
+  if (newParameter.description !== undefined) {
+    return newParameter.description;
+  }
+
+  return undefined;
 }

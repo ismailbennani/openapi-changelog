@@ -1,3 +1,5 @@
+import fastDiff from "fast-diff";
+
 export interface PadOptions {
   padding: number;
   dontPadFirstLine?: boolean | undefined;
@@ -73,4 +75,21 @@ export function block(str: string[] | string, options: BlockOptions): string[] {
   }
 
   return result;
+}
+
+export function diffStrings(str1: string, str2: string): string {
+  const diff = fastDiff(str1, str2);
+
+  return diff
+    .map(([op, str]) => {
+      switch (op) {
+        case fastDiff.EQUAL:
+          return str;
+        case fastDiff.INSERT:
+          return `**${str}**`;
+        case fastDiff.DELETE:
+          return `~~${str}~~`;
+      }
+    })
+    .join("");
 }

@@ -3,7 +3,7 @@ import { OperationBreakingChange, OperationNonBreakingChange } from "../diff/ope
 import { OpenapiChangelogOptions } from "./changelog";
 import { operationParameterBreakingChange, operationParameterNonBreakingChange } from "./operation-parameters-format";
 import { operationResponseBreakingChange, operationResponseNonBreakingChange } from "./operation-responses-format";
-import { block, pad } from "./string-utils";
+import { block, diffStrings, pad } from "./string-utils";
 import { OperationIntermediateRepresentation } from "../ir/operations-ir";
 
 export function operationBreakingChanges(
@@ -109,7 +109,10 @@ export function operationNonBreakingChanges(
           const content = [`- Changed documentation of operation ${change.method.toUpperCase()} ${change.path}`];
 
           if (options.detailed === true && operationInOldDocument !== undefined && operationInNewDocument !== undefined) {
-            content.push("", ...operationDocumentationDetails(operationInOldDocument, operationInNewDocument));
+            const details = operationDocumentationDetails(operationInOldDocument, operationInNewDocument);
+            if (details !== undefined) {
+              content.push("", details);
+            }
           }
 
           result.push(...block(content, blockOptions));
@@ -147,12 +150,14 @@ function operationAdditionDetails(newOperation: OperationIntermediateRepresentat
   return result;
 }
 
-function operationDocumentationDetails(oldOperation: OperationIntermediateRepresentation, newOperation: OperationIntermediateRepresentation): string[] {
-  const result: string[] = [];
-
-  if (newOperation.description !== undefined) {
-    result.push(newOperation.description);
+function operationDocumentationDetails(oldOperation: OperationIntermediateRepresentation, newOperation: OperationIntermediateRepresentation): string | undefined {
+  if (oldOperation.description !== undefined && newOperation.description !== undefined) {
+    return diffStrings(oldOperation.description, newOperation.description);
   }
 
-  return result;
+  if (newOperation.description !== undefined) {
+    return newOperation.description;
+  }
+
+  return undefined;
 }

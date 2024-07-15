@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/parameters-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block } from "./string-utils";
+import { block, diffStrings } from "./string-utils";
 import { ParameterIntermediateRepresentation } from "../ir/parameters-ir";
 
 export function parameterBreakingChanges(
@@ -64,7 +64,10 @@ export function parameterNonBreakingChanges(
         const content = [`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
 
         if (options.detailed === true) {
-          content.push("", ...parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument));
+          const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
+          if (details !== undefined) {
+            content.push("", details);
+          }
         }
 
         return block(content, blockOptions);
@@ -79,12 +82,14 @@ function parameterTypeChangeDetails(oldParameter: ParameterIntermediateRepresent
   return [`Old type: ${oldParameter.type}`, `New type: ${newParameter.type}`];
 }
 
-function parameterDocumentationDetails(oldParameter: ParameterIntermediateRepresentation, newParameter: ParameterIntermediateRepresentation): string[] {
-  const result: string[] = [];
-
-  if (newParameter.description !== undefined) {
-    result.push(newParameter.description);
+function parameterDocumentationDetails(oldParameter: ParameterIntermediateRepresentation, newParameter: ParameterIntermediateRepresentation): string | undefined {
+  if (oldParameter.description !== undefined && newParameter.description !== undefined) {
+    return diffStrings(oldParameter.description, newParameter.description);
   }
 
-  return result;
+  if (newParameter.description !== undefined) {
+    return newParameter.description;
+  }
+
+  return undefined;
 }

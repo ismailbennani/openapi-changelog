@@ -2,7 +2,8 @@ import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-documen
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationResponseBreakingChange, OperationResponseNonBreakingChange } from "../diff/operation-responses-change";
 import { OperationResponseIntermediateRepresentation } from "../ir/operation-responses-ir";
-import { block } from "./string-utils";
+import { block, diffStrings } from "./string-utils";
+import { OperationIntermediateRepresentation } from "../ir/operations-ir";
 
 export function operationResponseBreakingChange(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -76,7 +77,10 @@ export function operationResponseNonBreakingChange(
       const content = [`- Changed documentation of response ${change.code}`];
 
       if (options.detailed === true && responseInOldDocument !== undefined && responseInNewDocument !== undefined) {
-        content.push("", ...responseDocumentationDetails(responseInOldDocument, responseInNewDocument));
+        const details = responseDocumentationDetails(responseInOldDocument, responseInNewDocument);
+        if (details !== undefined) {
+          content.push("", details);
+        }
       }
 
       return block(content, blockOptions);
@@ -98,12 +102,14 @@ function responseAdditionDetails(newResponse: OperationResponseIntermediateRepre
   return result;
 }
 
-function responseDocumentationDetails(oldResponse: OperationResponseIntermediateRepresentation, newResponse: OperationResponseIntermediateRepresentation): string[] {
-  const result: string[] = [];
-
-  if (newResponse.description !== undefined) {
-    result.push(newResponse.description);
+function responseDocumentationDetails(oldResponse: OperationResponseIntermediateRepresentation, newResponse: OperationResponseIntermediateRepresentation): string | undefined {
+  if (oldResponse.description !== undefined && newResponse.description !== undefined) {
+    return diffStrings(oldResponse.description, newResponse.description);
   }
 
-  return result;
+  if (newResponse.description !== undefined) {
+    return newResponse.description;
+  }
+
+  return undefined;
 }

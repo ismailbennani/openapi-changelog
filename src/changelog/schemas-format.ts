@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block } from "./string-utils";
+import { block, diffStrings } from "./string-utils";
 import { SchemaIntermediateRepresentation } from "../ir/schemas-ir";
 
 export function schemaBreakingChanges(
@@ -55,7 +55,10 @@ export function schemaNonBreakingChanges(
         const content = [`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
 
         if (options.detailed === true) {
-          content.push("", ...parameterDocumentationDetails(schemaInOldDocument, schemaInNewDocument));
+          const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
+          if (details !== undefined) {
+            content.push("", details);
+          }
         }
 
         return block(content, blockOptions);
@@ -66,12 +69,14 @@ export function schemaNonBreakingChanges(
   return result;
 }
 
-function parameterDocumentationDetails(oldSchema: SchemaIntermediateRepresentation, newSchema: SchemaIntermediateRepresentation): string[] {
-  const result: string[] = [];
-
-  if (newSchema.description !== undefined) {
-    result.push(newSchema.description);
+function schemaDocumentationDetails(oldSchema: SchemaIntermediateRepresentation, newSchema: SchemaIntermediateRepresentation): string | undefined {
+  if (oldSchema.description !== undefined && newSchema.description !== undefined) {
+    return diffStrings(oldSchema.description, newSchema.description);
   }
 
-  return result;
+  if (newSchema.description !== undefined) {
+    return newSchema.description;
+  }
+
+  return undefined;
 }

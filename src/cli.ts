@@ -3,7 +3,7 @@ import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
-import fs, { readFile } from "node:fs/promises";
+import fs, { readFile } from "fs/promises";
 import { changelog as changelog } from "./changelog/changelog";
 import { OpenAPIV3 } from "openapi-types";
 import { load } from "js-yaml";
@@ -13,6 +13,7 @@ import { diff } from "./diff/diff";
 import { OpenapiDocumentChange } from "./diff/openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "./core/constants";
 import { ensureDir } from "./core/fs-utils";
+import { setupConsoleLoggingIfNecessary } from "./core/logging-utils";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -146,13 +147,7 @@ void yargsInstance
   .parse();
 
 function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): void {
-  const consoleTransport = new winston.transports.Console({
-    format: format.combine(format.colorize(), format.simple()),
-    // If output is not set, the output is stdout so we need to log everything to stderr instead of stdout
-    stderrLevels: args.output === undefined ? ["error", "warn", "info"] : ["error", "warn"],
-    level: "info",
-  });
-  winston.add(consoleTransport);
+  const consoleTransport = setupConsoleLoggingIfNecessary({ ...args, colors: true });
 
   if (args.verbose !== true) {
     consoleTransport.silent = true;

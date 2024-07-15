@@ -1,4 +1,4 @@
-import fs from "node:fs";
+import fs from "fs";
 
 export function ensureDir(path: string): void {
   try {

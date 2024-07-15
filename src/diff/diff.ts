@@ -1,11 +1,12 @@
 import { OpenAPIV3 } from "openapi-types";
 import winston from "winston";
-import fs from "node:fs";
+import fs from "fs";
 import { sortDocumentsByVersionDescInPlace } from "../core/openapi-documents-utils";
 import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { compareIntermediateRepresentations, OpenapiDocumentChanges } from "./openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "../core/constants";
 import { ensureDir } from "../core/fs-utils";
+import { setupConsoleLoggingIfNecessary } from "../core/logging-utils";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -21,6 +22,8 @@ export function detailedDiff(
   documents: OpenAPIV3.Document[],
   options?: OpenapiDiffOptions,
 ): { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] {
+  setupConsoleLoggingIfNecessary();
+
   if (documents.length < 2) {
     throw new Error("Expected at least two documents");
   }

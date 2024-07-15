@@ -1,6 +1,5 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { BreakingChange, NonBreakingChange } from "./types";
-import { isDeepStrictEqual } from "util";
 import { extractOperationParametersChange, OperationParameterBreakingChange, OperationParameterNonBreakingChange } from "./operation-parameters-change";
 import { extractOperationResponsesChange, OperationResponseBreakingChange, OperationResponseNonBreakingChange } from "./operation-responses-change";
 
@@ -20,7 +19,7 @@ export function extractOperationsChange(
         type: "operation-removal",
         breaking: true,
       });
-    } else if (!isDeepStrictEqual(operationInOldDocument, operationInNewDocument)) {
+    } else {
       if (operationInNewDocument.deprecated && !operationInOldDocument.deprecated) {
         result.push({
           path: operationInOldDocument.path,

@@ -13,11 +13,11 @@ export function formatDocumentChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
   changes: OpenapiDocumentChanges,
-  options?: OpenapiChangelogOptions,
+  options: OpenapiChangelogOptions,
 ): string[] {
   const result: string[] = [...header(changes)];
 
-  const breaking: OpenapiDocumentBreakingChange[] = changes.changes.filter((c) => c.breaking).filter((c) => options?.exclude?.includes(c.type) === false);
+  const breaking: OpenapiDocumentBreakingChange[] = changes.changes.filter((c) => c.breaking).filter((c) => options.exclude?.includes(c.type) === false);
   if (breaking.length > 0) {
     result.push(...pad(["> BREAKING CHANGES"], 2));
 
@@ -27,7 +27,7 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           breaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),
@@ -39,7 +39,7 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           breaking.filter((c) => c.type.startsWith("parameters")).map((c) => c as ParameterBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),
@@ -51,14 +51,14 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           breaking.filter((c) => c.type.startsWith("schemas")).map((c) => c as SchemaBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),
     );
   }
 
-  const nonBreaking: OpenapiDocumentNonBreakingChange[] = changes.changes.filter((c) => !c.breaking).filter((c) => options?.exclude?.includes(c.type) === false);
+  const nonBreaking: OpenapiDocumentNonBreakingChange[] = changes.changes.filter((c) => !c.breaking).filter((c) => options.exclude?.includes(c.type) === false);
 
   if (breaking.length > 0 && nonBreaking.length > 0) {
     result.push("");
@@ -73,7 +73,7 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           nonBreaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationNonBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),
@@ -85,7 +85,7 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           nonBreaking.filter((c) => c.type.startsWith("parameters")).map((c) => c as ParameterNonBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),
@@ -97,7 +97,7 @@ export function formatDocumentChanges(
           oldDocument,
           newDocument,
           nonBreaking.filter((c) => c.type.startsWith("schemas")).map((c) => c as SchemaNonBreakingChange),
-          { ...options, printWidth: options?.printWidth !== undefined ? options.printWidth - 4 : undefined },
+          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
         ),
         4,
       ),

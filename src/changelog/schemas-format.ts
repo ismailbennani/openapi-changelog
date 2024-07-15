@@ -1,12 +1,14 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
+import { block } from "./string-utils";
+import { SchemaIntermediateRepresentation } from "../ir/schemas-ir";
 
 export function schemaBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
   changes: SchemaBreakingChange[],
-  options?: OpenapiChangelogOptions,
+  options: OpenapiChangelogOptions,
 ): string[] {
   const result: string[] = [];
 
@@ -31,8 +33,14 @@ export function schemaNonBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
   changes: SchemaNonBreakingChange[],
-  options?: OpenapiChangelogOptions,
+  options: OpenapiChangelogOptions,
 ): string[] {
+  const blockOptions = {
+    maxLineLength: options.printWidth,
+    padding: 2,
+    dontPadFirstLine: true,
+  };
+
   const result: string[] = [];
 
   for (const change of changes) {
@@ -43,10 +51,26 @@ export function schemaNonBreakingChanges(
     }
 
     switch (change.type) {
-      case "schema-documentation-change":
-        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
-        break;
+      case "schema-documentation-change": {
+        const content = [`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
+
+        if (options.detailed === true) {
+          content.push("", ...parameterDocumentationDetails(schemaInOldDocument, schemaInNewDocument));
+        }
+
+        return block(content, blockOptions);
+      }
     }
+  }
+
+  return result;
+}
+
+function parameterDocumentationDetails(oldSchema: SchemaIntermediateRepresentation, newSchema: SchemaIntermediateRepresentation): string[] {
+  const result: string[] = [];
+
+  if (newSchema.description !== undefined) {
+    result.push(newSchema.description);
   }
 
   return result;

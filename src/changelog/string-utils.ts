@@ -31,6 +31,11 @@ export function block(str: string[] | string, options: BlockOptions): string[] {
   let nextLineLength = options.padding === undefined ? maxLineLength : options.dontPadFirstLine === true ? maxLineLength : maxLineLength - options.padding;
 
   for (const line of lines) {
+    if (line === "") {
+      result.push("");
+      continue;
+    }
+
     let lastSplit = 0;
     let lastSpace = 0;
 

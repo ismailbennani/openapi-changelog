@@ -48,6 +48,11 @@ void yargsInstance
             "Max number of versions to consider when computing changelog. " +
             "The limit will be applied AFTER sorting the versions, the changelog will contain the N most recent versions.",
         })
+        .option("detailed", {
+          alias: "D",
+          type: "boolean",
+          describe: "Output a detailed description of the changes",
+        })
         .option("exclude", {
           alias: "x",
           type: "string",
@@ -73,7 +78,6 @@ void yargsInstance
           global: true,
         })
         .option("vverbose", {
-          alias: "D",
           type: "boolean",
           describe: "[DEBUG] Very verbose, log debug information to a debug.log file",
           global: true,
@@ -118,7 +122,7 @@ void yargsInstance
           exclude.push("operation-parameter-documentation-change", "operation-response-documentation-change", "parameter-documentation-change", "schema-documentation-change");
         }
 
-        result = changelog(specs, { ...diffOptions, printWidth: 120, exclude });
+        result = changelog(specs, { ...diffOptions, printWidth: 120, exclude, detailed: args.detailed });
       }
 
       if (args.output !== undefined) {

@@ -17,7 +17,8 @@
   "scripts": {
     "build": "rimraf dist & tsup --config tsup.config.ts",
     "build-website": "npm run pack & tsc --esModuleInterop true website/main.ts & browserify -p esmify website/main.js | terser -c > website/main.bundle.js",
-    "pack": "rimraf dist & tsup --config tsup.pack.config.ts"
+    "pack": "rimraf dist & tsup --config tsup.pack.config.ts",
+    "pack-website": "npm run build-website & copyfiles -u 1 website/*.html website/*.bundle.js website/*.css dist/website"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",

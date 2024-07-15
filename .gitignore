@@ -67,6 +67,7 @@ package-lock.json
 dist/
 build/
 debug/
+ghpages/
 src/**/*.js
 website/main.js
 website/main.bundle.js

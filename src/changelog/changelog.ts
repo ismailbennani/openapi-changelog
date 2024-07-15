@@ -9,7 +9,10 @@ export type OpenapiChangelogOptions = OpenapiDiffOptions & {
 };
 
 export function changelog(documents: OpenAPIV3.Document[], options?: OpenapiChangelogOptions): string {
-  return detailedDiff(documents, options)
-    .flatMap((d) => [...formatDocumentChanges(d.oldDocument, d.newDocument, d.changes, options), ""])
-    .join("\n");
+  const diff = detailedDiff(documents, options);
+  return [
+    ...diff.flatMap((d) => [...formatDocumentChanges(d.oldDocument, d.newDocument, d.changes, options), ""]),
+    `Version ${diff[diff.length - 1].changes.version.old}`,
+    `  Start of changelog`,
+  ].join("\n");
 }

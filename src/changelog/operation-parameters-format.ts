@@ -19,11 +19,11 @@ export function operationParameterBreakingChange(
 
   switch (change.type) {
     case "operation-parameter-removal":
-      return [`- Removed parameter ${change.name} of operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Removed parameter ${change.name}`];
     case "operation-parameter-type-change":
-      return [`- Changed type of parameter ${change.name} of operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed type of parameter ${change.name}`];
     case "operation-parameter-unclassified":
-      return [`- Changed parameter ${change.name} of operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed parameter ${change.name}`];
   }
 }
 
@@ -44,10 +44,10 @@ export function operationParameterNonBreakingChange(
 
   switch (change.type) {
     case "operation-parameter-addition":
-      return [`- Added parameter ${change.name} to operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Added parameter ${change.name}`];
     case "operation-parameter-deprecation":
-      return [`- Deprecated parameter ${change.name} of operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Deprecated parameter ${change.name}`];
     case "operation-parameter-documentation-change":
-      return [`- Changed documentation of parameter ${change.name} of operationParameter ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed documentation of parameter ${change.name}`];
   }
 }

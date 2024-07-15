@@ -19,11 +19,11 @@ export function operationResponseBreakingChange(
 
   switch (change.type) {
     case "operation-response-removal":
-      return [`- Removed response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Removed response ${change.code}`];
     case "operation-response-type-change":
-      return [`- Changed type of response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed type of response ${change.code}`];
     case "operation-response-unclassified":
-      return [`- Changed response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed response ${change.code}`];
   }
 }
 
@@ -44,8 +44,8 @@ export function operationResponseNonBreakingChange(
 
   switch (change.type) {
     case "operation-response-addition":
-      return [`- Added response ${change.code} to ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Added response ${change.code}`];
     case "operation-response-documentation-change":
-      return [`- Changed documentation of response ${change.code} of operation ${change.method.toUpperCase()} ${change.path}`];
+      return [`- Changed documentation of response ${change.code}`];
   }
 }

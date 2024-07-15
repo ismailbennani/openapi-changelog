@@ -2,38 +2,52 @@ import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-documen
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
 
-export function schemaBreakingChange(
+export function schemaBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
-  change: SchemaBreakingChange,
+  changes: SchemaBreakingChange[],
   options?: OpenapiChangelogOptions,
 ): string[] {
-  const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
-  const schemaInNewDocument = newDocument.schemas.find((p) => p.name === change.name);
-  if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
-    return [];
+  const result: string[] = [];
+
+  for (const change of changes) {
+    const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
+    const schemaInNewDocument = newDocument.schemas.find((p) => p.name === change.name);
+    if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
+      return [];
+    }
+
+    switch (change.type) {
+      case "schema-unclassified":
+        result.push(`- Changed schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
+        break;
+    }
   }
 
-  switch (change.type) {
-    case "schema-unclassified":
-      return [`- Changed schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
-  }
+  return result;
 }
 
-export function schemaNonBreakingChange(
+export function schemaNonBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
   newDocument: OpenapiDocumentIntermediateRepresentation,
-  change: SchemaNonBreakingChange,
+  changes: SchemaNonBreakingChange[],
   options?: OpenapiChangelogOptions,
 ): string[] {
-  const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
-  const schemaInNewDocument = newDocument.schemas.find((p) => p.name === change.name);
-  if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
-    return [];
+  const result: string[] = [];
+
+  for (const change of changes) {
+    const schemaInOldDocument = oldDocument.schemas.find((p) => p.name === change.name);
+    const schemaInNewDocument = newDocument.schemas.find((p) => p.name === change.name);
+    if (schemaInOldDocument === undefined || schemaInNewDocument === undefined) {
+      return [];
+    }
+
+    switch (change.type) {
+      case "schema-documentation-change":
+        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
+        break;
+    }
   }
 
-  switch (change.type) {
-    case "schema-documentation-change":
-      return [`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
-  }
+  return result;
 }

@@ -1,13 +1,34 @@
-export function block(str: string[], options: BlockOptions): string[] {
-  const padding = options.padding !== undefined && options.padding > 0 ? " ".repeat(options.padding) : "";
-  const lineLength = options.maxLineLength ?? 9999;
+export interface PadOptions {
+  padding: number;
+  dontPadFirstLine?: boolean | undefined;
+}
 
-  const lines = str.flatMap((s) => s.split("\n"));
-  if (lines.length === 1) {
-    return options.dontPadFirstLine !== undefined ? lines : [padding + lines[0]];
-  }
+export function pad(str: string[] | string, padding: number): string[];
+export function pad(str: string[] | string, options: PadOptions): string[];
+export function pad(str: string[] | string, options: PadOptions | number): string[] {
+  const padding = typeof options === "number" ? options : options.padding;
+  const dontPadFirstLine = typeof options === "number" ? false : options.dontPadFirstLine;
+
+  const prefix = padding > 0 ? " ".repeat(padding) : "";
+
+  const linesArray = Array.isArray(str) ? str.flatMap((s) => s.split("\n")) : str.split("\n");
+  return linesArray.map((s, i) => (dontPadFirstLine === false || i > 0 ? prefix + s : s));
+}
+
+export interface BlockOptions {
+  maxLineLength?: number | undefined;
+  padding?: number | undefined;
+  dontPadFirstLine?: boolean | undefined;
+}
+
+export function block(str: string[] | string, options: BlockOptions): string[] {
+  const linesArray = Array.isArray(str) ? str : [str];
+  const lines: string[] = linesArray.flatMap((s) => s.split("\n"));
 
   const result: string[] = [];
+
+  const maxLineLength = options.maxLineLength ?? 9999;
+  let nextLineLength = options.padding === undefined ? maxLineLength : options.dontPadFirstLine === true ? maxLineLength : maxLineLength - options.padding;
 
   for (const line of lines) {
     let lastSplit = 0;
@@ -24,7 +45,7 @@ export function block(str: string[], options: BlockOptions): string[] {
           break;
       }
 
-      if (i - lastSplit > lineLength) {
+      if (i - lastSplit > nextLineLength) {
         split(lastSpace);
       }
     }
@@ -35,22 +56,16 @@ export function block(str: string[], options: BlockOptions): string[] {
 
     function split(i: number): void {
       const substr = line.substring(lastSplit, i);
-
-      if (options.dontPadFirstLine === false || result.length > 0) {
-        result.push(padding + substr);
-      } else {
-        result.push(substr);
-      }
-
+      result.push(substr);
       lastSplit = i + 1;
+
+      nextLineLength = options.padding === undefined ? maxLineLength : maxLineLength - options.padding;
     }
   }
 
-  return result;
-}
+  if (options.padding !== undefined) {
+    return pad(result, { padding: options.padding, dontPadFirstLine: options.dontPadFirstLine });
+  }
 
-interface BlockOptions {
-  maxLineLength?: number | undefined;
-  padding?: number | undefined;
-  dontPadFirstLine?: boolean | undefined;
+  return result;
 }

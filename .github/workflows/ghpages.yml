@@ -34,7 +34,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
       - name: NPM Install
-        run: npm ci
+        run: npm i
       - name: Build & Pack
         run: npm run pack-website
       - name: Setup Pages

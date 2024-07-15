@@ -1,4 +1,4 @@
-import fastDiff from "fast-diff";
+import * as Diff from "diff";
 
 export interface PadOptions {
   padding: number;
@@ -78,40 +78,21 @@ export function block(str: string[] | string, options: BlockOptions): string[] {
 }
 
 export function diffStrings(str1: string, str2: string): string {
-  const str1Lines = str1.split("\n");
-  const str2Lines = str2.split("\n");
+  const differences = Diff.diffLines(str1, str2, { newlineIsToken: true });
 
-  let result = "";
+  const result: string[] = [];
 
-  const n = str1Lines.length < str2Lines.length ? str1Lines.length : str2Lines.length;
-  for (let i = 0; i < n; i++) {
-    const diff = fastDiff(str1Lines[i], str2Lines[i]);
+  for (const diff of differences) {
+    const line = diff.value === "" ? "_(newline)_" : diff.value.endsWith("\n") ? diff.value.substring(0, diff.value.length - 1) : diff.value;
 
-    if (diff.length >= 10) {
-      result += `~~${str1Lines[i]}~~\n**${str2Lines[i]}**\n`;
+    if (diff.added === true) {
+      result.push(`**${line}**`);
+    } else if (diff.removed === true) {
+      result.push(`~~${line}~~`);
     } else {
-      result += `${diff
-        .map(([op, str]) => {
-          switch (op) {
-            case fastDiff.EQUAL:
-              return str;
-            case fastDiff.INSERT:
-              return `**${str}**`;
-            case fastDiff.DELETE:
-              return `~~${str}~~`;
-          }
-        })
-        .join("")}\n`;
+      result.push(line);
     }
   }
 
-  for (let i = n; i < str1Lines.length; i++) {
-    result += `~~${str1Lines[i]}~~\n`;
-  }
-
-  for (let i = n; i < str2Lines.length; i++) {
-    result += `**${str2Lines[i]}**\n`;
-  }
-
-  return result;
+  return result.join("\n");
 }

@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationParameterBreakingChange, OperationParameterNonBreakingChange } from "../diff/operation-parameters-change";
-import { block, diffStrings } from "./string-utils";
+import { block, diffStrings, pad } from "./string-utils";
 import { OperationParameterIntermediateRepresentation } from "../ir/operation-parameters-ir";
 
 export function operationParameterBreakingChange(
@@ -10,6 +10,10 @@ export function operationParameterBreakingChange(
   change: OperationParameterBreakingChange,
   options: OpenapiChangelogOptions,
 ): string[] {
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+
   const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   if (operationInOldDocument === undefined || operationInNewDocument === undefined) {
@@ -21,18 +25,18 @@ export function operationParameterBreakingChange(
 
   switch (change.type) {
     case "operation-parameter-removal":
-      return [`- Removed parameter ${change.name}`];
+      return block(`- Removed parameter ${change.name}`, blockWidth);
     case "operation-parameter-type-change": {
-      const result = [`- Changed type of parameter ${change.name}`];
+      const result = block(`- Changed type of parameter ${change.name}`, blockWidth);
 
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
-        result.push(...parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument));
+        result.push(...block(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockWidth, innerBlockPadding));
       }
 
       return result;
     }
     case "operation-parameter-unclassified":
-      return [`- Changed parameter ${change.name}`];
+      return block(`- Changed parameter ${change.name}`, blockWidth);
   }
 }
 
@@ -42,11 +46,9 @@ export function operationParameterNonBreakingChange(
   change: OperationParameterNonBreakingChange,
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
 
   const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
@@ -67,10 +69,10 @@ export function operationParameterNonBreakingChange(
       const result = [header];
 
       if (options.detailed === true && parameterInNewDocument !== undefined) {
-        result.push("", ...parameterAdditionDetails(parameterInNewDocument));
+        result.push("", ...pad(parameterAdditionDetails(parameterInNewDocument), innerBlockPadding));
       }
 
-      return block(result, blockOptions);
+      return result;
     }
     case "operation-parameter-deprecation":
       return [`- Deprecated parameter ${change.name}`];
@@ -80,11 +82,11 @@ export function operationParameterNonBreakingChange(
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
         const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
         if (details !== undefined) {
-          result.push("", details);
+          result.push(...block(details, innerBlockWidth, innerBlockPadding));
         }
       }
 
-      return block(result, blockOptions);
+      return result;
     }
   }
 }

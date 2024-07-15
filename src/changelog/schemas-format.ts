@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block, diffStrings } from "./string-utils";
+import { block, diffStrings, pad } from "./string-utils";
 import { SchemaIntermediateRepresentation } from "../ir/schemas-ir";
 
 export function schemaBreakingChanges(
@@ -10,6 +10,8 @@ export function schemaBreakingChanges(
   changes: SchemaBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
+  const blockWidth = options.printWidth ?? 9999;
+
   const result: string[] = [];
 
   for (const change of changes) {
@@ -35,11 +37,9 @@ export function schemaNonBreakingChanges(
   changes: SchemaNonBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
 
   const result: string[] = [];
 
@@ -52,16 +52,14 @@ export function schemaNonBreakingChanges(
 
     switch (change.type) {
       case "schema-documentation-change": {
-        const content = [`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`];
+        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
 
         if (options.detailed === true) {
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
           if (details !== undefined) {
-            content.push("", details);
+            result.push(...block(details, innerBlockWidth, innerBlockPadding));
           }
         }
-
-        result.push(...block(content, blockOptions));
       }
     }
   }

@@ -7,7 +7,7 @@ import { operationBreakingChanges, operationNonBreakingChanges } from "./operati
 import { OperationBreakingChange, OperationNonBreakingChange } from "../diff/operations-change";
 import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/parameters-change";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
-import { pad } from "./string-utils";
+import { block, pad } from "./string-utils";
 
 export function formatDocumentChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -15,47 +15,40 @@ export function formatDocumentChanges(
   changes: OpenapiDocumentChanges,
   options: OpenapiChangelogOptions,
 ): string[] {
+  const innerBlockPadding = 4;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+  const innerBlockOptions = { ...options, printWidth: innerBlockWidth };
+
   const result: string[] = [...header(changes)];
 
   const breaking: OpenapiDocumentBreakingChange[] = changes.changes.filter((c) => c.breaking).filter((c) => options.exclude?.includes(c.type) === false);
   if (breaking.length > 0) {
     result.push(...pad(["- BREAKING CHANGES"], 2));
 
-    result.push(
-      ...pad(
-        operationBreakingChanges(
-          oldDocument,
-          newDocument,
-          breaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const operationBreakingChangesResult = operationBreakingChanges(
+      oldDocument,
+      newDocument,
+      breaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(operationBreakingChangesResult, innerBlockPadding));
 
-    result.push(
-      ...pad(
-        parameterBreakingChanges(
-          oldDocument,
-          newDocument,
-          breaking.filter((c) => c.type.startsWith("parameters")).map((c) => c as ParameterBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const parameterBreakingChangesResult = parameterBreakingChanges(
+      oldDocument,
+      newDocument,
+      breaking.filter((c) => c.type.startsWith("parameters")).map((c) => c as ParameterBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(parameterBreakingChangesResult, innerBlockPadding));
 
-    result.push(
-      ...pad(
-        schemaBreakingChanges(
-          oldDocument,
-          newDocument,
-          breaking.filter((c) => c.type.startsWith("schemas")).map((c) => c as SchemaBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const schemaBreakingChangesResult = schemaBreakingChanges(
+      oldDocument,
+      newDocument,
+      breaking.filter((c) => c.type.startsWith("schemas")).map((c) => c as SchemaBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(schemaBreakingChangesResult, innerBlockPadding));
   }
 
   const nonBreaking: OpenapiDocumentNonBreakingChange[] = changes.changes.filter((c) => !c.breaking).filter((c) => options.exclude?.includes(c.type) === false);
@@ -67,41 +60,29 @@ export function formatDocumentChanges(
   if (nonBreaking.length > 0) {
     result.push(...pad(["- Changes"], 2));
 
-    result.push(
-      ...pad(
-        operationNonBreakingChanges(
-          oldDocument,
-          newDocument,
-          nonBreaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationNonBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const operationNonBreakingChangesResult = operationNonBreakingChanges(
+      oldDocument,
+      newDocument,
+      nonBreaking.filter((c) => c.type.startsWith("operation")).map((c) => c as OperationNonBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(operationNonBreakingChangesResult, innerBlockPadding));
 
-    result.push(
-      ...pad(
-        parameterNonBreakingChanges(
-          oldDocument,
-          newDocument,
-          nonBreaking.filter((c) => c.type.startsWith("parameter")).map((c) => c as ParameterNonBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const parameterNonBreakingChangesResult = parameterNonBreakingChanges(
+      oldDocument,
+      newDocument,
+      nonBreaking.filter((c) => c.type.startsWith("parameter")).map((c) => c as ParameterNonBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(parameterNonBreakingChangesResult, innerBlockPadding));
 
-    result.push(
-      ...pad(
-        schemaNonBreakingChanges(
-          oldDocument,
-          newDocument,
-          nonBreaking.filter((c) => c.type.startsWith("schema")).map((c) => c as SchemaNonBreakingChange),
-          { ...options, printWidth: options.printWidth !== undefined ? options.printWidth - 4 : undefined },
-        ),
-        4,
-      ),
+    const schemaNonBreakingChangesResult = schemaNonBreakingChanges(
+      oldDocument,
+      newDocument,
+      nonBreaking.filter((c) => c.type.startsWith("schema")).map((c) => c as SchemaNonBreakingChange),
+      innerBlockOptions,
     );
+    result.push(...pad(schemaNonBreakingChangesResult, innerBlockPadding));
   }
 
   if (breaking.length === 0 && nonBreaking.length === 0) {

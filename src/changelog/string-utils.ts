@@ -1,4 +1,5 @@
 import * as Diff from "diff";
+import wrap from "word-wrap";
 
 export interface PadOptions {
   padding: number;
@@ -17,64 +18,10 @@ export function pad(str: string[] | string, options: PadOptions | number): strin
   return linesArray.map((s, i) => (dontPadFirstLine === false || i > 0 ? prefix + s : s));
 }
 
-export interface BlockOptions {
-  maxLineLength?: number | undefined;
-  padding?: number | undefined;
-  dontPadFirstLine?: boolean | undefined;
-}
-
-export function block(str: string[] | string, options: BlockOptions): string[] {
-  const linesArray = Array.isArray(str) ? str : [str];
-  const lines: string[] = linesArray.flatMap((s) => s.split("\n"));
-
-  const result: string[] = [];
-
-  const maxLineLength = options.maxLineLength ?? 9999;
-  let nextLineLength = options.padding === undefined ? maxLineLength : options.dontPadFirstLine === true ? maxLineLength : maxLineLength - options.padding;
-
-  for (const line of lines) {
-    if (line === "") {
-      result.push("");
-      continue;
-    }
-
-    let lastSplit = 0;
-    let lastSpace = 0;
-
-    for (let i = 0; i < line.length; i++) {
-      switch (line[i]) {
-        case "\n":
-          split(i);
-          break;
-        case " ":
-        case "\t":
-          lastSpace = i;
-          break;
-      }
-
-      if (i - lastSplit > nextLineLength) {
-        split(lastSpace);
-      }
-    }
-
-    if (lastSplit < line.length) {
-      split(line.length);
-    }
-
-    function split(i: number): void {
-      const substr = line.substring(lastSplit, i);
-      result.push(substr);
-      lastSplit = i + 1;
-
-      nextLineLength = options.padding === undefined ? maxLineLength : maxLineLength - options.padding;
-    }
-  }
-
-  if (options.padding !== undefined) {
-    return pad(result, { padding: options.padding, dontPadFirstLine: options.dontPadFirstLine });
-  }
-
-  return result;
+export function block(str: string[] | string, width: number, padding?: number | undefined): string[] {
+  const lines = (Array.isArray(str) ? str : [str]).flatMap((s) => s.split("\n"));
+  const wrappedLines = lines.map((l) => wrap(l, { width, trim: true, indent: padding === undefined ? undefined : " ".repeat(padding) }));
+  return wrappedLines.flatMap((s) => s.split("\n"));
 }
 
 export function diffStrings(str1: string, str2: string): string {

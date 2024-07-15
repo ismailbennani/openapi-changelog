@@ -1,8 +1,9 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/parameters-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block, diffStrings } from "./string-utils";
+import { block, diffStrings, pad } from "./string-utils";
 import { ParameterIntermediateRepresentation } from "../ir/parameters-ir";
+import { operationResponseBreakingChange } from "./operation-responses-format";
 
 export function parameterBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -10,6 +11,10 @@ export function parameterBreakingChanges(
   changes: ParameterBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+
   const result: string[] = [];
 
   for (const change of changes) {
@@ -21,13 +26,13 @@ export function parameterBreakingChanges(
 
     switch (change.type) {
       case "parameter-type-change": {
-        const result = [`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
+        result.push(`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
 
         if (options.detailed === true) {
-          result.push(...parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument));
+          result.push(...pad(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockPadding));
         }
 
-        return result;
+        break;
       }
       case "parameter-unclassified":
         result.push(`- Changed parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
@@ -44,11 +49,9 @@ export function parameterNonBreakingChanges(
   changes: ParameterNonBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
 
   const result: string[] = [];
 
@@ -61,16 +64,14 @@ export function parameterNonBreakingChanges(
 
     switch (change.type) {
       case "parameter-documentation-change": {
-        const content = [`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`];
+        result.push(`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
 
         if (options.detailed === true) {
           const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
           if (details !== undefined) {
-            content.push("", details);
+            result.push(...block(details, innerBlockWidth, innerBlockPadding));
           }
         }
-
-        result.push(...block(content, blockOptions));
       }
     }
   }

@@ -12,17 +12,16 @@ export function operationBreakingChanges(
   changes: OperationBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+  const innerBlockOptions = { ...options, printWidth: innerBlockWidth };
 
   const result: string[] = [];
 
   const removals = changes.filter((c) => c.type === "operation-removal");
   for (const removal of removals) {
-    result.push(...block(`- Removed operation ${removal.method.toUpperCase()} ${removal.path}`, blockOptions));
+    result.push(...block(`- Removed operation ${removal.method.toUpperCase()} ${removal.path}`, blockWidth));
   }
 
   const others = changes.filter((c) => c.type !== "operation-removal");
@@ -41,21 +40,21 @@ export function operationBreakingChanges(
         case "operation-parameter-type-change":
         case "operation-parameter-unclassified":
           if (!headerPrintedAlready) {
-            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            result.push(`- In operation ${change.method.toUpperCase()} ${change.path}`);
             headerPrintedAlready = true;
           }
 
-          result.push(...pad(operationParameterBreakingChange(oldDocument, newDocument, change, options), 2));
+          result.push(...pad(operationParameterBreakingChange(oldDocument, newDocument, change, innerBlockOptions), innerBlockPadding));
           break;
         case "operation-response-removal":
         case "operation-response-type-change":
         case "operation-response-unclassified":
           if (!headerPrintedAlready) {
-            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            result.push(`- In operation ${change.method.toUpperCase()} ${change.path}`);
             headerPrintedAlready = true;
           }
 
-          result.push(...pad(operationResponseBreakingChange(oldDocument, newDocument, change, options), 2));
+          result.push(...pad(operationResponseBreakingChange(oldDocument, newDocument, change, innerBlockOptions), innerBlockPadding));
           break;
       }
     }
@@ -70,11 +69,10 @@ export function operationNonBreakingChanges(
   changes: OperationNonBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+  const innerBlockOptions = { ...options, printWidth: innerBlockWidth };
 
   const result: string[] = [];
 
@@ -82,13 +80,11 @@ export function operationNonBreakingChanges(
   for (const addition of additions) {
     const operationInNewDocument = newDocument.operations.find((p) => p.path === addition.path && p.method === addition.method);
 
-    const content = [`- Added operation ${addition.method.toUpperCase()} ${addition.path}`];
+    result.push(`- Added operation ${addition.method.toUpperCase()} ${addition.path}`);
 
     if (options.detailed === true && operationInNewDocument !== undefined) {
-      content.push("", ...operationAdditionDetails(operationInNewDocument));
+      result.push("", ...pad(operationAdditionDetails(operationInNewDocument), innerBlockPadding));
     }
-
-    result.push(...block(content, blockOptions));
   }
 
   const others = changes.filter((c) => c.type !== "operation-addition");
@@ -107,41 +103,39 @@ export function operationNonBreakingChanges(
 
       switch (change.type) {
         case "operation-documentation-change": {
-          const content = [`- Changed documentation of operation ${change.method.toUpperCase()} ${change.path}`];
+          result.push(`- Changed documentation of operation ${change.method.toUpperCase()} ${change.path}`);
 
           if (options.detailed === true && operationInOldDocument !== undefined && operationInNewDocument !== undefined) {
             const details = operationDocumentationDetails(operationInOldDocument, operationInNewDocument);
             if (details !== undefined) {
-              content.push("", details);
+              result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
             }
           }
-
-          result.push(...block(content, blockOptions));
           break;
         }
         case "operation-deprecation": {
-          result.push(...block(`- Deprecated operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+          result.push(`- Deprecated operation ${change.method.toUpperCase()} ${change.path}`);
           break;
         }
         case "operation-parameter-addition":
         case "operation-parameter-deprecation":
         case "operation-parameter-documentation-change": {
           if (!headerPrintedAlready) {
-            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            result.push(`- In operation ${change.method.toUpperCase()} ${change.path}`);
             headerPrintedAlready = true;
           }
 
-          result.push(...pad(operationParameterNonBreakingChange(oldDocument, newDocument, change, options), 2));
+          result.push(...pad(operationParameterNonBreakingChange(oldDocument, newDocument, change, innerBlockOptions), innerBlockPadding));
           break;
         }
         case "operation-response-addition":
         case "operation-response-documentation-change": {
           if (!headerPrintedAlready) {
-            result.push(...block(`- In operation ${change.method.toUpperCase()} ${change.path}`, blockOptions));
+            result.push(`- In operation ${change.method.toUpperCase()} ${change.path}`);
             headerPrintedAlready = true;
           }
 
-          result.push(...pad(operationResponseNonBreakingChange(oldDocument, newDocument, change, options), 2));
+          result.push(...pad(operationResponseNonBreakingChange(oldDocument, newDocument, change, innerBlockOptions), innerBlockPadding));
           break;
         }
       }

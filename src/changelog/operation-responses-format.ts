@@ -2,8 +2,7 @@ import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-documen
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationResponseBreakingChange, OperationResponseNonBreakingChange } from "../diff/operation-responses-change";
 import { OperationResponseIntermediateRepresentation } from "../ir/operation-responses-ir";
-import { block, diffStrings } from "./string-utils";
-import { OperationIntermediateRepresentation } from "../ir/operations-ir";
+import { block, diffStrings, pad } from "./string-utils";
 
 export function operationResponseBreakingChange(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -11,6 +10,10 @@ export function operationResponseBreakingChange(
   change: OperationResponseBreakingChange,
   options: OpenapiChangelogOptions,
 ): string[] {
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+
   const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   if (operationInOldDocument === undefined || operationInNewDocument === undefined) {
@@ -27,7 +30,7 @@ export function operationResponseBreakingChange(
       const result = [`- Changed type of response ${change.code}`];
 
       if (options.detailed === true && responseInOldDocument !== undefined && responseInNewDocument !== undefined) {
-        result.push(...responseTypeChangeDetails(responseInOldDocument, responseInNewDocument));
+        result.push("", ...pad(responseTypeChangeDetails(responseInOldDocument, responseInNewDocument), innerBlockPadding));
       }
 
       return result;
@@ -43,11 +46,9 @@ export function operationResponseNonBreakingChange(
   change: OperationResponseNonBreakingChange,
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockOptions = {
-    maxLineLength: options.printWidth,
-    padding: 2,
-    dontPadFirstLine: true,
-  };
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
 
   const operationInOldDocument = oldDocument.operations.find((p) => p.path === change.path && p.method === change.method);
   const operationInNewDocument = newDocument.operations.find((p) => p.path === change.path && p.method === change.method);
@@ -68,22 +69,22 @@ export function operationResponseNonBreakingChange(
       const result = [header];
 
       if (options.detailed === true && responseInNewDocument !== undefined) {
-        result.push("", ...responseAdditionDetails(responseInNewDocument));
+        result.push("", ...pad(responseAdditionDetails(responseInNewDocument), innerBlockPadding));
       }
 
-      return block(result, blockOptions);
+      return result;
     }
     case "operation-response-documentation-change": {
-      const result = [`- Changed documentation of response ${change.code}`];
+      const result = block(`- Changed documentation of response ${change.code}`, blockWidth);
 
       if (options.detailed === true && responseInOldDocument !== undefined && responseInNewDocument !== undefined) {
         const details = responseDocumentationDetails(responseInOldDocument, responseInNewDocument);
         if (details !== undefined) {
-          result.push("", details);
+          result.push(...block(details, innerBlockWidth, innerBlockPadding));
         }
       }
 
-      return block(result, blockOptions);
+      return result;
     }
   }
 }

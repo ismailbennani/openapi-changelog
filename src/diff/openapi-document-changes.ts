@@ -3,7 +3,7 @@ import { extractVersionChange, VersionChange } from "./version-change";
 import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { extractOperationsChange, OperationBreakingChange, OperationNonBreakingChange } from "./operations-change";
 import { extractParametersChange, ParameterBreakingChange, ParameterNonBreakingChange } from "./parameters-change";
-import { SchemaBreakingChange, SchemaNonBreakingChange } from "./schemas-change";
+import { extractSchemasChange, SchemaBreakingChange, SchemaNonBreakingChange } from "./schemas-change";
 
 export interface OpenapiDocumentChanges {
   /**
@@ -34,9 +34,10 @@ export function compareIntermediateRepresentations(
   const versionChanges = extractVersionChange(oldDocument, newDocument);
   const operationChanges = extractOperationsChange(oldDocument, newDocument);
   const parameterChanges = extractParametersChange(oldDocument, newDocument);
+  const schemaChanges = extractSchemasChange(oldDocument, newDocument);
 
   return {
     version: versionChanges,
-    changes: [...operationChanges, ...parameterChanges],
+    changes: [...operationChanges, ...parameterChanges, ...schemaChanges],
   };
 }

@@ -1,6 +1,4 @@
-import { OperationIntermediateRepresentation } from "../ir/operations-ir";
 import { BreakingChange, NonBreakingChange } from "./types";
-import { HttpMethod } from "../core/http-methods";
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 
 export function extractSchemasChange(

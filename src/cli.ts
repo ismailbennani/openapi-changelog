@@ -137,7 +137,7 @@ void yargsInstance
   )
   .parse();
 
-async function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): Promise<void> {
+function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): void {
   const consoleTransport = new winston.transports.Console({
     format: format.combine(format.colorize(), format.simple()),
     // If output is not set, the output is stdout so we need to log everything to stderr instead of stdout

@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: '22.x'
       - name: NPM Install
-        run: npm i
+        run: npm ci
       - name: Build & Pack
         run: npm run pack-website
       - name: Setup Pages

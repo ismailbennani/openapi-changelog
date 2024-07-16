@@ -1,5 +1,6 @@
 import { load } from "js-yaml";
 import MarkdownIt from "markdown-it";
+import { prettyPrintJson } from "pretty-print-json";
 import { openapiChangelog, openapiCompare } from "../dist";
 
 let version = "__VERSION__";
@@ -104,16 +105,7 @@ function computeChangelog(detailed?: boolean | undefined) {
   const oldDocument = parseOpenapiDocument("oldDocumentTextArea", "oldDocumentFormatSelect");
   const newDocument = parseOpenapiDocument("newDocumentTextArea", "newDocumentFormatSelect");
 
-  const changelogTabs = document.getElementById("changelogTabs");
-  if (changelogTabs) {
-    changelogTabs.style.visibility = "visible";
-  }
-
-  const resultDiv: HTMLDivElement | undefined = document.getElementById("resultDiv") as HTMLDivElement | undefined;
-  if (!resultDiv) {
-    console.error("Result div not found");
-    return;
-  }
+  showChangelogTabs(true);
 
   if (detailed !== undefined) {
     setOutputMode(detailed ? "detailed" : "changelog");
@@ -123,9 +115,24 @@ function computeChangelog(detailed?: boolean | undefined) {
 
   switch (currentChangelogTab) {
     case "raw":
-      resultDiv.innerText = raw;
+      setResultElement("pre");
+
+      const resultPre: HTMLPreElement | undefined = document.getElementById("resultPre") as HTMLPreElement | undefined;
+      if (!resultPre) {
+        console.error("Result div not found");
+        return;
+      }
+      resultPre.innerText = raw;
       break;
     case "markdown":
+      setResultElement("div");
+
+      const resultDiv: HTMLDivElement | undefined = document.getElementById("resultDiv") as HTMLDivElement | undefined;
+      if (!resultDiv) {
+        console.error("Result div not found");
+        return;
+      }
+      
       const md = MarkdownIt();
       const mdChangelog = md.render(raw);
       resultDiv.innerHTML = mdChangelog;
@@ -138,17 +145,19 @@ function computeDiff() {
   const oldDocument = parseOpenapiDocument("oldDocumentTextArea", "oldDocumentFormatSelect");
   const newDocument = parseOpenapiDocument("newDocumentTextArea", "newDocumentFormatSelect");
 
-  const resultDiv: HTMLDivElement | undefined = document.getElementById("resultDiv") as HTMLDivElement | undefined;
-  if (!resultDiv) {
+
+  const resultPre: HTMLPreElement | undefined = document.getElementById("resultPre") as HTMLPreElement | undefined;
+  if (!resultPre) {
     console.error("Result div not found");
     return;
   }
 
   setOutputMode("diff");
-  hideChangelogTabs();
+  setResultElement("pre");
+  showChangelogTabs(false);
 
   const result = openapiCompare(oldDocument, newDocument);
-  resultDiv.innerText = JSON.stringify(result.changes, null, 2);
+  resultPre.innerHTML = prettyPrintJson.toHtml(result, { indent: 2, trailingCommas: true, quoteKeys: true });
 }
 
 function parseOpenapiDocument(textAreaId: string, formatSelectId: string) {
@@ -195,58 +204,78 @@ function parseOpenapiDocument(textAreaId: string, formatSelectId: string) {
 function setOutputMode(mode: OutputMode) {
   currentOutputMode = mode;
 
-  if (mode === "changelog") {
-    document.getElementById("changelogButton")?.classList.add("btn-primary");
-    document.getElementById("changelogButton")?.classList.remove("btn-outline-primary");
-  } else {
-    document.getElementById("changelogButton")?.classList.remove("btn-primary");
-    document.getElementById("changelogButton")?.classList.add("btn-outline-primary");
-  }
+  const changelogButton = document.getElementById("changelogButton");
+  const detailedChangelogButton = document.getElementById("detailedChangelogButton");
+  const diffButton = document.getElementById("diffButton");
 
-  if (mode === "detailed") {
-    document.getElementById("detailedChangelogButton")?.classList.add("btn-primary");
-    document.getElementById("detailedChangelogButton")?.classList.remove("btn-outline-primary");
-  } else {
-    document.getElementById("detailedChangelogButton")?.classList.remove("btn-primary");
-    document.getElementById("detailedChangelogButton")?.classList.add("btn-outline-primary");
-  }
+  changelogButton?.classList.remove("btn-primary");
+  changelogButton?.classList.remove("btn-outline-primary");
+  detailedChangelogButton?.classList.remove("btn-primary");
+  detailedChangelogButton?.classList.remove("btn-outline-primary");
+  diffButton?.classList.remove("btn-secondary");
+  diffButton?.classList.remove("btn-outline-secondary");
 
-  if (mode === "diff") {
-    document.getElementById("diffButton")?.classList.add("btn-secondary");
-    document.getElementById("diffButton")?.classList.remove("btn-outline-secondary");
-  } else {
-    document.getElementById("diffButton")?.classList.remove("btn-secondary");
-    document.getElementById("diffButton")?.classList.add("btn-outline-secondary");
+  switch (mode) {
+    case "changelog":
+      changelogButton?.classList.add("btn-primary");
+      detailedChangelogButton?.classList.add("btn-outline-primary");
+      diffButton?.classList.add("btn-outline-secondary");
+      break;
+    case "detailed":
+      changelogButton?.classList.add("btn-outline-primary");
+      detailedChangelogButton?.classList.add("btn-primary");
+      diffButton?.classList.add("btn-outline-secondary");
+      break;
+    case "diff":
+      changelogButton?.classList.add("btn-outline-primary");
+      detailedChangelogButton?.classList.add("btn-outline-primary");
+      diffButton?.classList.add("btn-secondary");
+      break;
   }
 }
 
 function setChangelogTab(tab: ChangelogTab) {
   currentChangelogTab = tab;
 
-  const changelogTabs = document.getElementById("changelogTabs");
-  if (changelogTabs) {
-    changelogTabs.style.visibility = "visible";
-  }
+  const rawTab = document.getElementById("rawTab");
+  const markdownTab = document.getElementById("markdownTab");
 
-  if (tab === "raw") {
-    document.getElementById("rawTab")?.classList.add("active");
-  } else {
-    document.getElementById("rawTab")?.classList.remove("active");
-  }
+  showChangelogTabs(true);
+  rawTab?.classList.remove("active");
+  markdownTab?.classList.remove("active");
 
-  if (tab === "markdown") {
-    document.getElementById("markdownTab")?.classList.add("active");
-  } else {
-    document.getElementById("markdownTab")?.classList.remove("active");
+  switch (tab) {
+    case "raw":
+      rawTab?.classList.add("active");
+      setResultElement("pre");
+      break;
+    case "markdown":
+      markdownTab?.classList.add("active");
+      setResultElement("div");
+      break;
   }
 }
 
-function hideChangelogTabs() {
+function setResultElement(element: ResultElement) {
+  const resultDiv = document.getElementById("resultDiv");
+  const resultPre = document.getElementById("resultPre");
+
+  if (resultDiv) {
+    resultDiv.style.display = element === "div" ? "block" : "none";
+  }
+
+  if (resultPre) {
+    resultPre.style.display = element === "pre" ? "block" : "none";
+  }
+}
+
+function showChangelogTabs(show: boolean) {
   const changelogTabs = document.getElementById("changelogTabs");
   if (changelogTabs) {
-    changelogTabs.style.visibility = "hidden";
+    changelogTabs.style.visibility = show ? "visible" : "hidden";
   }
 }
 
 type OutputMode = "changelog" | "detailed" | "diff"
 type ChangelogTab = "raw" | "markdown"
+type ResultElement = "div" | "pre";

@@ -35,6 +35,7 @@
     "esmify": "^2.1.1",
     "markdown-it": "^14.1.0",
     "prettier": "3.3.2",
+    "pretty-print-json": "^2.1.2",
     "rimraf": "^6.0.1",
     "terser": "^5.31.2",
     "ts-node": "^10.9.2",

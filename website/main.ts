@@ -3,8 +3,8 @@ import MarkdownIt from "markdown-it";
 import { openapiChangelog, openapiCompare } from "../dist";
 
 let version = "__VERSION__";
-let currentChangelogTab: "raw" | "markdown" = "raw";
-let currentlyDetailed: boolean = false;
+let currentChangelogTab: ChangelogTab = "raw";
+let currentOutputMode: OutputMode = "changelog";
 
 window.onload = () => {
   const versionElements = document.getElementsByClassName("version");
@@ -13,7 +13,7 @@ window.onload = () => {
     if (versionElement === null) {
       continue;
     }
-    
+
     versionElement.textContent = version;
   }
 
@@ -37,6 +37,10 @@ window.onload = () => {
 
   const markdownTab = document.getElementById("markdownTab");
   markdownTab?.addEventListener("click", (_) => computeMarkdownChangelog());
+
+  setOutputMode("changelog");
+  setChangelogTab("markdown");
+  computeChangelog();
 };
 
 function inputOldDocument(e: Event) {
@@ -87,18 +91,12 @@ function loadFileContentsOnChange(e: Event, textAreaId: string, formatSelectId: 
 }
 
 function computeRawChangelog() {
-  currentChangelogTab = "raw";
-  document.getElementById("rawTab")?.classList.add("active");
-  document.getElementById("markdownTab")?.classList.remove("active");
-
+  setChangelogTab("raw");
   computeChangelog();
 }
 
 function computeMarkdownChangelog() {
-  currentChangelogTab = "markdown";
-  document.getElementById("rawTab")?.classList.remove("active");
-  document.getElementById("markdownTab")?.classList.add("active");
-
+  setChangelogTab("markdown");
   computeChangelog();
 }
 
@@ -111,44 +109,23 @@ function computeChangelog(detailed?: boolean | undefined) {
     changelogTabs.style.visibility = "visible";
   }
 
-  const resultTextArea: HTMLTextAreaElement | undefined = document.getElementById("resultTextArea") as HTMLTextAreaElement | undefined;
-  if (!resultTextArea) {
-    console.error("Result text area not found");
-    return;
-  }
-
   const resultDiv: HTMLDivElement | undefined = document.getElementById("resultDiv") as HTMLDivElement | undefined;
   if (!resultDiv) {
     console.error("Result div not found");
     return;
   }
 
-  currentlyDetailed = detailed === undefined ? currentlyDetailed : detailed === true;
-  if (currentlyDetailed) {
-    document.getElementById("changelogButton")?.classList.remove("btn-primary");
-    document.getElementById("changelogButton")?.classList.add("btn-outline-primary");
-    document.getElementById("detailedChangelogButton")?.classList.add("btn-primary");
-    document.getElementById("detailedChangelogButton")?.classList.remove("btn-outline-primary");
-  } else {
-    document.getElementById("changelogButton")?.classList.add("btn-primary");
-    document.getElementById("changelogButton")?.classList.remove("btn-outline-primary");
-    document.getElementById("detailedChangelogButton")?.classList.remove("btn-primary");
-    document.getElementById("detailedChangelogButton")?.classList.add("btn-outline-primary");
+  if (detailed !== undefined) {
+    setOutputMode(detailed ? "detailed" : "changelog");
   }
 
-  const raw = openapiChangelog([oldDocument, newDocument], { detailed: currentlyDetailed });
+  const raw = openapiChangelog([oldDocument, newDocument], { detailed: currentOutputMode === "detailed" });
 
   switch (currentChangelogTab) {
     case "raw":
-      resultTextArea.style.display = "block";
-      resultDiv.style.display = "none";
-
-      resultTextArea.value = raw;
+      resultDiv.innerText = raw;
       break;
     case "markdown":
-      resultTextArea.style.display = "none";
-      resultDiv.style.display = "block";
-
       const md = MarkdownIt();
       const mdChangelog = md.render(raw);
       resultDiv.innerHTML = mdChangelog;
@@ -161,19 +138,17 @@ function computeDiff() {
   const oldDocument = parseOpenapiDocument("oldDocumentTextArea", "oldDocumentFormatSelect");
   const newDocument = parseOpenapiDocument("newDocumentTextArea", "newDocumentFormatSelect");
 
-  const resultTextArea: HTMLTextAreaElement | undefined = document.getElementById("resultTextArea") as HTMLTextAreaElement | undefined;
-  if (!resultTextArea) {
-    console.error("Result text area not found");
+  const resultDiv: HTMLDivElement | undefined = document.getElementById("resultDiv") as HTMLDivElement | undefined;
+  if (!resultDiv) {
+    console.error("Result div not found");
     return;
   }
 
-  const changelogTabs = document.getElementById("changelogTabs");
-  if (changelogTabs) {
-    changelogTabs.style.visibility = "hidden";
-  }
+  setOutputMode("diff");
+  hideChangelogTabs();
 
   const result = openapiCompare(oldDocument, newDocument);
-  resultTextArea.value = JSON.stringify(result.changes, null, 2);
+  resultDiv.innerText = JSON.stringify(result.changes, null, 2);
 }
 
 function parseOpenapiDocument(textAreaId: string, formatSelectId: string) {
@@ -216,3 +191,62 @@ function parseOpenapiDocument(textAreaId: string, formatSelectId: string) {
 
   return result;
 }
+
+function setOutputMode(mode: OutputMode) {
+  currentOutputMode = mode;
+
+  if (mode === "changelog") {
+    document.getElementById("changelogButton")?.classList.add("btn-primary");
+    document.getElementById("changelogButton")?.classList.remove("btn-outline-primary");
+  } else {
+    document.getElementById("changelogButton")?.classList.remove("btn-primary");
+    document.getElementById("changelogButton")?.classList.add("btn-outline-primary");
+  }
+
+  if (mode === "detailed") {
+    document.getElementById("detailedChangelogButton")?.classList.add("btn-primary");
+    document.getElementById("detailedChangelogButton")?.classList.remove("btn-outline-primary");
+  } else {
+    document.getElementById("detailedChangelogButton")?.classList.remove("btn-primary");
+    document.getElementById("detailedChangelogButton")?.classList.add("btn-outline-primary");
+  }
+
+  if (mode === "diff") {
+    document.getElementById("diffButton")?.classList.add("btn-secondary");
+    document.getElementById("diffButton")?.classList.remove("btn-outline-secondary");
+  } else {
+    document.getElementById("diffButton")?.classList.remove("btn-secondary");
+    document.getElementById("diffButton")?.classList.add("btn-outline-secondary");
+  }
+}
+
+function setChangelogTab(tab: ChangelogTab) {
+  currentChangelogTab = tab;
+
+  const changelogTabs = document.getElementById("changelogTabs");
+  if (changelogTabs) {
+    changelogTabs.style.visibility = "visible";
+  }
+
+  if (tab === "raw") {
+    document.getElementById("rawTab")?.classList.add("active");
+  } else {
+    document.getElementById("rawTab")?.classList.remove("active");
+  }
+
+  if (tab === "markdown") {
+    document.getElementById("markdownTab")?.classList.add("active");
+  } else {
+    document.getElementById("markdownTab")?.classList.remove("active");
+  }
+}
+
+function hideChangelogTabs() {
+  const changelogTabs = document.getElementById("changelogTabs");
+  if (changelogTabs) {
+    changelogTabs.style.visibility = "hidden";
+  }
+}
+
+type OutputMode = "changelog" | "detailed" | "diff"
+type ChangelogTab = "raw" | "markdown"

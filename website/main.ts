@@ -6,6 +6,7 @@ import { openapiChangelog, openapiCompare } from "../dist";
 let version = "__VERSION__";
 let currentChangelogTab: ChangelogTab = "raw";
 let currentOutputMode: OutputMode = "changelog";
+let currentResult: string | undefined;
 
 window.onload = () => {
   const versionElements = document.getElementsByClassName("version");
@@ -33,11 +34,15 @@ window.onload = () => {
   const detailedChangelogButton = document.getElementById("detailedChangelogButton");
   detailedChangelogButton?.addEventListener("click", (_) => computeChangelog(true));
 
+  const copyResultButton = document.getElementById("copyResultButton");
+  copyResultButton?.addEventListener("click", (_) => copyResult());
+
   const rawTab = document.getElementById("rawTab");
   rawTab?.addEventListener("click", (_) => computeRawChangelog());
 
   const markdownTab = document.getElementById("markdownTab");
   markdownTab?.addEventListener("click", (_) => computeMarkdownChangelog());
+
 
   setOutputMode("changelog");
   setChangelogTab("markdown");
@@ -112,6 +117,7 @@ function computeChangelog(detailed?: boolean | undefined) {
   }
 
   const raw = openapiChangelog([oldDocument, newDocument], { detailed: currentOutputMode === "detailed" });
+  currentResult = raw;
 
   switch (currentChangelogTab) {
     case "raw":
@@ -132,7 +138,7 @@ function computeChangelog(detailed?: boolean | undefined) {
         console.error("Result div not found");
         return;
       }
-      
+
       const md = MarkdownIt();
       const mdChangelog = md.render(raw);
       resultDiv.innerHTML = mdChangelog;
@@ -157,7 +163,22 @@ function computeDiff() {
   showChangelogTabs(false);
 
   const result = openapiCompare(oldDocument, newDocument);
+  currentResult = JSON.stringify(result, null, 2);
   resultPre.innerHTML = prettyPrintJson.toHtml(result, { indent: 2, trailingCommas: true, quoteKeys: true });
+}
+
+function copyResult() {
+  if (currentResult === undefined) {
+    return;
+  }
+
+  navigator.clipboard.writeText(currentResult).then(() => {
+    const copiedDiv = document.getElementById("copiedDiv");
+    if (copiedDiv !== null) {
+      copiedDiv.innerText = "Copied!";
+      setTimeout(() => copiedDiv.innerText = "", 1000);
+    }
+  });
 }
 
 function parseOpenapiDocument(textAreaId: string, formatSelectId: string) {

@@ -84,14 +84,22 @@
               </div>
             </div>
           </div>
-          <ul id="changelogTabs" class="nav nav-underline ps-4">
-            <li class="nav-item">
-              <a id="rawTab" class="nav-link active" href="#">Raw</a>
-            </li>
-            <li class="nav-item">
-              <a id="markdownTab" class="nav-link" href="#">Markdown</a>
-            </li>
-          </ul>
+          <div class="d-flex justify-content-between pe-4">
+            <ul id="changelogTabs" class="nav nav-underline ps-4">
+              <li class="nav-item">
+                <a id="rawTab" class="nav-link active" href="#">Raw</a>
+              </li>
+              <li class="nav-item">
+                <a id="markdownTab" class="nav-link" href="#">Markdown</a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center justify-content-center gap-2">
+              <div id="copiedDiv"></div>
+              <button id="copyResultButton" class="btn btn-outline-secondary">
+                <i class="bi bi-clipboard"></i>
+              </button>
+            </div>
+          </div>
           <div class="flex-grow-1 ps-4 overflow-hidden">
             <div id="resultDiv" class="h-100 overflow-y-auto">
               <div class="text-center text-muted">Provide the old and the new documents, then press the <span class="text-primary">Changelog</span> button above</div>

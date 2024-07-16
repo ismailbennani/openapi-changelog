@@ -16,9 +16,9 @@
   "bin": "dist/cli.js",
   "scripts": {
     "build": "rimraf dist && tsup --config tsup.config.ts",
-    "build-website": "npm run pack && tsc --esModuleInterop true website/main.ts && browserify -p esmify website/main.js | terser -c > website/main.bundle.js",
+    "build-website": "tsc --esModuleInterop true website/main.ts && browserify -p esmify -t browserify-versionify website/main.js | terser -c > website/main.bundle.js",
     "pack": "rimraf dist && tsup --config tsup.pack.config.ts",
-    "pack-website": "npm run build-website && copyfiles -u 1 website/*.html website/*.bundle.js website/*.css dist/website"
+    "pack-website": "npm run pack && npm run build-website && copyfiles -u 1 website/*.html website/*.bundle.js website/*.css dist/website"
   },
   "devDependencies": {
     "@eslint/js": "^9.6.0",
@@ -27,6 +27,7 @@
     "@types/markdown-it": "^14.1.1",
     "@types/node": "^20.14.10",
     "browserify": "^17.0.0",
+    "browserify-versionify": "^1.0.6",
     "copyfiles": "^2.4.1",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",

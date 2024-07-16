@@ -2,10 +2,21 @@ import { load } from "js-yaml";
 import MarkdownIt from "markdown-it";
 import { openapiChangelog, openapiCompare } from "../dist";
 
+let version = "__VERSION__";
 let currentChangelogTab: "raw" | "markdown" = "raw";
 let currentlyDetailed: boolean = false;
 
 window.onload = () => {
+  const versionElements = document.getElementsByClassName("version");
+  for (let i = 0; i < versionElements.length; i++) {
+    const versionElement = versionElements.item(i);
+    if (versionElement === null) {
+      continue;
+    }
+    
+    versionElement.textContent = version;
+  }
+
   const oldDocumentInputFile = document.getElementById("oldDocumentInputFile");
   oldDocumentInputFile?.addEventListener("change", (e) => inputOldDocument(e));
 

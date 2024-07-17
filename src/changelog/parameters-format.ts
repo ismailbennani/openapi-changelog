@@ -3,7 +3,6 @@ import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/par
 import { OpenapiChangelogOptions } from "./changelog";
 import { block, diffStrings, pad } from "./string-utils";
 import { ParameterIntermediateRepresentation } from "../ir/parameters-ir";
-import { operationResponseBreakingChange } from "./operation-responses-format";
 
 export function parameterBreakingChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,
@@ -26,16 +25,16 @@ export function parameterBreakingChanges(
 
     switch (change.type) {
       case "parameter-type-change": {
-        result.push(`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
+        result.push(`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
 
         if (options.detailed === true) {
-          result.push(...pad(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockPadding));
+          result.push("", ...pad(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockPadding));
         }
 
         break;
       }
       case "parameter-unclassified":
-        result.push(`- Changed parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
+        result.push(`- Changed parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
         break;
     }
   }
@@ -64,12 +63,12 @@ export function parameterNonBreakingChanges(
 
     switch (change.type) {
       case "parameter-documentation-change": {
-        result.push(`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.nOccurrences.toString()} objects`);
+        result.push(`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
 
         if (options.detailed === true) {
           const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
           if (details !== undefined) {
-            result.push(...block(details, innerBlockWidth, innerBlockPadding));
+            result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
           }
         }
       }

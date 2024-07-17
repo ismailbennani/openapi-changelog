@@ -30,7 +30,7 @@ export function operationParameterBreakingChange(
       const result = block(`- Changed type of parameter ${change.name}`, blockWidth);
 
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
-        result.push(...block(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockWidth, innerBlockPadding));
+        result.push("", ...block(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockWidth, innerBlockPadding));
       }
 
       return result;
@@ -82,7 +82,7 @@ export function operationParameterNonBreakingChange(
       if (options.detailed === true && parameterInOldDocument !== undefined && parameterInNewDocument !== undefined) {
         const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
         if (details !== undefined) {
-          result.push(...block(details, innerBlockWidth, innerBlockPadding));
+          result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
         }
       }
 

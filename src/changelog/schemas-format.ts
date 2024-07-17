@@ -10,8 +10,6 @@ export function schemaBreakingChanges(
   changes: SchemaBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
-  const blockWidth = options.printWidth ?? 9999;
-
   const result: string[] = [];
 
   for (const change of changes) {
@@ -57,7 +55,7 @@ export function schemaNonBreakingChanges(
         if (options.detailed === true) {
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
           if (details !== undefined) {
-            result.push(...block(details, innerBlockWidth, innerBlockPadding));
+            result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
           }
         }
       }

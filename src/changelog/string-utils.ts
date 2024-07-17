@@ -33,11 +33,11 @@ export function diffStrings(str1: string, str2: string): string {
     const line = diff.value === "" ? "_(newline)_" : diff.value.endsWith("\n") ? diff.value.substring(0, diff.value.length - 1) : diff.value;
 
     if (diff.added === true) {
-      result.push(`**${line}**`);
+      result.push(`**${line}**\\`);
     } else if (diff.removed === true) {
-      result.push(`~~${line}~~`);
+      result.push(`~~${line}~~\\`);
     } else {
-      result.push(line);
+      result.push(`${line}\\`);
     }
   }
 

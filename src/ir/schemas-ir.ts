@@ -1,12 +1,18 @@
 import { OpenAPIV3 } from "openapi-types";
 import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./utils";
 import winston from "winston";
+import { HttpMethod, isHttpMethod } from "../core/http-methods";
 
 export interface SchemaIntermediateRepresentation {
   name: string;
-  nOccurrences: number;
+  occurrences: Occurrence[];
   description: string | undefined;
   examples: string | undefined;
+}
+
+interface Occurrence {
+  path: string;
+  method: HttpMethod;
 }
 
 export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediateRepresentation[] {
@@ -23,9 +29,11 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
       continue;
     }
 
+    const occurrences = findOccurrences(document, name);
+
     result.push({
       name,
-      nOccurrences: countOccurrences(document, name),
+      occurrences: Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method }))),
       description: evaluatedSchema.description,
       examples: extractSchemaExamples(schema),
     });
@@ -62,157 +70,202 @@ export function extractSchemaExamples(schema: OpenAPIV3.SchemaObject | OpenAPIV3
   return undefined;
 }
 
-function countOccurrences(document: OpenAPIV3.Document, name: string): number {
-  let result = 0;
+function findOccurrences(document: OpenAPIV3.Document, name: string): Record<string, Set<HttpMethod>> {
+  const result: Record<string, Set<HttpMethod>> = {};
 
-  for (const methods of Object.values(document.paths)) {
+  for (const [path, methods] of Object.entries(document.paths)) {
     if (methods === undefined) {
       continue;
     }
 
+    const methodsOfPathContainingReference: Set<HttpMethod> = new Set<HttpMethod>();
+
     if (methods.parameters !== undefined) {
       for (const parameter of methods.parameters) {
-        result += countOccurrencesInParameter(parameter, name);
+        if (hasOccurrencesInParameter(document, parameter, name)) {
+          for (const method of Object.keys(methods).filter(isHttpMethod)) {
+            methodsOfPathContainingReference.add(method);
+          }
+          break;
+        }
       }
     }
 
-    for (const operation of Object.values(methods)) {
+    for (const [method, operation] of Object.entries(methods)) {
+      if (!isHttpMethod(method) || methodsOfPathContainingReference.has(method)) {
+        continue;
+      }
+
       const parameters = (operation as OpenAPIV3.OperationObject).parameters;
       if (parameters !== undefined) {
         for (const parameter of parameters) {
-          result += countOccurrencesInParameter(parameter, name);
+          if (hasOccurrencesInParameter(document, parameter, name)) {
+            methodsOfPathContainingReference.add(method);
+          }
         }
       }
 
       const requestBody = (operation as OpenAPIV3.OperationObject).requestBody;
       if (requestBody !== undefined) {
-        result += countOccurrencesInRequestBody(requestBody, name);
+        if (hasOccurrencesInRequestBody(document, requestBody, name)) {
+          methodsOfPathContainingReference.add(method);
+        }
       }
 
-      const responses = (operation as OpenAPIV3.OperationObject).responses;
+      const responses = (operation as OpenAPIV3.OperationObject | undefined)?.responses;
       if (responses !== undefined) {
         for (const response of Object.values(responses)) {
-          result += countOccurrencesInResponse(response, name);
+          if (hasOccurrencesInResponse(document, response, name)) {
+            methodsOfPathContainingReference.add(method);
+          }
         }
       }
     }
-  }
 
-  if (document.components?.schemas !== undefined) {
-    for (const [otherSchemaName, schema] of Object.entries(document.components.schemas)) {
-      if (countOccurrencesInSchema(schema, name) > 0) {
-        result += countOccurrences(document, otherSchemaName);
-      }
+    if (methodsOfPathContainingReference.size > 0) {
+      result[path] = methodsOfPathContainingReference;
     }
   }
 
   return result;
 }
 
-function countOccurrencesInParameter(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject, name: string): number {
+function hasOccurrencesInParameter(document: OpenAPIV3.Document, parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject, name: string): boolean {
   if (isReferenceObject(parameter)) {
-    return 0;
+    const otherParameter = document.components?.parameters?.[parameter.$ref];
+    if (otherParameter === undefined) {
+      return false;
+    }
+
+    return hasOccurrencesInParameter(document, otherParameter, name);
   }
 
   if (parameter.schema !== undefined) {
-    return countOccurrencesInSchema(parameter.schema, name);
+    return hasOccurrencesInSchema(document, parameter.schema, name);
   }
 
   if (parameter.content !== undefined) {
-    let result = 0;
-
-    for (const content of Object.values(parameter.content)) {
-      result += countOccurrencesInContent(content, name);
-    }
-
-    return result;
+    return Object.values(parameter.content).some((c) => hasOccurrencesInContent(document, c, name));
   }
 
-  return 0;
+  return false;
 }
 
-function countOccurrencesInSchema(schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, name: string): number {
+function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, name: string): boolean {
   if (isReferenceObject(schema)) {
     if (isReferenceToSchema(schema, name)) {
-      return 1;
+      return true;
     }
 
-    return 0;
+    const otherSchema = getReferencedObject(document, schema.$ref) as OpenAPIV3.SchemaObject | undefined;
+    if (otherSchema === undefined) {
+      return false;
+    }
+
+    return hasOccurrencesInSchema(document, otherSchema, name);
   }
 
   switch (schema.type) {
     case "array":
-      return countOccurrencesInSchema(schema.items, name);
+      return hasOccurrencesInSchema(document, schema.items, name);
     case "object":
-      if (schema.oneOf?.some((s) => countOccurrencesInSchema(s, name) > 0) === true) {
-        return 1;
+      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+        return true;
       }
 
-      if (schema.allOf?.some((s) => countOccurrencesInSchema(s, name) > 0) === true) {
-        return 1;
+      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+        return true;
       }
 
-      if (schema.anyOf?.some((s) => countOccurrencesInSchema(s, name) > 0) === true) {
-        return 1;
+      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+        return true;
       }
 
-      if (schema.not !== undefined && countOccurrencesInSchema(schema.not, name) > 0) {
-        return 1;
+      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, name)) {
+        return true;
       }
 
       if (
         schema.additionalProperties !== undefined &&
         schema.additionalProperties !== true &&
         schema.additionalProperties !== false &&
-        countOccurrencesInSchema(schema.additionalProperties, name) > 0
+        hasOccurrencesInSchema(document, schema.additionalProperties, name)
       ) {
-        return 1;
+        return true;
       }
 
-      return 0;
+      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, name))) {
+        return true;
+      }
+
+      return false;
     default:
-      return 0;
+      return false;
   }
 }
 
-function countOccurrencesInRequestBody(requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject, name: string): number {
+function hasOccurrencesInRequestBody(document: OpenAPIV3.Document, requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject, name: string): boolean {
   if (isReferenceObject(requestBody)) {
-    return 0;
+    const otherRequestBody = getReferencedObject(document, requestBody.$ref) as OpenAPIV3.RequestBodyObject | undefined;
+    if (otherRequestBody === undefined) {
+      return false;
+    }
+
+    return hasOccurrencesInRequestBody(document, otherRequestBody, name);
   }
 
-  let result = 0;
-
-  for (const content of Object.values(requestBody.content)) {
-    result += countOccurrencesInContent(content, name);
+  if (requestBody.content !== undefined) {
+    return Object.values(requestBody.content).some((c) => hasOccurrencesInContent(document, c, name));
   }
 
-  return result;
+  return false;
 }
 
-function countOccurrencesInResponse(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject, name: string): number {
+function hasOccurrencesInResponse(document: OpenAPIV3.Document, response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject, name: string): boolean {
   if (isReferenceObject(response)) {
-    return 0;
-  }
+    const otherResponse = getReferencedObject(document, response.$ref) as OpenAPIV3.ResponseObject | undefined;
+    if (otherResponse === undefined) {
+      return false;
+    }
 
-  let result = 0;
+    return hasOccurrencesInResponse(document, otherResponse, name);
+  }
 
   if (response.content !== undefined) {
-    for (const content of Object.values(response.content)) {
-      result += countOccurrencesInContent(content, name);
-    }
+    return Object.values(response.content).some((c) => hasOccurrencesInContent(document, c, name));
   }
 
-  return result;
+  return false;
 }
 
-function countOccurrencesInContent(content: OpenAPIV3.MediaTypeObject, name: string): number {
+function hasOccurrencesInContent(document: OpenAPIV3.Document, content: OpenAPIV3.MediaTypeObject, name: string): boolean {
   if (content.schema === undefined) {
-    return 0;
+    return false;
   }
 
-  return countOccurrencesInSchema(content.schema, name);
+  return hasOccurrencesInSchema(document, content.schema, name);
 }
 
 function isReferenceToSchema(parameter: OpenAPIV3.ReferenceObject, name: string): boolean {
   return parameter.$ref === `#/components/schemas/${name}`;
+}
+
+function getReferencedObject(document: OpenAPIV3.Document, ref: string): undefined | object {
+  const split = ref.split("/");
+  if (split[0] !== "#") {
+    return undefined;
+  }
+
+  let current: object | undefined = document;
+
+  for (let i = 1; i < split.length; i++) {
+    if (current === undefined) {
+      break;
+    }
+
+    const key = split[i];
+    current = key in current ? (current as Record<string, object>)[key] : undefined;
+  }
+
+  return current;
 }

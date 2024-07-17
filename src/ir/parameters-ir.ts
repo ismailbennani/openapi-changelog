@@ -2,13 +2,19 @@ import { OpenAPIV3 } from "openapi-types";
 import { evaluateParameterOrRef, isReferenceObject, join } from "./utils";
 import winston from "winston";
 import { extractTypeFromSchema } from "./schemas-ir";
+import { HttpMethod, isHttpMethod } from "../core/http-methods";
 
 export interface ParameterIntermediateRepresentation {
   name: string;
   type: string;
-  nOccurrences: number;
+  occurrences: Occurrence[];
   description: string | undefined;
   examples: string | undefined;
+}
+
+interface Occurrence {
+  path: string;
+  method: HttpMethod;
 }
 
 export function extractParameters(document: OpenAPIV3.Document): ParameterIntermediateRepresentation[] {
@@ -25,10 +31,12 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
       continue;
     }
 
+    const occurrences = findOccurrences(document, name);
+
     result.push({
       name: name,
       type: extractParameterType(parameter),
-      nOccurrences: countOccurrences(document, name),
+      occurrences: Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method }))),
       description: isReferenceObject(parameter) ? undefined : parameter.description,
       examples: isReferenceObject(parameter) ? undefined : extractParameterExamples(parameter),
     });
@@ -82,23 +90,32 @@ export function extractParameterExamples(parameter: OpenAPIV3.ParameterObject | 
   return join(result, "\n");
 }
 
-function countOccurrences(document: OpenAPIV3.Document, name: string): number {
-  let result = 0;
+function findOccurrences(document: OpenAPIV3.Document, name: string): Record<string, Set<HttpMethod>> {
+  const result: Record<string, Set<HttpMethod>> = {};
 
-  for (const methods of Object.values(document.paths)) {
+  for (const [path, methods] of Object.entries(document.paths)) {
     if (methods === undefined) {
       continue;
     }
 
+    const methodsOfPathContainingReference: Set<HttpMethod> = new Set<HttpMethod>();
+
     if (methods.parameters !== undefined) {
       for (const parameter of methods.parameters) {
         if (isReferenceOfParameter(parameter, name)) {
-          result++;
+          for (const method of Object.keys(methods).filter(isHttpMethod)) {
+            methodsOfPathContainingReference.add(method);
+          }
+          break;
         }
       }
     }
 
-    for (const operation of Object.values(methods)) {
+    for (const [method, operation] of Object.entries(methods)) {
+      if (!isHttpMethod(method) || methodsOfPathContainingReference.has(method)) {
+        continue;
+      }
+
       const parameters = (operation as OpenAPIV3.OperationObject).parameters;
       if (parameters === undefined) {
         continue;
@@ -106,17 +123,13 @@ function countOccurrences(document: OpenAPIV3.Document, name: string): number {
 
       for (const parameter of parameters) {
         if (isReferenceOfParameter(parameter, name)) {
-          result++;
+          methodsOfPathContainingReference.add(method);
         }
       }
     }
-  }
 
-  if (document.components?.parameters !== undefined) {
-    for (const [otherParameterName, parameter] of Object.entries(document.components.parameters)) {
-      if (isReferenceOfParameter(parameter, otherParameterName)) {
-        result += countOccurrences(document, otherParameterName);
-      }
+    if (methodsOfPathContainingReference.size > 0) {
+      result[path] = methodsOfPathContainingReference;
     }
   }
 

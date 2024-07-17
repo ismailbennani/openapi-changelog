@@ -21,7 +21,7 @@ export function schemaBreakingChanges(
 
     switch (change.type) {
       case "schema-unclassified":
-        result.push(`- Changed schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
+        result.push(`- Changed schema ${change.name} referenced by ${schemaInNewDocument.occurrences.length.toString()} objects`);
         break;
     }
   }
@@ -50,7 +50,7 @@ export function schemaNonBreakingChanges(
 
     switch (change.type) {
       case "schema-documentation-change": {
-        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.nOccurrences.toString()} objects`);
+        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.occurrences.length.toString()} objects`);
 
         if (options.detailed === true) {
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);

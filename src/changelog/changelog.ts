@@ -2,7 +2,6 @@ import { OpenAPIV3 } from "openapi-types";
 import { formatDocumentChanges } from "./openapi-document-format";
 import { detailedDiff, OpenapiDiffOptions } from "../diff/diff";
 import { OpenapiDocumentChange } from "../diff/openapi-document-changes";
-import { setupConsoleLoggingIfNecessary } from "../core/logging-utils";
 
 export type OpenapiChangelogOptions = OpenapiDiffOptions & {
   printWidth?: number;
@@ -11,8 +10,6 @@ export type OpenapiChangelogOptions = OpenapiDiffOptions & {
 };
 
 export function changelog(documents: OpenAPIV3.Document[], options?: OpenapiChangelogOptions): string {
-  setupConsoleLoggingIfNecessary();
-
   const actualOptions: OpenapiChangelogOptions = {
     dumpIntermediateRepresentations: undefined,
     limit: undefined,

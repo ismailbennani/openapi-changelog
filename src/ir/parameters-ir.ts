@@ -1,6 +1,5 @@
 import { OpenAPIV3 } from "openapi-types";
 import { evaluateParameterOrRef, isReferenceObject, trimJoin } from "./utils";
-import winston from "winston";
 import { extractTypeFromSchema } from "./schemas-ir";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { isReferenceOfParameter } from "../core/openapi-documents-utils";
@@ -29,7 +28,6 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
   for (const [name, parameter] of Object.entries(document.components.parameters)) {
     const evaluatedParameter = evaluateParameterOrRef(document, parameter);
     if (!evaluatedParameter) {
-      winston.warn(`At parameter ${name}: could not evaluate parameter ${JSON.stringify(parameter)}`);
       continue;
     }
 

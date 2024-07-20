@@ -1,6 +1,5 @@
 import { OpenAPIV3 } from "openapi-types";
 import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./utils";
-import winston from "winston";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { getReferencedObject, isReferenceToSchema } from "../core/openapi-documents-utils";
 import { escapeMarkdown } from "../core/string-utils";
@@ -27,7 +26,6 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
   for (const [name, schema] of Object.entries(document.components.schemas)) {
     const evaluatedSchema = evaluateSchemaOrRef(document, schema);
     if (!evaluatedSchema) {
-      winston.warn(`At parameter ${name}: could not evaluate parameter ${JSON.stringify(schema)}`);
       continue;
     }
 

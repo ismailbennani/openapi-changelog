@@ -147,7 +147,17 @@ void yargsInstance
   .parse();
 
 function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): void {
-  const consoleTransport = setupConsoleLoggingIfNecessary({ ...args, colors: true });
+  const options: winston.transports.ConsoleTransportOptions = {
+    format: format.combine(format.colorize(), format.simple()),
+    level: "info",
+  };
+
+  if (args.output !== undefined) {
+    options.stderrLevels = ["error", "warn", "info"];
+  }
+
+  const consoleTransport = new winston.transports.Console(options);
+  winston.add(consoleTransport);
 
   if (args.verbose !== true) {
     consoleTransport.silent = true;

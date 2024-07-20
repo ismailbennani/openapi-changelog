@@ -1,7 +1,6 @@
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "../core/http-methods";
 import { evaluateParameterOrRef, isReferenceObject } from "./utils";
-import winston from "winston";
 import { extractParameterExamples, extractParameterType } from "./parameters-ir";
 import { escapeMarkdown } from "../core/string-utils";
 
@@ -44,7 +43,6 @@ export function extractOperationParameters(document: OpenAPIV3.Document, path: s
   for (const parameter of parameters) {
     const evaluatedParameter = evaluateParameterOrRef(document, parameter);
     if (!evaluatedParameter) {
-      winston.warn(`At operation ${method} ${path}: could not evaluate parameter ${JSON.stringify(parameter)}`);
       continue;
     }
 

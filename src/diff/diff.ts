@@ -1,12 +1,10 @@
 import { OpenAPIV3 } from "openapi-types";
-import winston from "winston";
 import fs from "fs";
 import { sortDocumentsByVersionDescInPlace } from "../core/openapi-documents-utils";
 import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { compareIntermediateRepresentations, OpenapiDocumentChanges } from "./openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "../core/constants";
 import { ensureDir } from "../core/fs-utils";
-import { setupConsoleLoggingIfNecessary } from "../core/logging-utils";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -22,8 +20,6 @@ export function detailedDiff(
   documents: OpenAPIV3.Document[],
   options?: OpenapiDiffOptions,
 ): { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] {
-  setupConsoleLoggingIfNecessary();
-
   if (documents.length < 2) {
     throw new Error("Expected at least two documents");
   }
@@ -31,16 +27,9 @@ export function detailedDiff(
   sortDocumentsByVersionDescInPlace(documents);
 
   if (options?.limit !== undefined && documents.length > options.limit) {
-    winston.info(`Changelog limit set to ${options.limit.toString()}, dropping last ${(documents.length - options.limit).toString()} versions.`);
     documents = documents.slice(0, options.limit);
   }
 
-  winston.info("Computing differences between documents:");
-  for (const document of documents) {
-    winston.info(`\t ${document.info.title} v${document.info.version}`);
-  }
-
-  winston.info("Extracting data from documents...");
   const documentIrs = documents.map((d) => ir(d, options));
 
   const result: { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] = [];

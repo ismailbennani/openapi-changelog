@@ -10,5 +10,4 @@ Version 2.0.0 - MAJOR
     - Changed documentation of operation POST /audio/translations
     
       ~~Translates audio into into English.~~\
-      **Translates audio into English.**\
-    
+      **Translates audio into English.**

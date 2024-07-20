@@ -43,7 +43,7 @@ export function diffStrings(str1: string, str2: string): string {
 
   for (const diff of differences) {
     if (diff.added !== true && diff.removed !== true) {
-      result.push(diff.value);
+      result.push(diff.value.endsWith("\n") ? diff.value.substring(0, -1) : diff.value);
       continue;
     }
 
@@ -51,11 +51,11 @@ export function diffStrings(str1: string, str2: string): string {
     const line = trimmed === "" ? "_(newline)_" : trimmed;
 
     if (diff.added === true) {
-      result.push(`**${line}**\\\n`);
+      result.push(`**${line}**`);
     } else if (diff.removed === true) {
-      result.push(`~~${line}~~\\\n`);
+      result.push(`~~${line}~~`);
     }
   }
 
-  return result.join("");
+  return result.join("\\\n");
 }

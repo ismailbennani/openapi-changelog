@@ -108,7 +108,7 @@ export function operationNonBreakingChanges(
           if (options.detailed === true && operationInOldDocument !== undefined && operationInNewDocument !== undefined) {
             const details = operationDocumentationDetails(operationInOldDocument, operationInNewDocument);
             if (details !== undefined) {
-              result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
+              result.push("  - Changes", ...block(details, innerBlockWidth, innerBlockPadding));
             }
           }
           break;

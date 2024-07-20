@@ -51,9 +51,9 @@ export function diffStrings(str1: string, str2: string): string {
     const line = trimmed === "" ? "_(newline)_" : trimmed;
 
     if (diff.added === true) {
-      result.push(`**${line}**`);
+      result.push(`\\+ **${line}**`);
     } else if (diff.removed === true) {
-      result.push(`~~${line}~~`);
+      result.push(`\\- ~~${line}~~`);
     }
   }
 

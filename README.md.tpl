@@ -62,7 +62,7 @@ As markdown:
 
 {{include examples/openai/API-CHANGELOG.detailed}}
 
-### [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.5.1) to [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.22.3)
+### [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.5.1) to [Google Maps v1.22.3](https://github.com/googlemaps/openapi-specification/releases/tag/v1.22.3)
 
 ```
 > openapi-changelog examples/googlemaps/*.json --detailed --include-minor

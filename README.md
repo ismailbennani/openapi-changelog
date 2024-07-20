@@ -62,12 +62,13 @@ console.log(result);
 ```
 > openapi-changelog examples/openai/v1.3.0.yaml examples/openai/v2.0.0.yaml
 Version 2.0.0 - MAJOR
-  - BREAKING CHANGES
-      - Removed operation GET /engines
-      - Removed operation GET /engines/{engine_id}
-      - Removed operation POST /engines/{engine_id}/search
-      - Removed operation POST /answers
-      - Removed operation POST /classifications
+
+- BREAKING CHANGES
+    - Removed operation GET /engines
+    - Removed operation GET /engines/{engine_id}
+    - Removed operation POST /engines/{engine_id}/search
+    - Removed operation POST /answers
+    - Removed operation POST /classifications
 
 ```
 
@@ -124,8 +125,7 @@ Version 2.0.0 - MAJOR
         ~~Translates audio into into English.~~\
         **Translates audio into English.**
 
-
-### [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.5.1) to [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.22.3)
+### [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.5.1) to [Google Maps v1.22.3](https://github.com/googlemaps/openapi-specification/releases/tag/v1.22.3)
 
 ```
 > openapi-changelog examples/googlemaps/*.json --detailed --include-minor

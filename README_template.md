@@ -52,7 +52,7 @@ As markdown:
 ### [OpenAI v1.3](https://github.com/openai/openai-openapi/releases/tag/1.3.0) to [OpenAI v2](https://github.com/openai/openai-openapi/releases/tag/2.0.0) with details
 
 ```
-> openapi-changelog examples/openai/v1.3.0.yaml examples/openai/v2.0.0.yaml --detailed
+> openapi-changelog examples/openai/v1.3.0.yaml examples/openai/v2.0.0.yaml --detailed --include-minor
 {{include examples/openai/API-CHANGELOG.detailed.md}}
 ```
 

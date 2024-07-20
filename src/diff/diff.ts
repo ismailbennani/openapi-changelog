@@ -29,15 +29,10 @@ export function detailedDiff(
     throw new Error("Expected at least two documents");
   }
 
-  if (options?.limit !== undefined && documents.length > options.limit) {
-    Logger.info(`Limit set to ${options.limit.toString()}, dropping last ${(documents.length - options.limit).toString()} documents.`);
-    documents = documents.slice(0, options.limit);
-  }
-
   const documentIrs = documents.map((d) => ir(d, options));
   sortDocumentsByVersionDescInPlace(documentIrs);
 
-  return computeChanges(documentIrs);
+  return computeChanges(documentIrs, options);
 }
 
 export async function detailedDiffFromFiles(
@@ -46,11 +41,6 @@ export async function detailedDiffFromFiles(
 ): Promise<{ oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[]> {
   if (documentPaths.length < 2) {
     throw new Error("Expected at least two documents");
-  }
-
-  if (options?.limit !== undefined && documentPaths.length > options.limit) {
-    Logger.info(`Limit set to ${options.limit.toString()}, dropping last ${(documentPaths.length - options.limit).toString()} documents.`);
-    documentPaths = documentPaths.slice(0, options.limit);
   }
 
   const documentIrs: OpenapiDocumentIntermediateRepresentation[] = [];
@@ -69,7 +59,7 @@ export async function detailedDiffFromFiles(
 
   sortDocumentsByVersionDescInPlace(documentIrs);
 
-  return computeChanges(documentIrs);
+  return computeChanges(documentIrs, options);
 }
 
 function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): OpenapiDocumentIntermediateRepresentation {
@@ -90,12 +80,17 @@ function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): Openapi
 
 function computeChanges(
   documentIrs: OpenapiDocumentIntermediateRepresentation[],
-  options?: OpenapiDiffOptions,
+  options: OpenapiDiffOptions | undefined,
 ): {
   oldDocument: OpenapiDocumentIntermediateRepresentation;
   newDocument: OpenapiDocumentIntermediateRepresentation;
   changes: OpenapiDocumentChanges;
 }[] {
+  if (options?.limit !== undefined && documentIrs.length > options.limit) {
+    Logger.info(`Limit set to ${options.limit.toString()}, dropping last ${(documentIrs.length - options.limit).toString()} documents.`);
+    documentIrs = documentIrs.slice(0, options.limit);
+  }
+
   Logger.info("Computing differences between documents:");
   for (const documentIr of documentIrs) {
     Logger.info(`\t ${documentIr.title} v${documentIr.version}`);

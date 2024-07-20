@@ -4,13 +4,9 @@ export function isArrayObject(obj: object): obj is { type: "array" } {
   return (obj as { type: string }).type === "array";
 }
 
-//#region Strings
-
-export function join(lines: string[], sep?: string): string {
+export function trimJoin(lines: string[], sep?: string): string {
   return lines.map((s) => s.trim()).join(sep ?? "\n");
 }
-
-// #endregion
 
 //#region References
 

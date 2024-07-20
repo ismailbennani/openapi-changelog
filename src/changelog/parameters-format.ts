@@ -25,16 +25,25 @@ export function parameterBreakingChanges(
 
     switch (change.type) {
       case "parameter-type-change": {
-        result.push(`- Changed type of parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
+        result.push(`- Changed type of parameter ${change.name} used in ${parameterInNewDocument.occurrences.length.toString()} endpoints`);
 
         if (options.detailed === true) {
           result.push("", ...pad(parameterTypeChangeDetails(parameterInOldDocument, parameterInNewDocument), innerBlockPadding));
+
+          if (parameterInNewDocument.occurrences.length > 0) {
+            result.push(...block(parameterEndpointsDetails(parameterInNewDocument), innerBlockWidth, innerBlockPadding));
+          }
         }
 
         break;
       }
       case "parameter-unclassified":
-        result.push(`- Changed parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
+        result.push(`- Changed parameter ${change.name} used in ${parameterInNewDocument.occurrences.length.toString()} endpoints`);
+        if (options.detailed === true) {
+          if (parameterInNewDocument.occurrences.length > 0) {
+            result.push("", ...block(parameterEndpointsDetails(parameterInNewDocument), innerBlockWidth, innerBlockPadding));
+          }
+        }
         break;
     }
   }
@@ -63,12 +72,16 @@ export function parameterNonBreakingChanges(
 
     switch (change.type) {
       case "parameter-documentation-change": {
-        result.push(`- Changed documentation of parameter ${change.name} referenced by ${parameterInNewDocument.occurrences.length.toString()} objects`);
+        result.push(`- Changed documentation of parameter ${change.name} used in ${parameterInNewDocument.occurrences.length.toString()} endpoints`);
 
         if (options.detailed === true) {
+          if (parameterInNewDocument.occurrences.length > 0) {
+            result.push("", ...block(parameterEndpointsDetails(parameterInNewDocument), innerBlockWidth, innerBlockPadding));
+          }
+
           const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
           if (details !== undefined) {
-            result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
+            result.push("  - Changes:", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
           }
         }
       }
@@ -79,7 +92,7 @@ export function parameterNonBreakingChanges(
 }
 
 function parameterTypeChangeDetails(oldParameter: ParameterIntermediateRepresentation, newParameter: ParameterIntermediateRepresentation): string[] {
-  return [`Old type: ${oldParameter.type}`, `New type: ${newParameter.type}`];
+  return [`- Old type: ${oldParameter.type}`, `- New type: ${newParameter.type}`];
 }
 
 function parameterDocumentationDetails(oldParameter: ParameterIntermediateRepresentation, newParameter: ParameterIntermediateRepresentation): string | undefined {
@@ -92,4 +105,14 @@ function parameterDocumentationDetails(oldParameter: ParameterIntermediateRepres
   }
 
   return undefined;
+}
+
+function parameterEndpointsDetails(parameter: ParameterIntermediateRepresentation): string[] {
+  const result: string[] = [];
+
+  for (const occurrence of parameter.occurrences) {
+    result.push(`- Used in ${occurrence.method.toUpperCase()} ${occurrence.path}`);
+  }
+
+  return result;
 }

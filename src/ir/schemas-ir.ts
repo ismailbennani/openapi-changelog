@@ -2,6 +2,7 @@ import { OpenAPIV3 } from "openapi-types";
 import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./utils";
 import winston from "winston";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
+import { getReferencedObject, isReferenceToSchema } from "../core/openapi-documents-utils";
 
 export interface SchemaIntermediateRepresentation {
   name: string;
@@ -248,28 +249,4 @@ function hasOccurrencesInContent(document: OpenAPIV3.Document, content: OpenAPIV
   }
 
   return hasOccurrencesInSchema(document, content.schema, name);
-}
-
-function isReferenceToSchema(parameter: OpenAPIV3.ReferenceObject, name: string): boolean {
-  return parameter.$ref === `#/components/schemas/${name}`;
-}
-
-function getReferencedObject(document: OpenAPIV3.Document, ref: string): undefined | object {
-  const split = ref.split("/");
-  if (split[0] !== "#") {
-    return undefined;
-  }
-
-  let current: object | undefined = document;
-
-  for (let i = 1; i < split.length; i++) {
-    if (current === undefined) {
-      break;
-    }
-
-    const key = split[i];
-    current = key in current ? (current as Record<string, object>)[key] : undefined;
-  }
-
-  return current;
 }

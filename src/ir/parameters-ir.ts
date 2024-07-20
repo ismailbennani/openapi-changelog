@@ -1,8 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
-import { evaluateParameterOrRef, isReferenceObject, join } from "./utils";
+import { evaluateParameterOrRef, isReferenceObject, trimJoin } from "./utils";
 import winston from "winston";
 import { extractTypeFromSchema } from "./schemas-ir";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
+import { isReferenceOfParameter } from "../core/openapi-documents-utils";
 
 export interface ParameterIntermediateRepresentation {
   name: string;
@@ -61,7 +62,7 @@ export function extractParameterType(parameter: OpenAPIV3.ParameterObject | Open
       result.push(`- ${contentType}: ${extractTypeFromContent(content)}`);
     }
 
-    return join(result, "\n");
+    return trimJoin(result, "\n");
   }
 
   return "???";
@@ -87,7 +88,7 @@ export function extractParameterExamples(parameter: OpenAPIV3.ParameterObject | 
     }
   }
 
-  return join(result, "\n");
+  return trimJoin(result, "\n");
 }
 
 function findOccurrences(document: OpenAPIV3.Document, name: string): Record<string, Set<HttpMethod>> {
@@ -134,14 +135,6 @@ function findOccurrences(document: OpenAPIV3.Document, name: string): Record<str
   }
 
   return result;
-}
-
-function isReferenceOfParameter(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject, name: string): boolean {
-  if (isReferenceObject(parameter)) {
-    return parameter.$ref === `#/components/parameters/${name}`;
-  }
-
-  return false;
 }
 
 function extractTypeFromContent(content: OpenAPIV3.MediaTypeObject): string {

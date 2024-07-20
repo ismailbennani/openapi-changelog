@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block, diffStrings, pad } from "./string-utils";
+import { block, diffStrings } from "./string-utils";
 import { SchemaIntermediateRepresentation } from "../ir/schemas-ir";
 
 export function schemaBreakingChanges(
@@ -10,6 +10,10 @@ export function schemaBreakingChanges(
   changes: SchemaBreakingChange[],
   options: OpenapiChangelogOptions,
 ): string[] {
+  const innerBlockPadding = 2;
+  const blockWidth = options.printWidth ?? 9999;
+  const innerBlockWidth = blockWidth - innerBlockPadding;
+
   const result: string[] = [];
 
   for (const change of changes) {
@@ -21,7 +25,13 @@ export function schemaBreakingChanges(
 
     switch (change.type) {
       case "schema-unclassified":
-        result.push(`- Changed schema ${change.name} referenced by ${schemaInNewDocument.occurrences.length.toString()} objects`);
+        result.push(`- Changed schema ${change.name} used in ${schemaInNewDocument.occurrences.length.toString()} endpoints`);
+
+        if (options.detailed === true) {
+          if (schemaInNewDocument.occurrences.length > 0) {
+            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument), innerBlockWidth, innerBlockPadding));
+          }
+        }
         break;
     }
   }
@@ -50,12 +60,16 @@ export function schemaNonBreakingChanges(
 
     switch (change.type) {
       case "schema-documentation-change": {
-        result.push(`- Changed documentation of schema ${change.name} referenced by ${schemaInNewDocument.occurrences.length.toString()} objects`);
+        result.push(`- Changed documentation of schema ${change.name} used in ${schemaInNewDocument.occurrences.length.toString()} endpoints`);
 
         if (options.detailed === true) {
+          if (schemaInNewDocument.occurrences.length > 0) {
+            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument), innerBlockWidth, innerBlockPadding));
+          }
+
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
           if (details !== undefined) {
-            result.push("", ...block(details, innerBlockWidth, innerBlockPadding));
+            result.push("  - Changes:", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
           }
         }
       }
@@ -75,4 +89,14 @@ function schemaDocumentationDetails(oldSchema: SchemaIntermediateRepresentation,
   }
 
   return undefined;
+}
+
+function schemaEndpointsDetails(schema: SchemaIntermediateRepresentation): string[] {
+  const result: string[] = [];
+
+  for (const occurrence of schema.occurrences) {
+    result.push(`- Used in ${occurrence.method.toUpperCase()} ${occurrence.path}`);
+  }
+
+  return result;
 }

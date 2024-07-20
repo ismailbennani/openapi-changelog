@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
-import { join } from "./utils";
+import { trimJoin } from "./utils";
 import { extractOperationParameters, OperationParameterIntermediateRepresentation } from "./operation-parameters-ir";
 import { extractOperationResponses, OperationResponseIntermediateRepresentation } from "./operation-responses-ir";
 
@@ -68,5 +68,5 @@ function extractOperationDescription(operation: OpenAPIV3.OperationObject): stri
     return undefined;
   }
 
-  return join(result, "\n\n");
+  return trimJoin(result, "\n\n");
 }

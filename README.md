@@ -62,13 +62,12 @@ console.log(result);
 ```
 > openapi-changelog examples/openai/v1.3.0.yaml examples/openai/v2.0.0.yaml
 Version 2.0.0 - MAJOR
-
-- BREAKING CHANGES
-    - Removed operation GET /engines
-    - Removed operation GET /engines/{engine_id}
-    - Removed operation POST /engines/{engine_id}/search
-    - Removed operation POST /answers
-    - Removed operation POST /classifications
+  - BREAKING CHANGES
+      - Removed operation GET /engines
+      - Removed operation GET /engines/{engine_id}
+      - Removed operation POST /engines/{engine_id}/search
+      - Removed operation POST /answers
+      - Removed operation POST /classifications
 
 ```
 
@@ -79,11 +78,11 @@ As markdown:
 Version 2.0.0 - MAJOR
 
 - BREAKING CHANGES
-    - Removed operation GET /engines
-    - Removed operation GET /engines/{engine_id}
-    - Removed operation POST /engines/{engine_id}/search
-    - Removed operation POST /answers
-    - Removed operation POST /classifications
+  - Removed operation GET /engines
+  - Removed operation GET /engines/{engine_id}
+  - Removed operation POST /engines/{engine_id}/search
+  - Removed operation POST /answers
+  - Removed operation POST /classifications
 
 
 ### [OpenAI v1.3](https://github.com/openai/openai-openapi/releases/tag/1.3.0) to [OpenAI v2](https://github.com/openai/openai-openapi/releases/tag/2.0.0) with details
@@ -113,17 +112,18 @@ As markdown:
 Version 2.0.0 - MAJOR
 
 - BREAKING CHANGES
-    - Removed operation GET /engines
-    - Removed operation GET /engines/{engine_id}
-    - Removed operation POST /engines/{engine_id}/search
-    - Removed operation POST /answers
-    - Removed operation POST /classifications
+  - Removed operation GET /engines
+  - Removed operation GET /engines/{engine_id}
+  - Removed operation POST /engines/{engine_id}/search
+  - Removed operation POST /answers
+  - Removed operation POST /classifications
 
 - Changes
     - Changed documentation of operation POST /audio/translations
       - Changes:\
         ~~Translates audio into into English.~~\
         **Translates audio into English.**
+
 
 ### [Google Maps v1.5.1](https://github.com/googlemaps/openapi-specification/releases/tag/v1.5.1) to [Google Maps v1.22.3](https://github.com/googlemaps/openapi-specification/releases/tag/v1.22.3)
 
@@ -1717,7 +1717,7 @@ Version 1.22.2 - PATCH
 - Changes
     - Changed documentation of parameter nearestroads_points used in 1 endpoints
 
-        - Used in GET /v1/nearestRoads
+      - Used in GET /v1/nearestRoads
       - Changes:\
         ~~The path to be snapped. The path parameter accepts a list of latitude/longitude pairs. Latitude and longitude
         values should be separated by commas. Coordinates should be separated by the pipe character: "|". For example:
@@ -1748,7 +1748,7 @@ Version 1.22.0 - MINOR
 - Changes
     - Changed documentation of parameter places_fields used in 2 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Changes:\
         ~~The Basic category includes the following fields: \`address_component\`, \`adr_address\`, \`business_status\`,
@@ -1775,7 +1775,7 @@ Version 1.21.0 - MINOR
 - Changes
     - Changed documentation of parameter places_fields used in 2 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Changes:\
         ~~The Contact category includes the following fields: \`formatted_phone_number\`,
@@ -1792,7 +1792,7 @@ Version 1.20.0 - MINOR
 - Changes
     - Changed documentation of parameter places_fields used in 2 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Changes:\
         ~~The Atmosphere category includes the following fields: \`curbside_pickup\`, \`delivery\`, \`dine_in\`,
@@ -1808,7 +1808,7 @@ Version 1.19.1 - PATCH
 - Changes
     - Changed documentation of parameter places_reviewnotranslation used in 1 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Changes:\
         ~~Specify \`reviews_no_translations=true\` to enable translation of reviews; specify
         \`reviews_no_translations=false\` to disable translation of reviews. Reviews are returned in their original
@@ -1832,7 +1832,7 @@ Version 1.18.0 - MINOR
 - Changes
     - Changed documentation of parameter places_fields used in 2 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Changes:\
         ~~The Atmosphere category includes the following fields: \`price_level\`, \`rating\`, \`review\`,
@@ -1848,7 +1848,7 @@ Version 1.17.17 - PATCH
 - Changes
     - Changed documentation of parameter places_location used in 1 endpoints
 
-        - Used in GET /maps/api/place/autocomplete/json
+      - Used in GET /maps/api/place/autocomplete/json
       - Changes:\
         ~~The point around which to retrieve place information. This must be specified as \`latitude,longitude\`.~~\
         **The point around which to retrieve place information. This must be specified as \`latitude,longitude\`. The
@@ -1864,7 +1864,7 @@ Version 1.17.15 - PATCH
 - Changes
     - Changed documentation of parameter places_keyword used in 1 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Changes:\
         ~~Explicitly including location information using this parameter may conflict with the location, radius, and
         rank_by parameters, causing unexpected results.~~\
@@ -1897,7 +1897,7 @@ Version 1.17.12 - PATCH
 - Changes
     - Changed documentation of parameter places_keyword used in 1 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Changes:\
         ~~Explicitly including location information using this parameter may conflict with the location, radius, and
         rankby parameters, causing unexpected results.~~\
@@ -1922,7 +1922,7 @@ Version 1.17.11 - PATCH
 - Changes
     - Changed documentation of parameter directions_waypoints used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~<div class="caution">Caution: Requests using more than 10 waypoints (between 11 and 25), or waypoint
         optimization, are billed at a higher rate. <a
@@ -1957,7 +1957,7 @@ Version 1.17.10 - PATCH
 - Changes
     - Changed documentation of parameter directions_waypoints used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~<div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. <a
         href="https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced">Learn more about
@@ -2075,7 +2075,7 @@ Version 1.17.8 - PATCH
 - Changes
     - Changed documentation of parameter places_radius used in 4 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Used in GET /maps/api/place/textsearch/json
       - Used in GET /maps/api/place/queryautocomplete/json
       - Used in GET /maps/api/place/autocomplete/json
@@ -2090,13 +2090,13 @@ Version 1.17.8 - PATCH
 Version 1.17.7 - PATCH
 
 - BREAKING CHANGES
-    - Removed operation GET /v1/snapToRoads
-    - Removed operation GET /maps/api/distanceMatrix/json
+  - Removed operation GET /v1/snapToRoads
+  - Removed operation GET /maps/api/distanceMatrix/json
 
 - Changes
     - Changed documentation of parameter places_keyword used in 1 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Changes:\
         ~~A term to be matched against all content that Google has indexed for this place, including but not limited to
         name and type, as well as customer reviews and other third-party content. Note that explicitly including
@@ -2115,7 +2115,7 @@ Version 1.17.6 - PATCH
 - Changes
     - Changed documentation of parameter places_radius used in 4 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Used in GET /maps/api/place/textsearch/json
       - Used in GET /maps/api/place/queryautocomplete/json
       - Used in GET /maps/api/place/autocomplete/json
@@ -2125,7 +2125,7 @@ Version 1.17.6 - PATCH
         will result in an INVALID_REQUEST.**
     - Changed documentation of parameter places_rankby used in 1 endpoints
 
-        - Used in GET /maps/api/place/nearbysearch/json
+      - Used in GET /maps/api/place/nearbysearch/json
       - Changes:\
         ~~- \`distance\`. This option biases search results in ascending order by their distance from the specified
         location. When \`distance\` is specified, one or more of \`keyword\`, \`name\`, or \`type\` is required.~~\
@@ -2138,7 +2138,7 @@ Version 1.17.5 - PATCH
 - Changes
     - Changed documentation of parameter places_fields used in 2 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Changes:\
         **<div class="caution"> Caution: Place Search requests and Place Details requests do not return the same fields.
@@ -2160,7 +2160,7 @@ Version 1.17.4 - PATCH
 - Changes
     - Changed documentation of parameter mode used in 2 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Used in GET /maps/api/distanceMatrix/json
       - Changes:\
         ~~\* \`DRIVING\` (default) indicates standard driving directions or distance using the road network.~~\
@@ -2193,7 +2193,7 @@ Version 1.17.1 - PATCH
 - Changes
     - Changed documentation of parameter directions_waypoints used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~<div class="caution">Caution: Requests using more than 10 waypoints (between 11 and 25), or waypoint
         optimization, are billed at a higher rate. Learn more about billing for Google Maps Platform products.</div>~~\
@@ -2211,7 +2211,7 @@ Version 1.16.35 - PATCH
 - Changes
     - Changed documentation of schema TravelMode used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~- \`driving\` (default) indicates distance calculation using the road network.~~\
         **- \`DRIVING\` (default) indicates calculation using the road network.**\
@@ -2233,7 +2233,7 @@ Version 1.16.34 - PATCH
 - Changes
     - Changed documentation of schema DirectionsStep used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         Each element in the steps array defines a single step of the calculated directions. A step is the most atomic
         unit of a direction's route, containing a single step describing a specific, single instruction on the journey.
@@ -2251,7 +2251,7 @@ Version 1.16.34 - PATCH
 
     - Changed documentation of schema DirectionsRoute used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~Routes consist of nested Legs and Steps.~~\
         **Routes consist of nested \`legs\` and \`steps\`.**
@@ -2261,7 +2261,7 @@ Version 1.16.33 - PATCH
 - Changes
     - Changed documentation of parameter language used in 10 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Used in GET /maps/api/geocode/json
       - Used in GET /maps/api/timezone/json
       - Used in GET /maps/api/distanceMatrix/json
@@ -2453,7 +2453,7 @@ Version 1.16.19 - PATCH
 - Changes
     - Changed documentation of schema Place used in 4 endpoints
 
-        - Used in GET /maps/api/place/details/json
+      - Used in GET /maps/api/place/details/json
       - Used in GET /maps/api/place/findplacefromtext/json
       - Used in GET /maps/api/place/nearbysearch/json
       - Used in GET /maps/api/place/textsearch/json
@@ -2548,9 +2548,9 @@ Version 1.16.14 - PATCH
           \`\`\`
 
           Format plus codes as shown here (plus signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`):
-            - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
+          - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
           \`849VCWC8%2BR9\`).
-            - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
+          - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
           USA\` is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).\
           **<div class="note">Note: One of \`address\` or \`components\` is required.</div>**
       - Changed documentation of parameter components
@@ -2650,7 +2650,7 @@ Version 1.16.4 - PATCH
 - Changes
     - Changed documentation of schema Fare used in 2 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Used in GET /maps/api/distanceMatrix/json
       - Changes:\
         The total fare for the route.\
@@ -2789,7 +2789,7 @@ Version 1.15.0 - MINOR
 - Changes
     - Changed documentation of schema TimeZoneStatus used in 1 endpoints
 
-        - Used in GET /maps/api/timezone/json
+      - Used in GET /maps/api/timezone/json
       - Changes:\
         ~~The \`status\` field within the Time Zone response object contains the status of the request. The "status"
         field may contain the following values:~~\
@@ -2801,14 +2801,14 @@ Version 1.14.5 - PATCH
 - Changes
     - Changed documentation of schema DirectionsStatus used in 1 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Changes:\
         ~~TODO~~\
         **The status field within the Directions response object contains the status of the request, and may contain
         debugging information to help you track down why the Directions service failed. The status field may contain the
         following values:
 
-          - \`OK\` indicates the response contains a valid result.
+        - \`OK\` indicates the response contains a valid result.
         - \`NOT_FOUND\` indicates at least one of the locations specified in the request's origin, destination, or
           waypoints could not be geocoded.
         - \`ZERO_RESULTS\` indicates no route could be found between the origin and destination.
@@ -3293,7 +3293,7 @@ Version 1.9.0 - MINOR
 - Changes
     - Changed documentation of parameter language used in 3 endpoints
 
-        - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/directions/json
       - Used in GET /maps/api/geocode/json
       - Used in GET /maps/api/timezone/json
       - Changes:\
@@ -3330,7 +3330,7 @@ Version 1.8.1 - PATCH
 - Changes
     - Changed documentation of schema ElevationStatus used in 1 endpoints
 
-        - Used in GET /maps/api/elevation/json
+      - Used in GET /maps/api/elevation/json
       - Changes:\
         **- \`DATA_NOT_AVAILABLE\` indicating that there's no available data for the input locations.**
 

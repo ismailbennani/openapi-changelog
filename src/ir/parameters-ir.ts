@@ -4,6 +4,7 @@ import winston from "winston";
 import { extractTypeFromSchema } from "./schemas-ir";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { isReferenceOfParameter } from "../core/openapi-documents-utils";
+import { escapeMarkdown } from "../core/string-utils";
 
 export interface ParameterIntermediateRepresentation {
   name: string;
@@ -38,7 +39,7 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
       name: name,
       type: extractParameterType(parameter),
       occurrences: Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method }))),
-      description: isReferenceObject(parameter) ? undefined : parameter.description,
+      description: isReferenceObject(parameter) || parameter.description === undefined ? undefined : escapeMarkdown(parameter.description),
       examples: isReferenceObject(parameter) ? undefined : extractParameterExamples(parameter),
     });
   }

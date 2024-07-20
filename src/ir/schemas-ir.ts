@@ -3,6 +3,7 @@ import { evaluateSchemaOrRef, isArrayObject, isReferenceObject } from "./utils";
 import winston from "winston";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { getReferencedObject, isReferenceToSchema } from "../core/openapi-documents-utils";
+import { escapeMarkdown } from "../core/string-utils";
 
 export interface SchemaIntermediateRepresentation {
   name: string;
@@ -35,7 +36,7 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
     result.push({
       name,
       occurrences: Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method }))),
-      description: evaluatedSchema.description,
+      description: evaluatedSchema.description === undefined ? undefined : escapeMarkdown(evaluatedSchema.description),
       examples: extractSchemaExamples(schema),
     });
   }

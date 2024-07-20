@@ -3,6 +3,7 @@ import { HttpMethod } from "../core/http-methods";
 import { evaluateParameterOrRef, isReferenceObject } from "./utils";
 import winston from "winston";
 import { extractParameterExamples, extractParameterType } from "./parameters-ir";
+import { escapeMarkdown } from "../core/string-utils";
 
 export interface OperationParameterIntermediateRepresentation {
   path: string;
@@ -55,7 +56,7 @@ export function extractOperationParameters(document: OpenAPIV3.Document, path: s
       location: isParameterLocation(evaluatedParameter.in) ? evaluatedParameter.in : undefined,
       deprecated: isReferenceObject(parameter) ? undefined : parameter.deprecated ?? false,
       required: isReferenceObject(parameter) ? undefined : parameter.required ?? false,
-      description: isReferenceObject(parameter) ? undefined : parameter.description,
+      description: isReferenceObject(parameter) || parameter.description === undefined ? undefined : escapeMarkdown(parameter.description),
       examples: isReferenceObject(parameter) ? undefined : extractParameterExamples(parameter),
     });
   }

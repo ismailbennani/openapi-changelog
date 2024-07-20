@@ -2,7 +2,7 @@ import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-documen
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationResponseBreakingChange, OperationResponseNonBreakingChange } from "../diff/operation-responses-change";
 import { OperationResponseIntermediateRepresentation } from "../ir/operation-responses-ir";
-import { block, diffStrings, pad } from "./string-utils";
+import { block, diffStrings, pad } from "../core/string-utils";
 
 export function operationResponseBreakingChange(
   oldDocument: OpenapiDocumentIntermediateRepresentation,

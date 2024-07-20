@@ -7,7 +7,7 @@ import { operationBreakingChanges, operationNonBreakingChanges } from "./operati
 import { OperationBreakingChange, OperationNonBreakingChange } from "../diff/operations-change";
 import { ParameterBreakingChange, ParameterNonBreakingChange } from "../diff/parameters-change";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
-import { block, pad } from "./string-utils";
+import { block, pad } from "../core/string-utils";
 
 export function formatDocumentChanges(
   oldDocument: OpenapiDocumentIntermediateRepresentation,

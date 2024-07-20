@@ -3,7 +3,7 @@ import { OperationBreakingChange, OperationNonBreakingChange } from "../diff/ope
 import { OpenapiChangelogOptions } from "./changelog";
 import { operationParameterBreakingChange, operationParameterNonBreakingChange } from "./operation-parameters-format";
 import { operationResponseBreakingChange, operationResponseNonBreakingChange } from "./operation-responses-format";
-import { block, diffStrings, pad } from "./string-utils";
+import { block, diffStrings, pad } from "../core/string-utils";
 import { OperationIntermediateRepresentation } from "../ir/operations-ir";
 
 export function operationBreakingChanges(

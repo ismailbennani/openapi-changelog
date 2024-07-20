@@ -3,6 +3,7 @@ import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { trimJoin } from "./utils";
 import { extractOperationParameters, OperationParameterIntermediateRepresentation } from "./operation-parameters-ir";
 import { extractOperationResponses, OperationResponseIntermediateRepresentation } from "./operation-responses-ir";
+import { escapeMarkdown } from "../core/string-utils";
 
 export interface OperationIntermediateRepresentation {
   path: string;
@@ -27,10 +28,11 @@ export function extractOperations(document: OpenAPIV3.Document): OperationInterm
       }
 
       const operationObj = operation as OpenAPIV3.OperationObject;
+      const description = extractOperationDescription(operationObj);
       operations.push({
         path,
         method,
-        description: extractOperationDescription(operationObj),
+        description: description === undefined ? undefined : escapeMarkdown(description),
         deprecated: operationObj.deprecated ?? false,
         parameters: extractOperationParameters(document, path, method),
         responses: extractOperationResponses(document, path, method),

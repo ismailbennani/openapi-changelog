@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { OpenapiChangelogOptions } from "./changelog";
 import { OperationParameterBreakingChange, OperationParameterNonBreakingChange } from "../diff/operation-parameters-change";
-import { block, diffStrings, pad } from "./string-utils";
+import { block, diffStrings, pad } from "../core/string-utils";
 import { OperationParameterIntermediateRepresentation } from "../ir/operation-parameters-ir";
 
 export function operationParameterBreakingChange(

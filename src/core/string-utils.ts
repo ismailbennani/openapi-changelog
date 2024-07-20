@@ -24,6 +24,18 @@ export function block(str: string[] | string, width: number, padding?: number | 
   return wrappedLines.flatMap((s) => s.split("\n"));
 }
 
+export function escapeMarkdown(str: string): string {
+  return escape(str, ["*", "~", "#", "`"]);
+}
+
+export function escape(str: string, toEscape: string[], escapePrefix = "\\"): string {
+  let result = str;
+  for (const char of toEscape) {
+    result = result.replaceAll(char, escapePrefix + char);
+  }
+  return result;
+}
+
 export function diffStrings(str1: string, str2: string): string {
   const differences = Diff.diffLines(str1, str2, { newlineIsToken: true });
 
@@ -39,9 +51,9 @@ export function diffStrings(str1: string, str2: string): string {
     const line = trimmed === "" ? "_(newline)_" : trimmed;
 
     if (diff.added === true) {
-      result.push(`** ${line} **\\\n`);
+      result.push(`**${line}**\\\n`);
     } else if (diff.removed === true) {
-      result.push(`~~ ${line} ~~\\\n`);
+      result.push(`~~${line}~~\\\n`);
     }
   }
 

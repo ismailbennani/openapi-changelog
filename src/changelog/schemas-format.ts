@@ -1,7 +1,7 @@
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { SchemaBreakingChange, SchemaNonBreakingChange } from "../diff/schemas-change";
 import { OpenapiChangelogOptions } from "./changelog";
-import { block, diffStrings } from "./string-utils";
+import { block, diffStrings } from "../core/string-utils";
 import { SchemaIntermediateRepresentation } from "../ir/schemas-ir";
 
 export function schemaBreakingChanges(

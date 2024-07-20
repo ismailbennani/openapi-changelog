@@ -23,12 +23,12 @@ Version 1.22.1 - PATCH
   - Changes
     - Changed documentation of operation GET /v1/nearestRoads
       - Changes:\
-      ~~This service returns individual road segments for a given set of GPS coordinates. This services takes up to 100
-      GPS points and returns the closest road segment for each point. The points passed do not need to be part of a
-      continuous path.~~\
-      **This service returns individual road segments for a given set of GPS coordinates. This services takes up to 100
-      GPS points and returns the closest road segments for each point. The points passed do not need to be part of a
-      continuous path.**
+        ~~This service returns individual road segments for a given set of GPS coordinates. This services takes up to
+        100 GPS points and returns the closest road segment for each point. The points passed do not need to be part of
+        a continuous path.~~\
+        **This service returns individual road segments for a given set of GPS coordinates. This services takes up to
+        100 GPS points and returns the closest road segments for each point. The points passed do not need to be part of
+        a continuous path.**
 
 Version 1.22.0 - MINOR
   - Changes
@@ -302,12 +302,12 @@ Version 1.17.9 - PATCH
     - In operation GET /maps/api/place/findplacefromtext/json
       - Changed documentation of parameter input
         - Changes:\
-        ~~Text input that identifies the search target, such as a name, address, or phone number. The input must be a
-        string. Non-string input such as a lat/lng coordinate or plus code generates an error.~~\
-        **The text string on which to search, for example: "restaurant" or "123 Main Street". This must be a place name,
-        address, or category of establishments. Any other types of input can generate errors**\
-        **and are not guaranteed to return valid results. The Places API will return candidate matches based on this
-        string and order the results based on their perceived relevance.**
+          ~~Text input that identifies the search target, such as a name, address, or phone number. The input must be a
+          string. Non-string input such as a lat/lng coordinate or plus code generates an error.~~\
+          **The text string on which to search, for example: "restaurant" or "123 Main Street". This must be a place
+          name, address, or category of establishments. Any other types of input can generate errors**\
+          **and are not guaranteed to return valid results. The Places API will return candidate matches based on this
+          string and order the results based on their perceived relevance.**
     - Changed documentation of parameter places_keyword used in 1 endpoints
     
       - Used in GET /maps/api/place/nearbysearch/json
@@ -648,12 +648,12 @@ Version 1.16.27 - PATCH
     - In operation GET /maps/api/place/nearbysearch/json
       - Changed documentation of parameter keyword
         - Changes:\
-        ~~A term to be matched against all content that Google has indexed for this place, including but not limited to
-        name, type, and address, as well as customer reviews and other third-party content.~~\
-        **A term to be matched against all content that Google has indexed for this place, including but not limited to
-        name and type, as well as customer reviews and other third-party content. Note that explicitly including
-        location information using this parameter may conflict with the location, radius, and rankby parameters, causing
-        unexpected results.**
+          ~~A term to be matched against all content that Google has indexed for this place, including but not limited
+          to name, type, and address, as well as customer reviews and other third-party content.~~\
+          **A term to be matched against all content that Google has indexed for this place, including but not limited
+          to name and type, as well as customer reviews and other third-party content. Note that explicitly including
+          location information using this parameter may conflict with the location, radius, and rankby parameters,
+          causing unexpected results.**
 
 Version 1.16.26 - PATCH
   - No changes
@@ -666,24 +666,24 @@ Version 1.16.24 - PATCH
     - In operation GET /maps/api/place/textsearch/json
       - Changed documentation of parameter type
         - Changes:\
-        ~~Restricts the results to places matching the specified type. Only one type may be specified (if more than one
-        type is provided, all types following the first entry are ignored). See the list of [supported
-        types](https://developers.google.com/maps/documentation/places/web-service/supported_types).~~\
-        **Restricts the results to places matching the specified type. Only one type may be specified. If more than one
-        type is provided, all types following the first entry are ignored.**\
-        **\* \`type=hospital|pharmacy|doctor\` becomes \`type=hospital\`
-        \* \`type=hospital,pharmacy,doctor\` is ignored entirely
+          ~~Restricts the results to places matching the specified type. Only one type may be specified (if more than
+          one type is provided, all types following the first entry are ignored). See the list of [supported
+          types](https://developers.google.com/maps/documentation/places/web-service/supported_types).~~\
+          **Restricts the results to places matching the specified type. Only one type may be specified. If more than
+          one type is provided, all types following the first entry are ignored.**\
+          **\* \`type=hospital|pharmacy|doctor\` becomes \`type=hospital\`
+          \* \`type=hospital,pharmacy,doctor\` is ignored entirely
       
-        See the list of [supported
-        types](https://developers.google.com/maps/documentation/places/web-service/supported_types).**
+          See the list of [supported
+          types](https://developers.google.com/maps/documentation/places/web-service/supported_types).**
 
 Version 1.16.23 - PATCH
   - Changes
     - In operation GET /maps/api/elevation/json
       - Changed documentation of parameter path
         - Changes:\
-        ~~An array of comma separated {latitude,longitude} strings.~~\
-        **An array of comma separated \`latitude,longitude\` strings.**
+          ~~An array of comma separated {latitude,longitude} strings.~~\
+          **An array of comma separated \`latitude,longitude\` strings.**
 
 Version 1.16.22 - PATCH
   - No changes
@@ -711,47 +711,48 @@ Version 1.16.18 - PATCH
     - In operation GET /maps/api/geocode/json
       - Changed documentation of parameter address
         - Changes:\
-        ~~<div class="note">Note: One of \`address\` or \`components\` is required.</div>~~\
-        **<div class="note">Note: At least one of \`address\` or \`components\` is required.</div>**
+          ~~<div class="note">Note: One of \`address\` or \`components\` is required.</div>~~\
+          **<div class="note">Note: At least one of \`address\` or \`components\` is required.</div>**
       - Changed documentation of parameter components
         - Changes:\
-        ~~A components filter with elements separated by a pipe (|). The components filter is also accepted as an
-        optional parameter if an address is provided. Each element in the components filter consists of a
-        component:value pair, and fully restricts the results from the geocoder.~~\
-        **A components filter with elements separated by a pipe (|). The components filter is also accepted as an
-        optional parameter if an address is provided. Each element in the components filter consists of a
-        \`component:value\` pair, and fully restricts the results from the geocoder.**\
-        ~~https://developers.google.com/maps/documentation/geocoding/overview\#component-filtering~~\
-        **The components that can be filtered include:**\
-        ~~<div class="note">Note: One of \`address\` or \`components\` is required.</div>~~\
-        **\* \`postal_code\` matches \`postal_code\` and \`postal_code_prefix\`.
-        \* \`country\` matches a country name or a two letter ISO 3166-1 country code. The API follows the ISO standard
-        for defining countries, and the filtering works best when using the corresponding ISO code of the country.
-          <aside class="note"><strong>Note</strong>: If you receive unexpected results with a country code, verify that
-        you are using a code which includes the countries, dependent territories, and special areas of geographical
-        interest you intend. You can find code information at Wikipedia: List of ISO 3166 country codes or the ISO
-        Online Browsing Platform.</aside>
+          ~~A components filter with elements separated by a pipe (|). The components filter is also accepted as an
+          optional parameter if an address is provided. Each element in the components filter consists of a
+          component:value pair, and fully restricts the results from the geocoder.~~\
+          **A components filter with elements separated by a pipe (|). The components filter is also accepted as an
+          optional parameter if an address is provided. Each element in the components filter consists of a
+          \`component:value\` pair, and fully restricts the results from the geocoder.**\
+          ~~https://developers.google.com/maps/documentation/geocoding/overview\#component-filtering~~\
+          **The components that can be filtered include:**\
+          ~~<div class="note">Note: One of \`address\` or \`components\` is required.</div>~~\
+          **\* \`postal_code\` matches \`postal_code\` and \`postal_code_prefix\`.
+          \* \`country\` matches a country name or a two letter ISO 3166-1 country code. The API follows the ISO
+          standard for defining countries, and the filtering works best when using the corresponding ISO code of the
+          country.
+            <aside class="note"><strong>Note</strong>: If you receive unexpected results with a country code, verify
+          that you are using a code which includes the countries, dependent territories, and special areas of
+          geographical interest you intend. You can find code information at Wikipedia: List of ISO 3166 country codes
+          or the ISO Online Browsing Platform.</aside>
       
-        The following components may be used to influence results, but will not be enforced:
+          The following components may be used to influence results, but will not be enforced:
       
-        \* \`route\` matches the long or short name of a route.
-        \* \`locality\` matches against \`locality\` and \`sublocality\` types.
-        \* \`administrative_area\` matches all the \`administrative_area\` levels.
+          \* \`route\` matches the long or short name of a route.
+          \* \`locality\` matches against \`locality\` and \`sublocality\` types.
+          \* \`administrative_area\` matches all the \`administrative_area\` levels.
       
-        Notes about component filtering:
+          Notes about component filtering:
       
-        \* Do not repeat these component filters in requests, or the API will return \`INVALID_REQUEST\`:
-          \* \`country\`
-          \* \`postal_code\`
-          \* \`route\`
-        \* If the request contains repeated component filters, the API evaluates those filters as an AND, not an OR.
-        \* Results are consistent with Google Maps, which occasionally yields unexpected \`ZERO_RESULTS\` responses.
-        Using Place Autocomplete may provide better results in some use cases. To learn more, see [this
-        FAQ](https://developers.devsite.corp.google.com/maps/documentation/geocoding/faq\#trbl_component_filtering).
-        \* For each address component, either specify it in the address parameter or in a components filter, but not
-        both. Specifying the same values in both may result in \`ZERO_RESULTS\`.
+          \* Do not repeat these component filters in requests, or the API will return \`INVALID_REQUEST\`:
+            \* \`country\`
+            \* \`postal_code\`
+            \* \`route\`
+          \* If the request contains repeated component filters, the API evaluates those filters as an AND, not an OR.
+          \* Results are consistent with Google Maps, which occasionally yields unexpected \`ZERO_RESULTS\` responses.
+          Using Place Autocomplete may provide better results in some use cases. To learn more, see [this
+          FAQ](https://developers.devsite.corp.google.com/maps/documentation/geocoding/faq\#trbl_component_filtering).
+          \* For each address component, either specify it in the address parameter or in a components filter, but not
+          both. Specifying the same values in both may result in \`ZERO_RESULTS\`.
       
-        <div class="note">Note: At least one of \`address\` or \`components\` is required.</div>**
+          <div class="note">Note: At least one of \`address\` or \`components\` is required.</div>**
     - Changed documentation of schema GeocodingStatus used in 1 endpoints
     
       - Used in GET /maps/api/geocode/json
@@ -777,48 +778,48 @@ Version 1.16.14 - PATCH
     - In operation GET /maps/api/geocode/json
       - Changed documentation of parameter address
         - Changes:\
-        The street address or plus code that you want to geocode. Specify addresses in accordance with the format used
-        by the national postal service of the country concerned. Additional address elements such as business names and
-        unit, suite or floor numbers should be avoided. Street address elements should be delimited by spaces (shown
-        here as url-escaped to \`%20\`):
+          The street address or plus code that you want to geocode. Specify addresses in accordance with the format used
+          by the national postal service of the country concerned. Additional address elements such as business names
+          and unit, suite or floor numbers should be avoided. Street address elements should be delimited by spaces
+          (shown here as url-escaped to \`%20\`):
       
-        \`\`\`
-        address=24%20Sussex%20Drive%20Ottawa%20ON
-        \`\`\`
+          \`\`\`
+          address=24%20Sussex%20Drive%20Ottawa%20ON
+          \`\`\`
       
-        Format plus codes as shown here (plus signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`):
-        - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
-        \`849VCWC8%2BR9\`).
-        - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
-        USA\` is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).\
-        **<div class="note">Note: One of \`address\` or \`components\` is required.</div>**
+          Format plus codes as shown here (plus signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`):
+          - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
+          \`849VCWC8%2BR9\`).
+          - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
+          USA\` is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).\
+          **<div class="note">Note: One of \`address\` or \`components\` is required.</div>**
       - Changed documentation of parameter components
         - Changes:\
-        A components filter with elements separated by a pipe (|). The components filter is also accepted as an optional
-        parameter if an address is provided. Each element in the components filter consists of a component:value pair,
-        and fully restricts the results from the geocoder.
+          A components filter with elements separated by a pipe (|). The components filter is also accepted as an
+          optional parameter if an address is provided. Each element in the components filter consists of a
+          component:value pair, and fully restricts the results from the geocoder.
       
-        https://developers.google.com/maps/documentation/geocoding/overview\#component-filtering\
-        **<div class="note">Note: One of \`address\` or \`components\` is required.</div>**
+          https://developers.google.com/maps/documentation/geocoding/overview\#component-filtering\
+          **<div class="note">Note: One of \`address\` or \`components\` is required.</div>**
       - Changed documentation of parameter bounds
         - Changes:\
-        ~~The bounding box of the viewport within which to bias geocode results more prominently. This parameter will
-        only influence, not fully restrict, results from the geocoder.  - name: locations
-        in: query~~\
-        **The bounding box of the viewport within which to bias geocode results more prominently. This parameter will
-        only influence, not fully restrict, results from the geocoder.**
+          ~~The bounding box of the viewport within which to bias geocode results more prominently. This parameter will
+          only influence, not fully restrict, results from the geocoder.  - name: locations
+          in: query~~\
+          **The bounding box of the viewport within which to bias geocode results more prominently. This parameter will
+          only influence, not fully restrict, results from the geocoder.**
 
 Version 1.16.13 - PATCH
   - Changes
     - In operation GET /maps/api/place/textsearch/json
       - Changed documentation of parameter location
         - Changes:\
-        ~~<div class="note">The \`location\` parameter may be overriden if the \`query\` contains an explicit location
-        such as \`Market in Barcelona\`. Using quotes around the query may also influence the weight given to the
-        \`location\` and \`radius\`.</div>~~\
-        **<div class="note">The <code>location</code> parameter may be overriden if the <code>query</code> contains an
-        explicit location such as <code>Market in Barcelona</code>. Using quotes around the query may also influence the
-        weight given to the <code>location</code> and <code>radius</code>.</div>**
+          ~~<div class="note">The \`location\` parameter may be overriden if the \`query\` contains an explicit location
+          such as \`Market in Barcelona\`. Using quotes around the query may also influence the weight given to the
+          \`location\` and \`radius\`.</div>~~\
+          **<div class="note">The <code>location</code> parameter may be overriden if the <code>query</code> contains an
+          explicit location such as <code>Market in Barcelona</code>. Using quotes around the query may also influence
+          the weight given to the <code>location</code> and <code>radius</code>.</div>**
 
 Version 1.16.12 - PATCH
   - No changes
@@ -831,11 +832,11 @@ Version 1.16.10 - PATCH
     - In operation GET /maps/api/place/textsearch/json
       - Changed documentation of parameter location
         - Changes:\
-        ~~The point around which to retrieve place information. This must be specified as \`latitude,longitude\`.~~\
-        **The point around which to retrieve place information. This must be specified as \`latitude,longitude\`.**\
-        **<div class="note">The \`location\` parameter may be overriden if the \`query\` contains an explicit location
-        such as \`Market in Barcelona\`. Using quotes around the query may also influence the weight given to the
-        \`location\` and \`radius\`.</div>**
+          ~~The point around which to retrieve place information. This must be specified as \`latitude,longitude\`.~~\
+          **The point around which to retrieve place information. This must be specified as \`latitude,longitude\`.**\
+          **<div class="note">The \`location\` parameter may be overriden if the \`query\` contains an explicit location
+          such as \`Market in Barcelona\`. Using quotes around the query may also influence the weight given to the
+          \`location\` and \`radius\`.</div>**
 
 Version 1.16.9 - PATCH
   - No changes
@@ -848,17 +849,17 @@ Version 1.16.7 - PATCH
     - In operation GET /maps/api/place/textsearch/json
       - Changed documentation of parameter radius
         - Changes:\
-        **The radius will automatically be clamped to a maximum value depending on the type of search and other
-        parameters.
+          **The radius will automatically be clamped to a maximum value depending on the type of search and other
+          parameters.
       
-        \* Autocomplete: 50,000 meters
-        \* Nearby Search:
-          \* with \`keyword\` or \`name\`: 50,000 meters
-          \* without \`keyword\` or \`name\`
-            \* \`rankby=prominence\` (default): 50,000 meters
-            \* \`rankby=distance\`: A few kilometers depending on density of area
-        \* Query Autocomplete: 50,000 meters
-        \* Text Search: 50,000 meters**
+          \* Autocomplete: 50,000 meters
+          \* Nearby Search:
+            \* with \`keyword\` or \`name\`: 50,000 meters
+            \* without \`keyword\` or \`name\`
+              \* \`rankby=prominence\` (default): 50,000 meters
+              \* \`rankby=distance\`: A few kilometers depending on density of area
+          \* Query Autocomplete: 50,000 meters
+          \* Text Search: 50,000 meters**
 
 Version 1.16.6 - PATCH
   - No changes
@@ -868,12 +869,12 @@ Version 1.16.5 - PATCH
     - In operation GET /maps/api/directions/json
       - Changed documentation of parameter waypoints
         - Changes:\
-        ~~<div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. [Learn more
-        about how Google Maps Platform products are
-        billed.](https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced)</div>~~\
-        **<div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. <a
-        href="https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced">Learn more about
-        how Google Maps Platform products are billed.</a></div>**
+          ~~<div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. [Learn more
+          about how Google Maps Platform products are
+          billed.](https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced)</div>~~\
+          **<div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. <a
+          href="https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced">Learn more
+          about how Google Maps Platform products are billed.</a></div>**
 
 Version 1.16.4 - PATCH
   - Changes
@@ -896,9 +897,9 @@ Version 1.16.3 - PATCH
     - In operation GET /maps/api/directions/json
       - Changed documentation of parameter departure_time
         - Changes:\
-        **<div class="note">Note: Distance Matrix requests specifying \`departure_time\` when \`mode=driving\` are
-        limited to a maximum of 100 elements per request. The number of origins times the number of destinations defines
-        the number of elements.</div>**
+          **<div class="note">Note: Distance Matrix requests specifying \`departure_time\` when \`mode=driving\` are
+          limited to a maximum of 100 elements per request. The number of origins times the number of destinations
+          defines the number of elements.</div>**
 
 Version 1.16.2 - PATCH
   - No changes
@@ -907,7 +908,107 @@ Version 1.16.1 - PATCH
   - No changes
 
 Version 1.16.0 - MINOR
-  - No changes
+  - Changes
+    - In operation POST /geolocation/v1/geolocate
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Ok~~\
+          **200 OK**
+        - Changed documentation of response 400
+        - Changes:\
+          ~~Bad Request~~\
+          **400 BAD REQUEST**
+        - Changed documentation of response 404
+        - Changes:\
+          ~~Not Found~~\
+          **404 NOT FOUND**
+    - In operation GET /maps/api/directions/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Distance Matrix API query.~~\
+          **200 OK**
+    - In operation GET /maps/api/elevation/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Elevation Response~~\
+          **200 OK**
+    - In operation GET /maps/api/geocode/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Gecoding Response~~\
+          **200 OK**
+    - In operation GET /maps/api/timezone/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Time Zone Response~~\
+          **200 OK**
+    - In operation GET /v1/snapToRoads
+        - Changed documentation of response 200
+        - Changes:\
+          ~~For each valid request, the Roads API will return a response in the format indicated within the request
+          URL.~~\
+          **200 OK**
+    - In operation GET /v1/nearestRoads
+        - Changed documentation of response 200
+        - Changes:\
+          ~~For each valid request, the Roads API will return a response in the format indicated within the request
+          URL.~~\
+          **200 OK**
+        - Changed documentation of response 400
+        - Changes:\
+          ~~For each valid request, the Roads API will return a response in the format indicated within the request
+          URL.~~\
+          **400 BAD REQUEST**
+    - In operation GET /maps/api/distanceMatrix/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Distance Matrix API query.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/details/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Distance Matrix API query.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/findplacefromtext/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Find Place From Text request.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/nearbysearch/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Distance Matrix API query.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/textsearch/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Places Text Search request.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/photo
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Place Photo request.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/queryautocomplete/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Autocomplete request.~~\
+          **200 OK**
+    - In operation GET /maps/api/place/autocomplete/json
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Autocomplete request.~~\
+          **200 OK**
+    - In operation GET /maps/api/streetview
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Response for the Street View Static request.~~\
+          **200 OK**
+    - In operation GET /maps/api/streetview/metadata
+        - Changed documentation of response 200
+        - Changes:\
+          ~~Ok~~\
+          **200 OK**
 
 Version 1.15.0 - MINOR
   - Changes
@@ -962,19 +1063,20 @@ Version 1.14.3 - PATCH
     - In operation GET /maps/api/place/details/json
       - Changed documentation of parameter place_id
         - Changes:\
-        ~~A textual identifier that uniquelyidentifies a place, returned from a [Place
-        Search](https://developers.google.com/maps/documentation/places/web-service/search).~~\
-        **A textual identifier that uniquely identifies a place, returned from a [Place
-        Search](https://developers.google.com/maps/documentation/places/web-service/search).**
+          ~~A textual identifier that uniquelyidentifies a place, returned from a [Place
+          Search](https://developers.google.com/maps/documentation/places/web-service/search).~~\
+          **A textual identifier that uniquely identifies a place, returned from a [Place
+          Search](https://developers.google.com/maps/documentation/places/web-service/search).**
       - Changed documentation of parameter fields
         - Changes:\
-        ~~The Basic category includes the following fields: \`address_component\`, \`adr_address\`, \`business_status\`,
-        \`formatted_address\`, \`geometry\`, \`icon\`, \`name\`, \`photo\`, \`place_id\`, \`plus_code\`, \`type\`,
-        \`url\`, \`utc_offset\`, \`vicinity\`.~~\
-        **The Basic category includes the following fields: \`address_component\`, \`adr_address\`, \`business_status\`,
-        \`formatted_address\`, \`geometry\`, \`icon\`, \`icon_mask_base_uri\`, \`icon_background_color\`, \`name\`,
-        \`permanently_closed\` ([deprecated](https://developers.google.com/maps/deprecations)), \`photo\`, \`place_id\`,
-        \`plus_code\`, \`type\`, \`url\`, \`utc_offset\`, \`vicinity\`.**
+          ~~The Basic category includes the following fields: \`address_component\`, \`adr_address\`,
+          \`business_status\`, \`formatted_address\`, \`geometry\`, \`icon\`, \`name\`, \`photo\`, \`place_id\`,
+          \`plus_code\`, \`type\`, \`url\`, \`utc_offset\`, \`vicinity\`.~~\
+          **The Basic category includes the following fields: \`address_component\`, \`adr_address\`,
+          \`business_status\`, \`formatted_address\`, \`geometry\`, \`icon\`, \`icon_mask_base_uri\`,
+          \`icon_background_color\`, \`name\`, \`permanently_closed\`
+          ([deprecated](https://developers.google.com/maps/deprecations)), \`photo\`, \`place_id\`, \`plus_code\`,
+          \`type\`, \`url\`, \`utc_offset\`, \`vicinity\`.**
 
 Version 1.14.2 - PATCH
   - No changes
@@ -990,256 +1092,257 @@ Version 1.14.0 - MINOR
       
       - Changed documentation of parameter waypoints
         - Changes:\
-        ~~Specifies an array of intermediate locations to include along the route between the origin and destination
-        points as pass through or stopover locations. Waypoints alter a route by directing it through the specified
-        location(s). The API supports waypoints for these travel modes: driving, walking and bicycling; not transit. You
-        can specify waypoints using the following values:~~\
-        **<div class="caution">Caution: Requests using more than 10 waypoints (between 11 and 25), or waypoint
-        optimization, are billed at a higher rate. Learn more about billing for Google Maps Platform products.</div>**\
-        ~~\* Place ID: The unique value specific to a location (\`ChIJGwVKWe5w44kRcr4b9E25-Go\`).~~\
-        ~~\* Address string (\`Charlestown, Boston,MA\`)~~\
-        **Specifies an array of intermediate locations to include along the route between the origin and destination
-        points as pass through or stopover locations. Waypoints alter a route by directing it through the specified
-        location(s). The API supports waypoints for these travel modes: driving, walking and bicycling; not transit.
-        You can supply one or more locations separated by the pipe character (\`|\` or \`%7C\`), in the form of a place
-        ID, an address, or latitude/longitude coordinates. By default, the Directions service calculates a route using
-        the waypoints in the order they are given. The precedence for parsing the value of the waypoint is place ID,
-        latitude/longitude coordinates, then address.**\
-        ~~\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (\`-34.92788%2C138.60008\` comma, no
-        space)~~\
-        **\* If you pass a place ID, you must prefix it with \`place_id:\`. You can retrieve place IDs from the
-        Geocoding API and the Places API (including Place Autocomplete). For an example using place IDs from Place
-        Autocomplete, see [Place Autocomplete and
-        Directions](/maps/documentation/javascript/examples/places-autocomplete-directions). For more about place IDs,
-        see the [Place ID overview](/maps/documentation/places/web-service/place-id).**\
-        ~~\* Encoded polyline that can be specified by a set of any of the above. (\`enc:lexeF{\~wsZejrPjtye@:\`)~~\
-        **<div class="note">For efficiency and accuracy, use place ID's when possible. These ID's are uniquely explicit
-        like a lat/lng value pair and provide geocoding benefits for routing such as access points and traffic
-        variables. Unlike an address, ID's do not require the service to perform a search or an intermediate request for
-        place details; therefore, performance is better.</div>**\
-        **\* If you pass latitude/longitude coordinates, the values go directly to the front-end server to calculate
-        directions without geocoding. The points are snapped to roads and might not provide the accuracy your app needs.
-        Use coordinates when you are confident the values truly specify the points your app needs for routing without
-        regard to possible access points or additional geocoding details. Ensure that a comma (\`%2C\`) and not a space
-        (\`%20\`) separates the latitude and longitude values.
-        \* If you pass an address, the Directions service will geocode the string and convert it into latitude/longitude
-        coordinates to calculate directions. If the address value is ambiguous, the value might evoke a search to
-        disambiguate from similar addresses. For example, "1st Street" could be a complete value or a partial value for
-        "1st street NE" or "1st St SE". This result may be different from that returned by the Geocoding API. You can
-        avoid possible misinterpretations using place IDs.
-        \* Alternatively, you can supply an encoded set of points using the [Encoded Polyline
-        Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm). You will find an
-        encoded set is useful for a large number of waypoints, because the URL is significantly shorter. All web
-        services have a URL limit of 8192 characters.
-          \* Encoded polylines must be prefixed with \`enc:\` and followed by a colon (\`:\`). For example:
-        \`waypoints=enc:gfo}EtohhU:\`.
-          \* You can also include multiple encoded polylines, separated by the pipe character (\`|\`). For example,
-        \`waypoints=via:enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:| via:enc:udymA{\~bxM:\`
+          ~~Specifies an array of intermediate locations to include along the route between the origin and destination
+          points as pass through or stopover locations. Waypoints alter a route by directing it through the specified
+          location(s). The API supports waypoints for these travel modes: driving, walking and bicycling; not transit.
+          You can specify waypoints using the following values:~~\
+          **<div class="caution">Caution: Requests using more than 10 waypoints (between 11 and 25), or waypoint
+          optimization, are billed at a higher rate. Learn more about billing for Google Maps Platform
+          products.</div>**\
+          ~~\* Place ID: The unique value specific to a location (\`ChIJGwVKWe5w44kRcr4b9E25-Go\`).~~\
+          ~~\* Address string (\`Charlestown, Boston,MA\`)~~\
+          **Specifies an array of intermediate locations to include along the route between the origin and destination
+          points as pass through or stopover locations. Waypoints alter a route by directing it through the specified
+          location(s). The API supports waypoints for these travel modes: driving, walking and bicycling; not transit.
+          You can supply one or more locations separated by the pipe character (\`|\` or \`%7C\`), in the form of a
+          place ID, an address, or latitude/longitude coordinates. By default, the Directions service calculates a route
+          using the waypoints in the order they are given. The precedence for parsing the value of the waypoint is place
+          ID, latitude/longitude coordinates, then address.**\
+          ~~\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (\`-34.92788%2C138.60008\` comma, no
+          space)~~\
+          **\* If you pass a place ID, you must prefix it with \`place_id:\`. You can retrieve place IDs from the
+          Geocoding API and the Places API (including Place Autocomplete). For an example using place IDs from Place
+          Autocomplete, see [Place Autocomplete and
+          Directions](/maps/documentation/javascript/examples/places-autocomplete-directions). For more about place IDs,
+          see the [Place ID overview](/maps/documentation/places/web-service/place-id).**\
+          ~~\* Encoded polyline that can be specified by a set of any of the above. (\`enc:lexeF{\~wsZejrPjtye@:\`)~~\
+          **<div class="note">For efficiency and accuracy, use place ID's when possible. These ID's are uniquely
+          explicit like a lat/lng value pair and provide geocoding benefits for routing such as access points and
+          traffic variables. Unlike an address, ID's do not require the service to perform a search or an intermediate
+          request for place details; therefore, performance is better.</div>**\
+          **\* If you pass latitude/longitude coordinates, the values go directly to the front-end server to calculate
+          directions without geocoding. The points are snapped to roads and might not provide the accuracy your app
+          needs. Use coordinates when you are confident the values truly specify the points your app needs for routing
+          without regard to possible access points or additional geocoding details. Ensure that a comma (\`%2C\`) and
+          not a space (\`%20\`) separates the latitude and longitude values.
+          \* If you pass an address, the Directions service will geocode the string and convert it into
+          latitude/longitude coordinates to calculate directions. If the address value is ambiguous, the value might
+          evoke a search to disambiguate from similar addresses. For example, "1st Street" could be a complete value or
+          a partial value for "1st street NE" or "1st St SE". This result may be different from that returned by the
+          Geocoding API. You can avoid possible misinterpretations using place IDs.
+          \* Alternatively, you can supply an encoded set of points using the [Encoded Polyline
+          Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm). You will find an
+          encoded set is useful for a large number of waypoints, because the URL is significantly shorter. All web
+          services have a URL limit of 8192 characters.
+            \* Encoded polylines must be prefixed with \`enc:\` and followed by a colon (\`:\`). For example:
+          \`waypoints=enc:gfo}EtohhU:\`.
+            \* You can also include multiple encoded polylines, separated by the pipe character (\`|\`). For example,
+          \`waypoints=via:enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:| via:enc:udymA{\~bxM:\`
       
-        \#\#\#\#\# Influence routes with stopover and pass through points
+          \#\#\#\#\# Influence routes with stopover and pass through points
       
-        For each waypoint in the request, the directions response appends an entry to the \`legs\` array to provide the
-        details for stopovers on that leg of the journey.
+          For each waypoint in the request, the directions response appends an entry to the \`legs\` array to provide
+          the details for stopovers on that leg of the journey.
       
-        If you'd like to influence the route using waypoints without adding a stopover, add the prefix \`via:\` to the
-        waypoint. Waypoints prefixed with \`via:\` will not add an entry to the \`legs\` array, but will route the
-        journey through the waypoint.
+          If you'd like to influence the route using waypoints without adding a stopover, add the prefix \`via:\` to the
+          waypoint. Waypoints prefixed with \`via:\` will not add an entry to the \`legs\` array, but will route the
+          journey through the waypoint.
       
-        The following URL modifies the previous request such that the journey is routed through Lexington without
-        stopping:
+          The following URL modifies the previous request such that the journey is routed through Lexington without
+          stopping:
       
-        \`\`\`
-        https://maps.googleapis.com/maps/api/directions/json?
-        origin=Boston,MA&destination=Concord,MA
-        &waypoints=Charlestown,MA|via:Lexington,MA
-        \`\`\`
+          \`\`\`
+          https://maps.googleapis.com/maps/api/directions/json?
+          origin=Boston,MA&destination=Concord,MA
+          &waypoints=Charlestown,MA|via:Lexington,MA
+          \`\`\`
       
-        The \`via:\` prefix is most effective when creating routes in response to the user dragging the waypoints on the
-        map. Doing so allows the user to see how the final route may look in real-time and helps ensure that waypoints
-        are placed in locations that are accessible to the Directions API.
+          The \`via:\` prefix is most effective when creating routes in response to the user dragging the waypoints on
+          the map. Doing so allows the user to see how the final route may look in real-time and helps ensure that
+          waypoints are placed in locations that are accessible to the Directions API.
       
-        <div class="caution">Caution: Using the \`via:\` prefix to avoid stopovers results in directions that are strict
-        in their interpretation of the waypoint. This interpretation may result in severe detours on the route or
-        \`ZERO_RESULTS\` in the response status code if the Directions API is unable to create directions through that
-        point.</div>
+          <div class="caution">Caution: Using the \`via:\` prefix to avoid stopovers results in directions that are
+          strict in their interpretation of the waypoint. This interpretation may result in severe detours on the route
+          or \`ZERO_RESULTS\` in the response status code if the Directions API is unable to create directions through
+          that point.</div>
       
       
-        \#\#\#\#\# Optimize your waypoints
+          \#\#\#\#\# Optimize your waypoints
       
-        By default, the Directions service calculates a route through the provided waypoints in their given order.
-        Optionally, you may pass \`optimize:true\` as the first argument within the waypoints parameter to allow the
-        Directions service to optimize the provided route by rearranging the waypoints in a more efficient order. (This
-        optimization is an application of the traveling salesperson problem.) Travel time is the primary factor which is
-        optimized, but other factors such as distance, number of turns and many more may be taken into account when
-        deciding which route is the most efficient. All waypoints must be stopovers for the Directions service to
-        optimize their route.
+          By default, the Directions service calculates a route through the provided waypoints in their given order.
+          Optionally, you may pass \`optimize:true\` as the first argument within the waypoints parameter to allow the
+          Directions service to optimize the provided route by rearranging the waypoints in a more efficient order.
+          (This optimization is an application of the traveling salesperson problem.) Travel time is the primary factor
+          which is optimized, but other factors such as distance, number of turns and many more may be taken into
+          account when deciding which route is the most efficient. All waypoints must be stopovers for the Directions
+          service to optimize their route.
       
-        If you instruct the Directions service to optimize the order of its waypoints, their order will be returned in
-        the \`waypoint_order\` field within the routes object. The \`waypoint_order\` field returns values which are
-        zero-based.
+          If you instruct the Directions service to optimize the order of its waypoints, their order will be returned in
+          the \`waypoint_order\` field within the routes object. The \`waypoint_order\` field returns values which are
+          zero-based.
       
-        The following example calculates a road journey from Adelaide, South Australia to each of South Australia's main
-        wine regions using route optimization.
+          The following example calculates a road journey from Adelaide, South Australia to each of South Australia's
+          main wine regions using route optimization.
       
-        \`\`\`
-        https://maps.googleapis.com/maps/api/directions/json?
-        origin=Adelaide,SA&destination=Adelaide,SA
-        &waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA
-        \`\`\`
+          \`\`\`
+          https://maps.googleapis.com/maps/api/directions/json?
+          origin=Adelaide,SA&destination=Adelaide,SA
+          &waypoints=optimize:true|Barossa+Valley,SA|Clare,SA|Connawarra,SA|McLaren+Vale,SA
+          \`\`\`
       
-        Inspection of the calculated route will indicate that calculation uses waypoints in the following waypoint
-        order:
+          Inspection of the calculated route will indicate that calculation uses waypoints in the following waypoint
+          order:
       
-        \`\`\`
-        "waypoint_order": [ 3, 2, 0, 1 ]
-        \`\`\`
+          \`\`\`
+          "waypoint_order": [ 3, 2, 0, 1 ]
+          \`\`\`
       
-        <div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. [Learn more
-        about how Google Maps Platform products are
-        billed.](https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced)</div>**
+          <div class="caution">Caution: Requests using waypoint optimization are billed at a higher rate. [Learn more
+          about how Google Maps Platform products are
+          billed.](https://developers.devsite.corp.google.com/maps/billing/gmp-billing\#directions-advanced)</div>**
       - Changed documentation of parameter avoid
         - Changes:\
-        **It's possible to request a route that avoids any combination of tolls, highways and ferries by passing
-        multiple restrictions to the avoid parameter. For example:
+          **It's possible to request a route that avoids any combination of tolls, highways and ferries by passing
+          multiple restrictions to the avoid parameter. For example:
       
-        \`\`\`
-        avoid=tolls|highways|ferries.
-        \`\`\`**
+          \`\`\`
+          avoid=tolls|highways|ferries.
+          \`\`\`**
       - Changed documentation of parameter units
         - Changes:\
-        ~~Note: this unit system setting only affects the text displayed within distance fields. The distance fields
-        also contain values which are always expressed in meters.~~\
-        **<div class="note">Note: this unit system setting only affects the text displayed within distance fields. The
-        distance fields also contain values which are always expressed in meters.</div>**
+          ~~Note: this unit system setting only affects the text displayed within distance fields. The distance fields
+          also contain values which are always expressed in meters.~~\
+          **<div class="note">Note: this unit system setting only affects the text displayed within distance fields. The
+          distance fields also contain values which are always expressed in meters.</div>**
       - Changed documentation of parameter departure_time
         - Changes:\
-        ~~Specifies the desired time of departure. You can specify the time as an integer in seconds since midnight,
-        January 1, 1970 UTC. If a departure_time later than 9999-12-31T23:59:59.999999999Z is specified, the API will
-        fall back the departure_time to 9999-12-31T23:59:59.999999999Z. Alternatively, you can specify a value of now,
-        which sets the departure time to the current time (correct to the nearest second). The departure time may be
-        specified in two cases:~~\
-        **Specifies the desired time of departure. You can specify the time as an integer in seconds since midnight,
-        January 1, 1970 UTC. If a \`departure_time\` later than 9999-12-31T23:59:59.999999999Z is specified, the API
-        will fall back the \`departure_time\` to 9999-12-31T23:59:59.999999999Z. Alternatively, you can specify a value
-        of now, which sets the departure time to the current time (correct to the nearest second). The departure time
-        may be specified in two cases:**\
-        ~~\* For requests where the travel mode is transit: You can optionally specify one of departure_time or
-        arrival_time. If neither time is specified, the departure_time defaults to now (that is, the departure time
-        defaults to the current time).~~\
-        **\* For requests where the travel mode is transit: You can optionally specify one of \`departure_time\` or
-        \`arrival_time\`. If neither time is specified, the \`departure_time\` defaults to now (that is, the departure
-        time defaults to the current time).**\
-        ~~\* For requests where the travel mode is driving: You can specify the departure_time to receive a route and
-        trip duration (response field: duration_in_traffic) that take traffic conditions into account. The
-        departure_time must be set to the current time or some time in the future. It cannot be in the past.~~\
-        **\* For requests where the travel mode is driving: You can specify the \`departure_time\` to receive a route
-        and trip duration (response field: duration_in_traffic) that take traffic conditions into account. The
-        \`departure_time\` must be set to the current time or some time in the future. It cannot be in the past.**\
-        ~~Note: If departure time is not specified, choice of route and duration are based on road network and average
-        time-independent traffic conditions. Results for a given request may vary over time due to changes in the road
-        network, updated average traffic conditions, and the distributed nature of the service. Results may also vary
-        between nearly-equivalent routes at any time or frequency.~~\
-        **<div class="note">Note: If departure time is not specified, choice of route and duration are based on road
-        network and average time-independent traffic conditions. Results for a given request may vary over time due to
-        changes in the road network, updated average traffic conditions, and the distributed nature of the service.
-        Results may also vary between nearly-equivalent routes at any time or frequency.</div>**
+          ~~Specifies the desired time of departure. You can specify the time as an integer in seconds since midnight,
+          January 1, 1970 UTC. If a departure_time later than 9999-12-31T23:59:59.999999999Z is specified, the API will
+          fall back the departure_time to 9999-12-31T23:59:59.999999999Z. Alternatively, you can specify a value of now,
+          which sets the departure time to the current time (correct to the nearest second). The departure time may be
+          specified in two cases:~~\
+          **Specifies the desired time of departure. You can specify the time as an integer in seconds since midnight,
+          January 1, 1970 UTC. If a \`departure_time\` later than 9999-12-31T23:59:59.999999999Z is specified, the API
+          will fall back the \`departure_time\` to 9999-12-31T23:59:59.999999999Z. Alternatively, you can specify a
+          value of now, which sets the departure time to the current time (correct to the nearest second). The departure
+          time may be specified in two cases:**\
+          ~~\* For requests where the travel mode is transit: You can optionally specify one of departure_time or
+          arrival_time. If neither time is specified, the departure_time defaults to now (that is, the departure time
+          defaults to the current time).~~\
+          **\* For requests where the travel mode is transit: You can optionally specify one of \`departure_time\` or
+          \`arrival_time\`. If neither time is specified, the \`departure_time\` defaults to now (that is, the departure
+          time defaults to the current time).**\
+          ~~\* For requests where the travel mode is driving: You can specify the departure_time to receive a route and
+          trip duration (response field: duration_in_traffic) that take traffic conditions into account. The
+          departure_time must be set to the current time or some time in the future. It cannot be in the past.~~\
+          **\* For requests where the travel mode is driving: You can specify the \`departure_time\` to receive a route
+          and trip duration (response field: duration_in_traffic) that take traffic conditions into account. The
+          \`departure_time\` must be set to the current time or some time in the future. It cannot be in the past.**\
+          ~~Note: If departure time is not specified, choice of route and duration are based on road network and average
+          time-independent traffic conditions. Results for a given request may vary over time due to changes in the road
+          network, updated average traffic conditions, and the distributed nature of the service. Results may also vary
+          between nearly-equivalent routes at any time or frequency.~~\
+          **<div class="note">Note: If departure time is not specified, choice of route and duration are based on road
+          network and average time-independent traffic conditions. Results for a given request may vary over time due to
+          changes in the road network, updated average traffic conditions, and the distributed nature of the service.
+          Results may also vary between nearly-equivalent routes at any time or frequency.</div>**
       - Changed documentation of parameter traffic_model
         - Changes:\
-        ~~Specifies the assumptions to use when calculating time in traffic. This setting affects the value returned in
-        the duration_in_traffic field in the response, which contains the predicted time in traffic based on historical
-        averages. The traffic_model parameter may only be specified for driving directions where the request includes a
-        departure_time. The available values for this parameter are:~~\
-        **Specifies the assumptions to use when calculating time in traffic. This setting affects the value returned in
-        the duration_in_traffic field in the response, which contains the predicted time in traffic based on historical
-        averages. The \`traffic_model\` parameter may only be specified for driving directions where the request
-        includes a \`departure_time\`. The available values for this parameter are:**\
-        ~~\* \`best_guess\` (default) indicates that the returned duration_in_traffic should be the best estimate of
-        travel time given what is known about both historical traffic conditions and live traffic. Live traffic becomes
-        more important the closer the departure_time is to now.~~\
-        **\* \`best_guess\` (default) indicates that the returned duration_in_traffic should be the best estimate of
-        travel time given what is known about both historical traffic conditions and live traffic. Live traffic becomes
-        more important the closer the \`departure_time\` is to now.**
+          ~~Specifies the assumptions to use when calculating time in traffic. This setting affects the value returned
+          in the duration_in_traffic field in the response, which contains the predicted time in traffic based on
+          historical averages. The traffic_model parameter may only be specified for driving directions where the
+          request includes a departure_time. The available values for this parameter are:~~\
+          **Specifies the assumptions to use when calculating time in traffic. This setting affects the value returned
+          in the duration_in_traffic field in the response, which contains the predicted time in traffic based on
+          historical averages. The \`traffic_model\` parameter may only be specified for driving directions where the
+          request includes a \`departure_time\`. The available values for this parameter are:**\
+          ~~\* \`best_guess\` (default) indicates that the returned duration_in_traffic should be the best estimate of
+          travel time given what is known about both historical traffic conditions and live traffic. Live traffic
+          becomes more important the closer the departure_time is to now.~~\
+          **\* \`best_guess\` (default) indicates that the returned duration_in_traffic should be the best estimate of
+          travel time given what is known about both historical traffic conditions and live traffic. Live traffic
+          becomes more important the closer the \`departure_time\` is to now.**
     - In operation GET /maps/api/elevation/json
       - Changed documentation of parameter locations
         - Changes:\
-        ~~- An array of coordinates separated using the pipe ('|') character:
-        \`locations=40.714728,-73.998672|-34.397,150.644\`~~\
-        **- An array of coordinates separated using the pipe ('|') character:**\
-        ~~- A set of encoded coordinates using the [Encoded Polyline
-        Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm):
-        \`locations=enc:gfo}EtohhU\`~~\
-        **\`\`\`**\
-        **locations=40.714728,-73.998672|-34.397,150.644**\
-        **\`\`\`
-        - A set of encoded coordinates using the [Encoded Polyline
-        Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm):
-          \`\`\`
-          locations=enc:gfo}EtohhU
-          \`\`\`**
+          ~~- An array of coordinates separated using the pipe ('|') character:
+          \`locations=40.714728,-73.998672|-34.397,150.644\`~~\
+          **- An array of coordinates separated using the pipe ('|') character:**\
+          ~~- A set of encoded coordinates using the [Encoded Polyline
+          Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm):
+          \`locations=enc:gfo}EtohhU\`~~\
+          **\`\`\`**\
+          **locations=40.714728,-73.998672|-34.397,150.644**\
+          **\`\`\`
+          - A set of encoded coordinates using the [Encoded Polyline
+          Algorithm](https://developers.google.com/maps/documentation/utilities/polylinealgorithm):
+            \`\`\`
+            locations=enc:gfo}EtohhU
+            \`\`\`**
     - Changed documentation of operation GET /maps/api/geocode/json
       - Changes:\
-      ~~To see countries currently supported by the Google Maps Platform Geocoding API, please consult the [Google Maps
-      coverage data](https://developers.google.com/maps/coverage). The accuracy of geocoded locations may vary per
-      country, so you should consider using the returned location_type field to determine if a good enough match has
-      been found for the purposes of your application. Please note that the availability of geocoding data depends on
-      our contracts with data providers, so it is subject to change.~~\
-      **To see countries currently supported by the Google Maps Platform Geocoding API, please consult the [Google Maps
-      coverage data](https://developers.google.com/maps/coverage). The accuracy of geocoded locations may vary per
-      country, so you should consider using the returned \`location_type\` field to determine if a good enough match has
-      been found for the purposes of your application. Please note that the availability of geocoding data depends on
-      our contracts with data providers, so it is subject to change.**
+        ~~To see countries currently supported by the Google Maps Platform Geocoding API, please consult the [Google
+        Maps coverage data](https://developers.google.com/maps/coverage). The accuracy of geocoded locations may vary
+        per country, so you should consider using the returned location_type field to determine if a good enough match
+        has been found for the purposes of your application. Please note that the availability of geocoding data depends
+        on our contracts with data providers, so it is subject to change.~~\
+        **To see countries currently supported by the Google Maps Platform Geocoding API, please consult the [Google
+        Maps coverage data](https://developers.google.com/maps/coverage). The accuracy of geocoded locations may vary
+        per country, so you should consider using the returned \`location_type\` field to determine if a good enough
+        match has been found for the purposes of your application. Please note that the availability of geocoding data
+        depends on our contracts with data providers, so it is subject to change.**
     - In operation GET /maps/api/geocode/json
       - Changed documentation of parameter address
         - Changes:\
-        ~~\`address=24%20Sussex%20Drive%20Ottawa%20ON\`~~\
-        **\`\`\`**\
-        **address=24%20Sussex%20Drive%20Ottawa%20ON**\
-        **\`\`\`**\
-        Format plus codes as shown here (plus signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`):
-        - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
-        \`849VCWC8%2BR9\`).
-        - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
-        USA\` is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).
+          ~~\`address=24%20Sussex%20Drive%20Ottawa%20ON\`~~\
+          **\`\`\`**\
+          **address=24%20Sussex%20Drive%20Ottawa%20ON**\
+          **\`\`\`**\
+          Format plus codes as shown here (plus signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`):
+          - global code is a 4 character area code and 6 character or longer local code (\`849VCWC8+R9\` is
+          \`849VCWC8%2BR9\`).
+          - compound code is a 6 character or longer local code with an explicit location (\`CWC8+R9 Mountain View, CA,
+          USA\` is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).
     - In operation GET /v1/snapToRoads
       - Changed documentation of parameter path
         - Changes:\
-        ~~Note: The snapping algorithm works best for points that are not too far apart. If you observe odd snapping
-        behavior, try creating paths that have points closer together. To ensure the best snap-to-road quality, you
-        should aim to provide paths on which consecutive pairs of points are within 300m of each other. This will also
-        help in handling any isolated, long jumps between consecutive points caused by GPS signal loss, or noise.~~\
-        **<div class="note">Note: The snapping algorithm works best for points that are not too far apart. If you
-        observe odd snapping behavior, try creating paths that have points closer together. To ensure the best
-        snap-to-road quality, you should aim to provide paths on which consecutive pairs of points are within 300m of
-        each other. This will also help in handling any isolated, long jumps between consecutive points caused by GPS
-        signal loss, or noise.</div>**
+          ~~Note: The snapping algorithm works best for points that are not too far apart. If you observe odd snapping
+          behavior, try creating paths that have points closer together. To ensure the best snap-to-road quality, you
+          should aim to provide paths on which consecutive pairs of points are within 300m of each other. This will also
+          help in handling any isolated, long jumps between consecutive points caused by GPS signal loss, or noise.~~\
+          **<div class="note">Note: The snapping algorithm works best for points that are not too far apart. If you
+          observe odd snapping behavior, try creating paths that have points closer together. To ensure the best
+          snap-to-road quality, you should aim to provide paths on which consecutive pairs of points are within 300m of
+          each other. This will also help in handling any isolated, long jumps between consecutive points caused by GPS
+          signal loss, or noise.</div>**
     - In operation GET /v1/nearestRoads
       - Changed documentation of parameter points
         - Changes:\
-        ~~Note: The snapping algorithm works best for points that are not too far apart. If you observe odd snapping
-        behavior, try creating paths that have points closer together. To ensure the best snap-to-road quality, you
-        should aim to provide paths on which consecutive pairs of points are within 300m of each other. This will also
-        help in handling any isolated, long jumps between consecutive points caused by GPS signal loss, or noise.~~\
-        **<div class="note">Note: The snapping algorithm works best for points that are not too far apart. If you
-        observe odd snapping behavior, try creating paths that have points closer together. To ensure the best
-        snap-to-road quality, you should aim to provide paths on which consecutive pairs of points are within 300m of
-        each other. This will also help in handling any isolated, long jumps between consecutive points caused by GPS
-        signal loss, or noise.</div>**
+          ~~Note: The snapping algorithm works best for points that are not too far apart. If you observe odd snapping
+          behavior, try creating paths that have points closer together. To ensure the best snap-to-road quality, you
+          should aim to provide paths on which consecutive pairs of points are within 300m of each other. This will also
+          help in handling any isolated, long jumps between consecutive points caused by GPS signal loss, or noise.~~\
+          **<div class="note">Note: The snapping algorithm works best for points that are not too far apart. If you
+          observe odd snapping behavior, try creating paths that have points closer together. To ensure the best
+          snap-to-road quality, you should aim to provide paths on which consecutive pairs of points are within 300m of
+          each other. This will also help in handling any isolated, long jumps between consecutive points caused by GPS
+          signal loss, or noise.</div>**
     - In operation GET /maps/api/distanceMatrix/json
       - Changed documentation of parameter origins
         - Changes:\
-        ~~Note: using place IDs is preferred over using addresses or latitude/longitude coordinates. Using coordinates
-        will always result in the point being snapped to the road nearest to those coordinates - which may not be an
-        access point to the property, or even a road that will quickly or safely lead to the destination.~~\
-        **<div class="note">Note: using place IDs is preferred over using addresses or latitude/longitude coordinates.
-        Using coordinates will always result in the point being snapped to the road nearest to those coordinates - which
-        may not be an access point to the property, or even a road that will quickly or safely lead to the
-        destination.</div>**\
-        ~~- You can also include multiple encoded polylines, separated by the pipe character \`|\`. For example:
-        \`origins=enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:|enc:udymA{\~bxM:\`~~\
-        **- You can also include multiple encoded polylines, separated by the pipe character \`|\`. For example:**\
-        **\`\`\`
-            origins=enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:|enc:udymA{\~bxM:
-            \`\`\`**
+          ~~Note: using place IDs is preferred over using addresses or latitude/longitude coordinates. Using coordinates
+          will always result in the point being snapped to the road nearest to those coordinates - which may not be an
+          access point to the property, or even a road that will quickly or safely lead to the destination.~~\
+          **<div class="note">Note: using place IDs is preferred over using addresses or latitude/longitude coordinates.
+          Using coordinates will always result in the point being snapped to the road nearest to those coordinates -
+          which may not be an access point to the property, or even a road that will quickly or safely lead to the
+          destination.</div>**\
+          ~~- You can also include multiple encoded polylines, separated by the pipe character \`|\`. For example:
+          \`origins=enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:|enc:udymA{\~bxM:\`~~\
+          **- You can also include multiple encoded polylines, separated by the pipe character \`|\`. For example:**\
+          **\`\`\`
+              origins=enc:wc\~oAwquwMdlTxiKtqLyiK:|enc:c\~vnAamswMvlTor@tjGi}L:|enc:udymA{\~bxM:
+              \`\`\`**
     - Changed documentation of parameter mode used in 2 endpoints
     
       - Used in GET /maps/api/directions/json
@@ -1290,74 +1393,74 @@ Version 1.10.4 - PATCH
     - In operation GET /maps/api/directions/json
       - Changed documentation of parameter origin
         - Changes:\
-        ~~\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the Places
-        API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
-        Autocomplete and
-        Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
-        For more about place IDs, see the [Place ID
-        overview](https://developers.google.com/maps/documentation/places/web-service/place-id).~~\
-        **\* Place IDs must be prefixed with \`place_id:\`. You can retrieve place IDs from the Geocoding API and the
-        Places API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
-        Autocomplete and
-        Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
-        For more about place IDs, see the [Place ID
-        overview](https://developers.google.com/maps/documentation/places/web-service/place-id).**\
-        ~~\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\` For efficiency and accuracy, use place ID's when possible.
-        These ID's are uniquely explicit like a lat/lng value pair and provide geocoding benefits for routing such as
-        access points and traffic variables. Unlike an address, ID's do not require the service to perform a search or
-        an intermediate request for place details; therefore, performance is better.~~\
-        **_(newline)_**\
-        **\`\`\`
-          origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE
-          \`\`\`**\
-        ~~\`origin=24+Sussex+Drive+Ottawa+ON\`~~\
-        **_(newline)_**\
-        **\`\`\`
-          origin=24+Sussex+Drive+Ottawa+ON
-          \`\`\`**\
-        ~~\`origin=41.43206,-81.38992\`~~\
-        **_(newline)_**\
-        ~~\* Plus codes must be formatted as a global code or a compound code. Format plus codes as shown here (plus
-        signs are url-escaped to %2B and spaces are url-escaped to %20). Global code is a 4 character area code and 6
-        character or longer local code (849VCWC8+R9 is 849VCWC8%2BR9). Compound code is a 6 character or longer local
-        code with an explicit location (CWC8+R9 Mountain View, CA, USA is CWC8%2BR9%20Mountain%20View%20CA%20USA).~~\
-        **\`\`\`**\
-        **origin=41.43206,-81.38992
-          \`\`\`
+          ~~\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the
+          Places API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
+          Autocomplete and
+          Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
+          For more about place IDs, see the [Place ID
+          overview](https://developers.google.com/maps/documentation/places/web-service/place-id).~~\
+          **\* Place IDs must be prefixed with \`place_id:\`. You can retrieve place IDs from the Geocoding API and the
+          Places API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
+          Autocomplete and
+          Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
+          For more about place IDs, see the [Place ID
+          overview](https://developers.google.com/maps/documentation/places/web-service/place-id).**\
+          ~~\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\` For efficiency and accuracy, use place ID's when possible.
+          These ID's are uniquely explicit like a lat/lng value pair and provide geocoding benefits for routing such as
+          access points and traffic variables. Unlike an address, ID's do not require the service to perform a search or
+          an intermediate request for place details; therefore, performance is better.~~\
+          **_(newline)_**\
+          **\`\`\`
+            origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE
+            \`\`\`**\
+          ~~\`origin=24+Sussex+Drive+Ottawa+ON\`~~\
+          **_(newline)_**\
+          **\`\`\`
+            origin=24+Sussex+Drive+Ottawa+ON
+            \`\`\`**\
+          ~~\`origin=41.43206,-81.38992\`~~\
+          **_(newline)_**\
+          ~~\* Plus codes must be formatted as a global code or a compound code. Format plus codes as shown here (plus
+          signs are url-escaped to %2B and spaces are url-escaped to %20). Global code is a 4 character area code and 6
+          character or longer local code (849VCWC8+R9 is 849VCWC8%2BR9). Compound code is a 6 character or longer local
+          code with an explicit location (CWC8+R9 Mountain View, CA, USA is CWC8%2BR9%20Mountain%20View%20CA%20USA).~~\
+          **\`\`\`**\
+          **origin=41.43206,-81.38992
+            \`\`\`
       
-        \* Plus codes must be formatted as a global code or a compound code. Format plus codes as shown here (plus signs
-        are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`).
+          \* Plus codes must be formatted as a global code or a compound code. Format plus codes as shown here (plus
+          signs are url-escaped to \`%2B\` and spaces are url-escaped to \`%20\`).
       
-          \* \*\*Global code\*\* is a 4 character area code and 6 character or longer local code (849VCWC8+R9 is
-        \`849VCWC8%2BR9\`).
-          \* \*\*Compound code\*\* is a 6 character or longer local code with an explicit location (CWC8+R9 Mountain
-        View, CA, USA is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).
+            \* \*\*Global code\*\* is a 4 character area code and 6 character or longer local code (849VCWC8+R9 is
+          \`849VCWC8%2BR9\`).
+            \* \*\*Compound code\*\* is a 6 character or longer local code with an explicit location (CWC8+R9 Mountain
+          View, CA, USA is \`CWC8%2BR9%20Mountain%20View%20CA%20USA\`).
       
-        <div class="note">Note: For efficiency and accuracy, use place ID's when possible. These ID's are uniquely
-        explicit like a lat/lng value pair and provide geocoding benefits for routing such as access points and traffic
-        variables. Unlike an address, ID's do not require the service to perform a search or an intermediate request for
-        place details; therefore, performance is better.</div>**
+          <div class="note">Note: For efficiency and accuracy, use place ID's when possible. These ID's are uniquely
+          explicit like a lat/lng value pair and provide geocoding benefits for routing such as access points and
+          traffic variables. Unlike an address, ID's do not require the service to perform a search or an intermediate
+          request for place details; therefore, performance is better.</div>**
       - Changed documentation of parameter waypoints
         - Changes:\
-        ~~\* Place ID: The unique value specific to a location (ChIJGwVKWe5w44kRcr4b9E25-Go).~~\
-        **\* Place ID: The unique value specific to a location (\`ChIJGwVKWe5w44kRcr4b9E25-Go\`).**\
-        ~~\* Address string (Charlestown, Boston,MA)~~\
-        **\* Address string (\`Charlestown, Boston,MA\`)**\
-        ~~\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (-34.92788%2C138.60008 comma, no
-        space)~~\
-        **\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (\`-34.92788%2C138.60008\` comma, no
-        space)**\
-        ~~\* Encoded polyline that can be specified by a set of any of the above. (enc:lexeF{\~wsZejrPjtye@:)~~\
-        **\* Encoded polyline that can be specified by a set of any of the above. (\`enc:lexeF{\~wsZejrPjtye@:\`)**
+          ~~\* Place ID: The unique value specific to a location (ChIJGwVKWe5w44kRcr4b9E25-Go).~~\
+          **\* Place ID: The unique value specific to a location (\`ChIJGwVKWe5w44kRcr4b9E25-Go\`).**\
+          ~~\* Address string (Charlestown, Boston,MA)~~\
+          **\* Address string (\`Charlestown, Boston,MA\`)**\
+          ~~\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (-34.92788%2C138.60008 comma, no
+          space)~~\
+          **\* Latitude/longitude coordinates (lat/lng): an explicit value pair. (\`-34.92788%2C138.60008\` comma, no
+          space)**\
+          ~~\* Encoded polyline that can be specified by a set of any of the above. (enc:lexeF{\~wsZejrPjtye@:)~~\
+          **\* Encoded polyline that can be specified by a set of any of the above. (\`enc:lexeF{\~wsZejrPjtye@:\`)**
       - Changed documentation of parameter alternatives
         - Changes:\
-        ~~If set to true, specifies that the Directions service may provide more than one route alternative in the
-        response. Note that providing route alternatives may increase the response time from the server. This is only
-        available for requests without intermediate waypoints.~~\
-        **If set to \`true\`, specifies that the Directions service may provide more than one route alternative in the
-        response. Note that providing route alternatives may increase the response time from the server. This is only
-        available for requests without intermediate waypoints. For more information, see the [guide to
-        waypoints](https://developers.google.com/maps/documentation/directions/get-directions\#Waypoints).**
+          ~~If set to true, specifies that the Directions service may provide more than one route alternative in the
+          response. Note that providing route alternatives may increase the response time from the server. This is only
+          available for requests without intermediate waypoints.~~\
+          **If set to \`true\`, specifies that the Directions service may provide more than one route alternative in the
+          response. Note that providing route alternatives may increase the response time from the server. This is only
+          available for requests without intermediate waypoints. For more information, see the [guide to
+          waypoints](https://developers.google.com/maps/documentation/directions/get-directions\#Waypoints).**
 
 Version 1.10.3 - PATCH
   - No changes
@@ -1367,8 +1470,8 @@ Version 1.10.2 - PATCH
     - In operation GET /maps/api/directions/json
       - Changed documentation of parameter origin
         - Changes:\
-        ~~The place ID, address, or textual latitude/longitude value from which you wish to calculate directions/~~\
-        **The place ID, address, or textual latitude/longitude value from which you wish to calculate directions.**
+          ~~The place ID, address, or textual latitude/longitude value from which you wish to calculate directions/~~\
+          **The place ID, address, or textual latitude/longitude value from which you wish to calculate directions.**
 
 Version 1.10.1 - PATCH
   - No changes
@@ -1384,20 +1487,20 @@ Version 1.10.0 - MINOR
     - In operation GET /maps/api/directions/json
       - Changed documentation of parameter origin
         - Changes:\
-        ~~\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the Places
-        API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see Place
-        Autocomplete and Directions. For more about place IDs, see the Place ID overview.~~\
-        **\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the Places
-        API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
-        Autocomplete and
-        Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
-        For more about place IDs, see the [Place ID
-        overview](https://developers.google.com/maps/documentation/places/web-service/place-id).**\
-        ~~\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\`~~\
-        **\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\` For efficiency and accuracy, use place ID's when possible.
-        These ID's are uniquely explicit like a lat/lng value pair and provide geocoding benefits for routing such as
-        access points and traffic variables. Unlike an address, ID's do not require the service to perform a search or
-        an intermediate request for place details; therefore, performance is better.**
+          ~~\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the
+          Places API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see Place
+          Autocomplete and Directions. For more about place IDs, see the Place ID overview.~~\
+          **\* Place IDs must be prefixed with place_id:. You can retrieve place IDs from the Geocoding API and the
+          Places API (including Place Autocomplete). For an example using place IDs from Place Autocomplete, see [Place
+          Autocomplete and
+          Directions](https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-directions).
+          For more about place IDs, see the [Place ID
+          overview](https://developers.google.com/maps/documentation/places/web-service/place-id).**\
+          ~~\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\`~~\
+          **\`origin=place_id:ChIJ3S-JXmauEmsRUcIaWtf4MzE\` For efficiency and accuracy, use place ID's when possible.
+          These ID's are uniquely explicit like a lat/lng value pair and provide geocoding benefits for routing such as
+          access points and traffic variables. Unlike an address, ID's do not require the service to perform a search or
+          an intermediate request for place details; therefore, performance is better.**
 
 Version 1.9.0 - MINOR
   - Changes

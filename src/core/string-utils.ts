@@ -57,5 +57,5 @@ export function diffStrings(str1: string, str2: string): string {
     }
   }
 
-  return result.map((s, i) => (i === result.length - 1 ? s : s === "" ? s : `${s}\\\n`)).join("");
+  return result.filter((s) => s.trim() !== "").join("\\\n");
 }

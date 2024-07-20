@@ -5,16 +5,15 @@ const { execSync } = require("child_process");
 const main = async () => {
   const includeCmd = "include";
   const shellCmd = "shell";
-  const includeRegex = new RegExp("\{\{\s*(" + includeCmd + "|" + shellCmd + ")\s*(.*)\s*}}");
+  const includeRegex = new RegExp("\{\{\s*(" + includeCmd + "|" + shellCmd + ")\s*(.*)\s*}}", "gm");
 
-  let result = await fs.readFile("./README_template.md", "utf8");
-  let fuel = 10000;
-  while (fuel > 0) {
-    const match = result.match(includeRegex);
-    if (!match) {
-      break;
-    }
-
+  const template = await fs.readFile("./README_template.md", "utf8");
+  const matches = template.matchAll(includeRegex);
+  
+  let result = template;
+  let offset = 0;
+  
+  for (const match of matches) {
     const command = match[1];
 
     let replacementStr;
@@ -31,12 +30,11 @@ const main = async () => {
         continue;
     }
 
-    const removeFrom = match.index;
-    const removeTo = match.index + match[0].length;
+    const removeFrom = match.index + offset;
+    const removeTo = match.index + match[0].length + offset;
+    offset = offset - match[0].length + replacementStr.length;
 
     result = result.substring(0, removeFrom) + replacementStr + result.substring(removeTo);
-
-    fuel--;
   }
 
   await fs.writeFile("./README.md", result, "utf8");

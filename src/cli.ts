@@ -136,7 +136,7 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
 
   const options: winston.transports.ConsoleTransportOptions = {
     format: format.combine(format.colorize(), format.simple()),
-    level: "info",
+    level: args.vverbose === true ? "debug" : "info",
   };
 
   if (args.output !== undefined) {

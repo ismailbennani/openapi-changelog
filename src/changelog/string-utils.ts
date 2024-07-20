@@ -35,14 +35,15 @@ export function diffStrings(str1: string, str2: string): string {
       continue;
     }
 
-    const line = diff.value.trim() === "" ? "_(newline)_" : diff.value;
+    const trimmed = diff.value.trim();
+    const line = trimmed === "" ? "_(newline)_" : trimmed;
 
     if (diff.added === true) {
-      result.push(`** ${line} **`);
+      result.push(`** ${line} **\\\n`);
     } else if (diff.removed === true) {
-      result.push(`~~ ${line} ~~`);
+      result.push(`~~ ${line} ~~\\\n`);
     }
   }
 
-  return result.join("\n");
+  return result.join("");
 }

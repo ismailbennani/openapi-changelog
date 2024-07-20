@@ -5,7 +5,7 @@ name: Deploy package to NPM
 
 on:
   release:
-    types: [created]
+    types: [ published ]
   
   workflow_dispatch:
 

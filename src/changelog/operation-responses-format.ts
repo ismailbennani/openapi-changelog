@@ -80,7 +80,7 @@ export function operationResponseNonBreakingChange(
       if (options.detailed === true && responseInOldDocument !== undefined && responseInNewDocument !== undefined) {
         const details = responseDocumentationDetails(responseInOldDocument, responseInNewDocument);
         if (details !== undefined) {
-          result.push("  - Changes", ...block(details, innerBlockWidth, innerBlockPadding));
+          result.push("  - Changes:\\", ...block(details, innerBlockWidth, innerBlockPadding));
         }
       }
 

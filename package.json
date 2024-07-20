@@ -1,6 +1,6 @@
 {
   "name": "openapi-changelog",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Compute the changes between two OpenAPI specifications and output them nicely",
   "author": "Ismail Bennani",
   "license": "MIT",

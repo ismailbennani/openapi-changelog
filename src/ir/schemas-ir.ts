@@ -151,7 +151,11 @@ function hasOccurrencesInParameter(document: OpenAPIV3.Document, parameter: Open
   return false;
 }
 
-function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, name: string): boolean {
+function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, name: string, fuel = 10): boolean {
+  if (fuel <= 0) {
+    return false;
+  }
+
   if (isReferenceObject(schema)) {
     if (isReferenceToSchema(schema, name)) {
       return true;
@@ -162,26 +166,26 @@ function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.
       return false;
     }
 
-    return hasOccurrencesInSchema(document, otherSchema, name);
+    return hasOccurrencesInSchema(document, otherSchema, name, fuel - 1);
   }
 
   switch (schema.type) {
     case "array":
       return hasOccurrencesInSchema(document, schema.items, name);
     case "object":
-      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, name, fuel - 1)) === true) {
         return true;
       }
 
-      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, name, fuel - 1)) === true) {
         return true;
       }
 
-      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, name)) === true) {
+      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, name, fuel - 1)) === true) {
         return true;
       }
 
-      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, name)) {
+      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, name, fuel - 1)) {
         return true;
       }
 
@@ -189,12 +193,12 @@ function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.
         schema.additionalProperties !== undefined &&
         schema.additionalProperties !== true &&
         schema.additionalProperties !== false &&
-        hasOccurrencesInSchema(document, schema.additionalProperties, name)
+        hasOccurrencesInSchema(document, schema.additionalProperties, name, fuel - 1)
       ) {
         return true;
       }
 
-      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, name))) {
+      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, name, fuel - 1))) {
         return true;
       }
 

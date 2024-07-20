@@ -1,6 +1,6 @@
 import { OpenAPIV3 } from "openapi-types";
 import fs from "fs";
-import { sortDocumentsByVersionDescInPlace } from "../core/openapi-documents-utils";
+import { parseOpenapiFile, sortDocumentsByVersionDescInPlace } from "../core/openapi-documents-utils";
 import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
 import { compareIntermediateRepresentations, OpenapiDocumentChanges } from "./openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "../core/constants";
@@ -16,6 +16,10 @@ export function diff(documents: OpenAPIV3.Document[], options?: OpenapiDiffOptio
   return detailedDiff(documents, options).map((d) => d.changes);
 }
 
+export async function diffFromFiles(documentPaths: string[], options?: OpenapiDiffOptions): Promise<OpenapiDocumentChanges[]> {
+  return (await detailedDiffFromFiles(documentPaths, options)).map((d) => d.changes);
+}
+
 export function detailedDiff(
   documents: OpenAPIV3.Document[],
   options?: OpenapiDiffOptions,
@@ -24,14 +28,66 @@ export function detailedDiff(
     throw new Error("Expected at least two documents");
   }
 
-  sortDocumentsByVersionDescInPlace(documents);
-
   if (options?.limit !== undefined && documents.length > options.limit) {
     documents = documents.slice(0, options.limit);
   }
 
   const documentIrs = documents.map((d) => ir(d, options));
+  sortDocumentsByVersionDescInPlace(documentIrs);
 
+  return computeChanges(documentIrs);
+}
+
+export async function detailedDiffFromFiles(
+  documentPaths: string[],
+  options?: OpenapiDiffOptions,
+): Promise<{ oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[]> {
+  if (documentPaths.length < 2) {
+    throw new Error("Expected at least two documents");
+  }
+
+  if (options?.limit !== undefined && documentPaths.length > options.limit) {
+    documentPaths = documentPaths.slice(0, options.limit);
+  }
+
+  const documentIrs: OpenapiDocumentIntermediateRepresentation[] = [];
+  for (const path of documentPaths) {
+    const content = await parseOpenapiFile(path);
+    if (content.result === undefined) {
+      continue;
+    }
+
+    const documentIr = ir(content.result);
+    documentIrs.push(documentIr);
+  }
+
+  sortDocumentsByVersionDescInPlace(documentIrs);
+
+  return computeChanges(documentIrs);
+}
+
+function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): OpenapiDocumentIntermediateRepresentation {
+  const result = extractIntermediateRepresentation(document);
+
+  if (options?.dumpIntermediateRepresentations === true) {
+    const toDump = JSON.stringify(result, null, 2);
+    const path = `${DEBUG_FOLDER_NAME}/${result.title} v${result.version}.ir`;
+
+    ensureDir(DEBUG_FOLDER_NAME);
+    fs.writeFileSync(path, toDump);
+  }
+
+  return result;
+}
+
+function computeChanges(
+  documentIrs: OpenapiDocumentIntermediateRepresentation[],
+  options?: OpenapiDiffOptions,
+): {
+  oldDocument: OpenapiDocumentIntermediateRepresentation;
+  newDocument: OpenapiDocumentIntermediateRepresentation;
+  changes: OpenapiDocumentChanges;
+}[] {
   const result: { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] = [];
 
   for (let i = 0; i < documentIrs.length - 1; i++) {
@@ -48,20 +104,6 @@ export function detailedDiff(
       ensureDir(DEBUG_FOLDER_NAME);
       fs.writeFileSync(path, toDump);
     }
-  }
-
-  return result;
-}
-
-function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): OpenapiDocumentIntermediateRepresentation {
-  const result = extractIntermediateRepresentation(document);
-
-  if (options?.dumpIntermediateRepresentations === true) {
-    const toDump = JSON.stringify(result, null, 2);
-    const path = `${DEBUG_FOLDER_NAME}/${result.title} v${result.version}.ir`;
-
-    ensureDir(DEBUG_FOLDER_NAME);
-    fs.writeFileSync(path, toDump);
   }
 
   return result;

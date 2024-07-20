@@ -3,17 +3,14 @@ import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import { ArgumentsCamelCase } from "yargs";
 import winston, { format } from "winston";
-import fs, { readFile } from "fs/promises";
-import { changelog as changelog } from "./changelog/changelog";
-import { OpenAPIV3 } from "openapi-types";
-import { load } from "js-yaml";
+import fs from "fs/promises";
+import { changelogFromFiles } from "./changelog/changelog";
 import { inspect } from "util";
 import { glob } from "glob";
-import { diff } from "./diff/diff";
+import { diffFromFiles } from "./diff/diff";
 import { OpenapiDocumentChange } from "./diff/openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "./core/constants";
 import { ensureDir } from "./core/fs-utils";
-import { setupConsoleLoggingIfNecessary } from "./core/logging-utils";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -98,24 +95,11 @@ void yargsInstance
     async (args) => {
       const files = (await Promise.all(args.specifications.map(async (s) => await expandGlobPattern(s)))).flatMap((d) => d);
 
-      winston.info(`Parsing ${files.length.toString()} files...`);
-      const specs = [];
-      for (const file of files) {
-        const spec = await parseFiles(file);
-
-        if (spec.result) {
-          specs.push(spec.result);
-          winston.info(`OK ${file}`);
-        } else {
-          winston.warn(`KO ${file}: ${spec.errorMessage ?? ""}`);
-        }
-      }
-
       const diffOptions = { limit: args.limit, dumpIntermediateRepresentations: args.dumpIr, dumpChanges: args.dumpChanges };
 
       let result: string;
       if (args.diff === true) {
-        const differences = diff(specs, diffOptions);
+        const differences = await diffFromFiles(files, diffOptions);
         result = JSON.stringify(differences, null, 2);
       } else {
         const exclude: OpenapiDocumentChange["type"][] = args.exclude?.map((e) => e as OpenapiDocumentChange["type"]) ?? [];
@@ -129,7 +113,7 @@ void yargsInstance
           );
         }
 
-        result = changelog(specs, { ...diffOptions, printWidth: 120, exclude, detailed: args.detailed });
+        result = await changelogFromFiles(files, { ...diffOptions, printWidth: 120, exclude, detailed: args.detailed });
       }
 
       if (args.output !== undefined) {
@@ -174,34 +158,4 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
 
 async function expandGlobPattern(globPath: string): Promise<string[]> {
   return glob(globPath.replaceAll("\\", "/"), { posix: true, nodir: true });
-}
-
-async function parseFiles(path: string): Promise<{ result?: OpenAPIV3.Document; errorMessage?: string }> {
-  if (path.endsWith(".yml") || path.endsWith(".yaml")) {
-    try {
-      return { result: await parseYaml(path) };
-    } catch (e) {
-      return { errorMessage: JSON.stringify(e) };
-    }
-  }
-
-  if (path.endsWith(".json")) {
-    try {
-      return { result: await parseJson(path) };
-    } catch (e) {
-      return { errorMessage: JSON.stringify(e) };
-    }
-  }
-
-  return { errorMessage: "Invalid format" };
-}
-
-async function parseYaml(path: string): Promise<OpenAPIV3.Document> {
-  const specContent = await readFile(path, "utf8");
-  return load(specContent) as OpenAPIV3.Document;
-}
-
-async function parseJson(path: string): Promise<OpenAPIV3.Document> {
-  const specContent = await readFile(path, "utf8");
-  return JSON.parse(specContent) as OpenAPIV3.Document;
 }

@@ -98,6 +98,7 @@ void yargsInstance
 
       const diffOptions = { limit: args.limit, dumpIntermediateRepresentations: args.dumpIr, dumpChanges: args.dumpChanges };
 
+      const startTime = performance.now();
       let result: string;
       if (args.diff === true) {
         const differences = await diffFromFiles(files, diffOptions);
@@ -116,6 +117,8 @@ void yargsInstance
 
         result = await changelogFromFiles(files, { ...diffOptions, printWidth: 120, exclude, detailed: args.detailed });
       }
+      const endTime = performance.now();
+      Logger.debug(`Total time: ${(endTime - startTime).toString()}ms`);
 
       if (args.output !== undefined) {
         Logger.info(`Writing result to ${args.output}`);

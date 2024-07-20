@@ -129,34 +129,34 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
 function hasOccurrencesInParameter(
   document: OpenAPIV3.Document,
   parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(parameter)) {
-    const hasOccurrenceOfSchema = traversalState[name].parameters[parameter.$ref];
+    const hasOccurrenceOfSchema = traversalState[schemaName].parameters[parameter.$ref];
     if (hasOccurrenceOfSchema !== undefined) {
       if (hasOccurrenceOfSchema === "exploring") {
         // cycle
-        traversalState[name].parameters[parameter.$ref] = false;
+        traversalState[schemaName].parameters[parameter.$ref] = false;
         return false;
       } else {
         return hasOccurrenceOfSchema;
       }
     }
 
-    traversalState[name].parameters[parameter.$ref] = "exploring";
-    const result = hasOccurrencesInParameterImpl(document, parameter, name, traversalState);
-    traversalState[name].parameters[parameter.$ref] = result;
+    traversalState[schemaName].parameters[parameter.$ref] = "exploring";
+    const result = hasOccurrencesInParameterImpl(document, parameter, schemaName, traversalState);
+    traversalState[schemaName].parameters[parameter.$ref] = result;
     return result;
   }
 
-  return hasOccurrencesInParameterImpl(document, parameter, name, traversalState);
+  return hasOccurrencesInParameterImpl(document, parameter, schemaName, traversalState);
 }
 
 function hasOccurrencesInParameterImpl(
   document: OpenAPIV3.Document,
   parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(parameter)) {
@@ -165,50 +165,55 @@ function hasOccurrencesInParameterImpl(
       return false;
     }
 
-    return hasOccurrencesInParameter(document, otherParameter, name, traversalState);
+    return hasOccurrencesInParameter(document, otherParameter, schemaName, traversalState);
   }
 
   if (parameter.schema !== undefined) {
-    return hasOccurrencesInSchema(document, parameter.schema, name, traversalState);
+    return hasOccurrencesInSchema(document, parameter.schema, schemaName, traversalState);
   }
 
   if (parameter.content !== undefined) {
-    return Object.values(parameter.content).some((c) => hasOccurrencesInContent(document, c, name, traversalState));
+    return Object.values(parameter.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
   }
 
   return false;
 }
 
-function hasOccurrencesInSchema(document: OpenAPIV3.Document, schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, name: string, traversalState: TraversalState): boolean {
+function hasOccurrencesInSchema(
+  document: OpenAPIV3.Document,
+  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
+  schemaName: string,
+  traversalState: TraversalState,
+): boolean {
   if (isReferenceObject(schema)) {
-    const hasOccurrenceOfSchema = traversalState[name].schemas[schema.$ref];
+    const hasOccurrenceOfSchema = traversalState[schemaName].schemas[schema.$ref];
     if (hasOccurrenceOfSchema !== undefined) {
       if (hasOccurrenceOfSchema === "exploring") {
         // cycle
-        traversalState[name].schemas[schema.$ref] = false;
+        traversalState[schemaName].schemas[schema.$ref] = false;
         return false;
       } else {
         return hasOccurrenceOfSchema;
       }
     }
 
-    traversalState[name].schemas[schema.$ref] = "exploring";
-    const result = hasOccurrencesInSchemaImpl(document, schema, name, traversalState);
-    traversalState[name].schemas[schema.$ref] = result;
+    traversalState[schemaName].schemas[schema.$ref] = "exploring";
+    const result = hasOccurrencesInSchemaImpl(document, schema, schemaName, traversalState);
+    traversalState[schemaName].schemas[schema.$ref] = result;
     return result;
   }
 
-  return hasOccurrencesInSchemaImpl(document, schema, name, traversalState);
+  return hasOccurrencesInSchemaImpl(document, schema, schemaName, traversalState);
 }
 
 function hasOccurrencesInSchemaImpl(
   document: OpenAPIV3.Document,
   schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(schema)) {
-    if (isReferenceToSchema(schema, name)) {
+    if (isReferenceToSchema(schema, schemaName)) {
       return true;
     }
 
@@ -217,26 +222,26 @@ function hasOccurrencesInSchemaImpl(
       return false;
     }
 
-    return hasOccurrencesInSchema(document, otherSchema, name, traversalState);
+    return hasOccurrencesInSchema(document, otherSchema, schemaName, traversalState);
   }
 
   switch (schema.type) {
     case "array":
-      return hasOccurrencesInSchema(document, schema.items, name, traversalState);
+      return hasOccurrencesInSchema(document, schema.items, schemaName, traversalState);
     case "object":
-      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, name, traversalState)) === true) {
+      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
         return true;
       }
 
-      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, name, traversalState)) === true) {
+      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
         return true;
       }
 
-      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, name, traversalState)) === true) {
+      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
         return true;
       }
 
-      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, name, traversalState)) {
+      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, schemaName, traversalState)) {
         return true;
       }
 
@@ -244,12 +249,12 @@ function hasOccurrencesInSchemaImpl(
         schema.additionalProperties !== undefined &&
         schema.additionalProperties !== true &&
         schema.additionalProperties !== false &&
-        hasOccurrencesInSchema(document, schema.additionalProperties, name, traversalState)
+        hasOccurrencesInSchema(document, schema.additionalProperties, schemaName, traversalState)
       ) {
         return true;
       }
 
-      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, name, traversalState))) {
+      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, schemaName, traversalState))) {
         return true;
       }
 
@@ -262,34 +267,34 @@ function hasOccurrencesInSchemaImpl(
 function hasOccurrencesInRequestBody(
   document: OpenAPIV3.Document,
   requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(requestBody)) {
-    const hasOccurrenceOfSchema = traversalState[name].requestBodies[requestBody.$ref];
+    const hasOccurrenceOfSchema = traversalState[schemaName].requestBodies[requestBody.$ref];
     if (hasOccurrenceOfSchema !== undefined) {
       if (hasOccurrenceOfSchema === "exploring") {
         // cycle
-        traversalState[name].requestBodies[requestBody.$ref] = false;
+        traversalState[schemaName].requestBodies[requestBody.$ref] = false;
         return false;
       } else {
         return hasOccurrenceOfSchema;
       }
     }
 
-    traversalState[name].requestBodies[requestBody.$ref] = "exploring";
-    const result = hasOccurrencesInRequestBodyImpl(document, requestBody, name, traversalState);
-    traversalState[name].requestBodies[requestBody.$ref] = result;
+    traversalState[schemaName].requestBodies[requestBody.$ref] = "exploring";
+    const result = hasOccurrencesInRequestBodyImpl(document, requestBody, schemaName, traversalState);
+    traversalState[schemaName].requestBodies[requestBody.$ref] = result;
     return result;
   }
 
-  return hasOccurrencesInRequestBodyImpl(document, requestBody, name, traversalState);
+  return hasOccurrencesInRequestBodyImpl(document, requestBody, schemaName, traversalState);
 }
 
 function hasOccurrencesInRequestBodyImpl(
   document: OpenAPIV3.Document,
   requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(requestBody)) {
@@ -298,11 +303,11 @@ function hasOccurrencesInRequestBodyImpl(
       return false;
     }
 
-    return hasOccurrencesInRequestBody(document, otherRequestBody, name, traversalState);
+    return hasOccurrencesInRequestBody(document, otherRequestBody, schemaName, traversalState);
   }
 
   if (requestBody.content !== undefined) {
-    return Object.values(requestBody.content).some((c) => hasOccurrencesInContent(document, c, name, traversalState));
+    return Object.values(requestBody.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
   }
 
   return false;
@@ -311,34 +316,34 @@ function hasOccurrencesInRequestBodyImpl(
 function hasOccurrencesInResponse(
   document: OpenAPIV3.Document,
   response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(response)) {
-    const hasOccurrenceOfSchema = traversalState[name].responses[response.$ref];
+    const hasOccurrenceOfSchema = traversalState[schemaName].responses[response.$ref];
     if (hasOccurrenceOfSchema !== undefined) {
       if (hasOccurrenceOfSchema === "exploring") {
         // cycle
-        traversalState[name].responses[response.$ref] = false;
+        traversalState[schemaName].responses[response.$ref] = false;
         return false;
       } else {
         return hasOccurrenceOfSchema;
       }
     }
 
-    traversalState[name].responses[response.$ref] = "exploring";
-    const result = hasOccurrencesInResponseImpl(document, response, name, traversalState);
-    traversalState[name].responses[response.$ref] = result;
+    traversalState[schemaName].responses[response.$ref] = "exploring";
+    const result = hasOccurrencesInResponseImpl(document, response, schemaName, traversalState);
+    traversalState[schemaName].responses[response.$ref] = result;
     return result;
   }
 
-  return hasOccurrencesInResponseImpl(document, response, name, traversalState);
+  return hasOccurrencesInResponseImpl(document, response, schemaName, traversalState);
 }
 
 function hasOccurrencesInResponseImpl(
   document: OpenAPIV3.Document,
   response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject,
-  name: string,
+  schemaName: string,
   traversalState: TraversalState,
 ): boolean {
   if (isReferenceObject(response)) {
@@ -347,11 +352,11 @@ function hasOccurrencesInResponseImpl(
       return false;
     }
 
-    return hasOccurrencesInResponse(document, otherResponse, name, traversalState);
+    return hasOccurrencesInResponse(document, otherResponse, schemaName, traversalState);
   }
 
   if (response.content !== undefined) {
-    return Object.values(response.content).some((c) => hasOccurrencesInContent(document, c, name, traversalState));
+    return Object.values(response.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
   }
 
   return false;

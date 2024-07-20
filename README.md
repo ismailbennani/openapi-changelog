@@ -71,7 +71,7 @@ Version 2.0.0 - MAJOR
 
 ```
 
-See [examples/openai/API-CHANGELOG](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG)
+See [examples/openai/API-CHANGELOG.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.md)
 
 As markdown:
 
@@ -104,7 +104,7 @@ Version 2.0.0 - MAJOR
 
 ```
 
-See [examples/openai/API-CHANGELOG.detailed](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed)
+See [examples/openai/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed.md)
 
 As markdown:
 
@@ -3274,4 +3274,4 @@ Version 1.5.2 - PATCH
 
 </details>
 
-See [examples/googlemaps/API-CHANGELOG.detailed](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed)
+See [examples/googlemaps/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed.md)

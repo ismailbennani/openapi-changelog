@@ -81,7 +81,7 @@ export function parameterNonBreakingChanges(
 
           const details = parameterDocumentationDetails(parameterInOldDocument, parameterInNewDocument);
           if (details !== undefined) {
-            result.push("  - Changes:", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
+            result.push("  - Changes:\\", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
           }
         }
       }

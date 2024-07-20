@@ -69,7 +69,7 @@ export function schemaNonBreakingChanges(
 
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
           if (details !== undefined) {
-            result.push("  - Changes:", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
+            result.push("  - Changes:\\", ...block(details, innerBlockWidth - 2, innerBlockPadding + 2));
           }
         }
       }

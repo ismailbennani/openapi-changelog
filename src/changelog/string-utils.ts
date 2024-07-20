@@ -30,14 +30,17 @@ export function diffStrings(str1: string, str2: string): string {
   const result: string[] = [];
 
   for (const diff of differences) {
-    const line = diff.value === "" ? "_(newline)_" : diff.value.endsWith("\n") ? diff.value.substring(0, diff.value.length - 1) : diff.value;
+    if (diff.added !== true && diff.removed !== true) {
+      result.push(diff.value);
+      continue;
+    }
+
+    const line = diff.value.trim() === "" ? "_(newline)_" : diff.value;
 
     if (diff.added === true) {
-      result.push(`**${line}**\\`);
+      result.push(`** ${line} **`);
     } else if (diff.removed === true) {
-      result.push(`~~${line}~~\\`);
-    } else {
-      result.push(`${line}\\`);
+      result.push(`~~ ${line} ~~`);
     }
   }
 

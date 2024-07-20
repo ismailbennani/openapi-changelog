@@ -45,16 +45,12 @@ export async function detailedDiffFromFiles(
 
   const documentIrs: OpenapiDocumentIntermediateRepresentation[] = [];
   for (const path of documentPaths) {
-    Logger.info(`Reading document at ${path}...`);
-
-    const content = await parseOpenapiFile(path);
-    if (content.result === undefined) {
-      Logger.error(`Could not parse document at ${path}: ${content.errorMessage ?? ""}`);
+    const ir = await irFromFile(path, options);
+    if (ir === undefined) {
       continue;
     }
 
-    const documentIr = ir(content.result);
-    documentIrs.push(documentIr);
+    documentIrs.push(ir);
   }
 
   sortDocumentsByVersionDescInPlace(documentIrs);
@@ -62,7 +58,7 @@ export async function detailedDiffFromFiles(
   return computeChanges(documentIrs, options);
 }
 
-function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): OpenapiDocumentIntermediateRepresentation {
+function ir(document: OpenAPIV3.Document, options: OpenapiDiffOptions | undefined): OpenapiDocumentIntermediateRepresentation {
   Logger.info(`Building intermediate representation of ${document.info.title} v${document.info.version}...`);
 
   const result = extractIntermediateRepresentation(document);
@@ -76,6 +72,18 @@ function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): Openapi
   }
 
   return result;
+}
+
+async function irFromFile(path: string, options: OpenapiDiffOptions | undefined): Promise<OpenapiDocumentIntermediateRepresentation | undefined> {
+  Logger.info(`Reading document at ${path}...`);
+
+  const content = await parseOpenapiFile(path);
+  if (content.result === undefined) {
+    Logger.error(`Could not parse document at ${path}: ${content.errorMessage ?? ""}`);
+    return undefined;
+  }
+
+  return ir(content.result, options);
 }
 
 function computeChanges(

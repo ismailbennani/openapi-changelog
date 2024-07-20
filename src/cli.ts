@@ -11,6 +11,7 @@ import { diffFromFiles } from "./diff/diff";
 import { OpenapiDocumentChange } from "./diff/openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "./core/constants";
 import { ensureDir } from "./core/fs-utils";
+import { Logger } from "./core/logging";
 
 const yargsInstance = yargs(hideBin(process.argv));
 const terminalWidth = yargsInstance.terminalWidth();
@@ -117,12 +118,12 @@ void yargsInstance
       }
 
       if (args.output !== undefined) {
-        winston.info(`Writing result to ${args.output}`);
+        Logger.info(`Writing result to ${args.output}`);
         await fs.writeFile(args.output, result, { encoding: "utf8", flag: "w" });
-        winston.info(`Done.`);
+        Logger.info(`Done.`);
       } else {
-        winston.info(`Writing output below\n`);
-        winston.debug(result);
+        Logger.info(`Writing output below\n`);
+        Logger.debug(result);
 
         process.stdout.write(result);
       }
@@ -131,6 +132,8 @@ void yargsInstance
   .parse();
 
 function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): void {
+  Logger.useWinston();
+
   const options: winston.transports.ConsoleTransportOptions = {
     format: format.combine(format.colorize(), format.simple()),
     level: "info",
@@ -150,9 +153,9 @@ function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined
   if (args.vverbose !== undefined) {
     ensureDir(DEBUG_FOLDER_NAME);
     const fileName = `${DEBUG_FOLDER_NAME}/debug.log`;
-    winston.info(`Verbose: writing debug logs to ${fileName}`);
     winston.add(new winston.transports.File({ filename: fileName, format: format.combine(format.uncolorize(), format.simple()), level: "debug", options: { flags: "w" } }));
-    winston.debug(`ARGS: ${inspect(args, false, null, true)}`);
+    Logger.info(`Verbose: writing debug logs to ${fileName}`);
+    Logger.debug(`ARGS: ${inspect(args, false, null, true)}`);
   }
 }
 

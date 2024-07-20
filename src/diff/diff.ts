@@ -5,6 +5,7 @@ import { extractIntermediateRepresentation, OpenapiDocumentIntermediateRepresent
 import { compareIntermediateRepresentations, OpenapiDocumentChanges } from "./openapi-document-changes";
 import { DEBUG_FOLDER_NAME } from "../core/constants";
 import { ensureDir } from "../core/fs-utils";
+import { Logger } from "../core/logging";
 
 export interface OpenapiDiffOptions {
   limit?: number;
@@ -29,6 +30,7 @@ export function detailedDiff(
   }
 
   if (options?.limit !== undefined && documents.length > options.limit) {
+    Logger.info(`Limit set to ${options.limit.toString()}, dropping last ${(documents.length - options.limit).toString()} documents.`);
     documents = documents.slice(0, options.limit);
   }
 
@@ -47,13 +49,17 @@ export async function detailedDiffFromFiles(
   }
 
   if (options?.limit !== undefined && documentPaths.length > options.limit) {
+    Logger.info(`Limit set to ${options.limit.toString()}, dropping last ${(documentPaths.length - options.limit).toString()} documents.`);
     documentPaths = documentPaths.slice(0, options.limit);
   }
 
   const documentIrs: OpenapiDocumentIntermediateRepresentation[] = [];
   for (const path of documentPaths) {
+    Logger.info(`Reading document at ${path}...`);
+
     const content = await parseOpenapiFile(path);
     if (content.result === undefined) {
+      Logger.error(`Could not parse document at ${path}: ${content.errorMessage ?? ""}`);
       continue;
     }
 
@@ -67,6 +73,8 @@ export async function detailedDiffFromFiles(
 }
 
 function ir(document: OpenAPIV3.Document, options?: OpenapiDiffOptions): OpenapiDocumentIntermediateRepresentation {
+  Logger.info(`Building intermediate representation of ${document.info.title} v${document.info.version}...`);
+
   const result = extractIntermediateRepresentation(document);
 
   if (options?.dumpIntermediateRepresentations === true) {
@@ -88,6 +96,11 @@ function computeChanges(
   newDocument: OpenapiDocumentIntermediateRepresentation;
   changes: OpenapiDocumentChanges;
 }[] {
+  Logger.info("Computing differences between documents:");
+  for (const documentIr of documentIrs) {
+    Logger.info(`\t ${documentIr.title} v${documentIr.version}`);
+  }
+
   const result: { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] = [];
 
   for (let i = 0; i < documentIrs.length - 1; i++) {

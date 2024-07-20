@@ -7,7 +7,7 @@ const main = async () => {
   const shellCmd = "shell";
   const includeRegex = new RegExp("\{\{\s*(" + includeCmd + "|" + shellCmd + ")\s*(.*)\s*}}");
 
-  let result = await fs.readFile("./README.md.tpl", "utf8");
+  let result = await fs.readFile("./README_template.md", "utf8");
   let fuel = 10000;
   while (fuel > 0) {
     const match = result.match(includeRegex);

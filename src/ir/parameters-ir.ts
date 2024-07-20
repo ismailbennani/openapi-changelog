@@ -1,9 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
 import { evaluateParameterOrRef, isReferenceObject, trimJoin } from "./utils";
-import { extractTypeFromSchema } from "./schemas-ir";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
 import { isReferenceOfParameter } from "../core/openapi-documents-utils";
 import { escapeMarkdown } from "../core/string-utils";
+import { extractParameterType } from "./openapi-types-utils";
 
 export interface ParameterIntermediateRepresentation {
   name: string;
@@ -43,28 +43,6 @@ export function extractParameters(document: OpenAPIV3.Document): ParameterInterm
   }
 
   return result;
-}
-
-export function extractParameterType(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject): string {
-  if (isReferenceObject(parameter)) {
-    return parameter.$ref;
-  }
-
-  if (parameter.schema !== undefined) {
-    return extractTypeFromSchema(parameter.schema);
-  }
-
-  if (parameter.content !== undefined) {
-    const result: string[] = [];
-
-    for (const [contentType, content] of Object.entries(parameter.content)) {
-      result.push(`- ${contentType}: ${extractTypeFromContent(content)}`);
-    }
-
-    return trimJoin(result, "\n");
-  }
-
-  return "???";
 }
 
 export function extractParameterExamples(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject): string | undefined {
@@ -134,8 +112,4 @@ function findOccurrences(document: OpenAPIV3.Document, name: string): Record<str
   }
 
   return result;
-}
-
-function extractTypeFromContent(content: OpenAPIV3.MediaTypeObject): string {
-  return extractTypeFromSchema(content);
 }

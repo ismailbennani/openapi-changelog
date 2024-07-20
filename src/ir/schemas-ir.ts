@@ -42,22 +42,6 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
   return result;
 }
 
-export function extractTypeFromSchema(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): string {
-  if (isReferenceObject(schema)) {
-    return schema.$ref;
-  }
-
-  if (isArrayObject(schema)) {
-    const arrayType = schema.items;
-    const itemType = extractTypeFromSchema(arrayType);
-
-    return `${itemType}[]`;
-  }
-
-  const nonArrayType = schema.type;
-  return nonArrayType ?? "???";
-}
-
 export function extractSchemaExamples(schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject): string | undefined {
   if (isReferenceObject(schema)) {
     return undefined;

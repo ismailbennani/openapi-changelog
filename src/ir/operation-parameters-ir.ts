@@ -1,8 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
 import { HttpMethod } from "../core/http-methods";
 import { evaluateParameterOrRef, isReferenceObject } from "./utils";
-import { extractParameterExamples, extractParameterType } from "./parameters-ir";
+import { extractParameterExamples } from "./parameters-ir";
 import { escapeMarkdown } from "../core/string-utils";
+import { extractParameterType } from "./openapi-types-utils";
 
 export interface OperationParameterIntermediateRepresentation {
   path: string;

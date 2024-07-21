@@ -135,7 +135,23 @@ void yargsInstance
   .parse();
 
 function verboseMiddleware(args: ArgumentsCamelCase<{ output: string | undefined; verbose: boolean | undefined; vverbose: boolean | undefined }>): void {
-  Logger.useWinston();
+  Logger.set({
+    debug(message: string): void {
+      winston.debug(message);
+    },
+
+    info(message: string): void {
+      winston.info(message);
+    },
+
+    warn(message: string): void {
+      winston.warn(message);
+    },
+
+    error(message: string): void {
+      winston.error(message);
+    },
+  });
 
   const options: winston.transports.ConsoleTransportOptions = {
     format: format.combine(format.colorize(), format.simple()),

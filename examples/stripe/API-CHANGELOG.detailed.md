@@ -1013,3 +1013,178 @@ Version 2024-04-10
         - Changes:\
           ~~Only return the price with these lookup_keys, if any exist.~~\
           **Only return the price with these lookup_keys, if any exist. You can specify up to 10 lookup_keys.**
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - Changes
+    - Changed documentation of operation GET /v1/credit_notes/{credit_note}/lines
+      - Changes:\
+        ~~<p>When retrieving a credit note, you’ll get a <strong>lines</strong> property containing the the first
+        handful of those items. There is also a URL where you can retrieve the full (paginated) list of line
+        items.</p>~~\
+        **<p>When retrieving a credit note, you’ll get a <strong>lines</strong> property containing the first handful of
+        those items. There is also a URL where you can retrieve the full (paginated) list of line items.</p>**
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - Changes
+    - Changed documentation of schema payment_method_configuration used in 4 endpoints
+    
+      - Used in GET /v1/payment_method_configurations
+      - Used in POST /v1/payment_method_configurations
+      - Used in GET /v1/payment_method_configurations/{configuration}
+      - Used in POST /v1/payment_method_configurations/{configuration}
+      - Changes:\
+        ~~\*\*Note:\*\* The ability to turn off cards is in limited preview. Please [contact
+        us](https://support.stripe.com/contact) if you require this functionality.~~\
+        Related guides:
+        - [Payment Method Configurations API](https://stripe.com/docs/connect/payment-method-configurations)
+        - [Multiple configurations on dynamic payment
+        methods](https://stripe.com/docs/payments/multiple-payment-method-configs)
+        - [Multiple configurations for your Connect
+        accounts](https://stripe.com/docs/connect/multiple-payment-method-configurations)
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - Changes
+    - Changed documentation of operation POST /v1/invoices/create_preview
+      - Changes:\
+        ~~<p>You can preview the effects of updating a subscription, including a preview of what proration will take
+        place. To ensure that the actual proration is calculated exactly the same as the previewed proration, you should
+        pass the <code>subscription_details.proration_date</code> parameter when doing the actual subscription update.
+        The recommended way to get only the prorations being previewed is to consider only proration line items where
+        <code>period[start]</code> is equal to the <code>subscription_details.proration_date</code> value passed in the
+        request.</p>~~\
+        **<p>You can preview the effects of updating a subscription, including a preview of what proration will take
+        place. To ensure that the actual proration is calculated exactly the same as the previewed proration, you should
+        pass the <code>subscription_details.proration_date</code> parameter when doing the actual subscription update.
+        The recommended way to get only the prorations being previewed is to consider only proration line items where
+        <code>period[start]</code> is equal to the <code>subscription_details.proration_date</code> value passed in the
+        request. </p>
+    
+        <p>Note: Currency conversion calculations use the latest exchange rates. Exchange rates may vary between the
+        time of the preview and the time of the actual invoice creation. <a
+        href="https://docs.stripe.com/currencies/conversions">Learn more</a></p>**
+    - Changed documentation of operation GET /v1/invoices/upcoming
+      - Changes:\
+        <p>At any time, you can preview the upcoming invoice for a customer. This will show you all the charges that are
+        pending, including subscription renewal charges, invoice item charges, etc. It will also show you any discounts
+        that are applicable to the invoice.</p>
+    
+        <p>Note that when you are viewing an upcoming invoice, you are simply viewing a preview – the invoice has not
+        yet been created. As such, the upcoming invoice will not show up in invoice listing calls, and you cannot use
+        the API to pay or edit the invoice. If you want to change the amount that your customer will be billed, you can
+        add, remove, or update pending invoice items, or update the customer’s discount.</p>
+    
+        <p>You can preview the effects of updating a subscription, including a preview of what proration will take
+        place. To ensure that the actual proration is calculated exactly the same as the previewed proration, you should
+        pass the <code>subscription_details.proration_date</code> parameter when doing the actual subscription update.
+        The recommended way to get only the prorations being previewed is to consider only proration line items where
+        <code>period[start]</code> is equal to the <code>subscription_details.proration_date</code> value passed in the
+        request.</p>\
+        **<p>Note: Currency conversion calculations use the latest exchange rates. Exchange rates may vary between the
+        time of the preview and the time of the actual invoice creation. <a
+        href="https://docs.stripe.com/currencies/conversions">Learn more</a></p>**
+
+Version 2024-04-10 
+  - No changes
+
+Version 2024-04-10 
+  - BREAKING CHANGES
+      - Removed operation GET /v1/issuing/settlements

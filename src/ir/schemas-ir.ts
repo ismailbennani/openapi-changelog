@@ -1,8 +1,9 @@
 import { OpenAPIV3 } from "openapi-types";
 import { evaluateSchemaOrRef, isReferenceObject } from "./utils";
 import { HttpMethod, isHttpMethod } from "../core/http-methods";
-import { getReferencedObject, isReferenceToSchema } from "../core/openapi-documents-utils";
+import { extractParameterReferenceName, extractRequestBodyReferenceName, extractResponseReferenceName, extractSchemaReferenceName } from "../core/openapi-documents-utils";
 import { escapeMarkdown } from "../core/string-utils";
+import { Logger } from "../core/logging";
 
 export interface SchemaIntermediateRepresentation {
   name: string;
@@ -21,19 +22,13 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
     return [];
   }
 
-  const result: SchemaIntermediateRepresentation[] = [];
+  const startGraphTime = performance.now();
+  const graph = buildReferencesGraph(document);
+  const endGraphTime = performance.now();
 
-  const traversalState = Object.fromEntries(
-    Object.keys(document.components.schemas).map((name) => [
-      name,
-      {
-        parameters: {},
-        schemas: {},
-        requestBodies: {},
-        responses: {},
-      },
-    ]),
-  );
+  Logger.debug(`References graph construction performed in ${(endGraphTime - startGraphTime).toString()}ms (${Object.keys(graph).length.toString()} nodes)`);
+
+  const result: SchemaIntermediateRepresentation[] = [];
 
   for (const [name, schema] of Object.entries(document.components.schemas)) {
     const evaluatedSchema = evaluateSchemaOrRef(document, schema);
@@ -41,7 +36,7 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
       continue;
     }
 
-    const occurrences = findOccurrences(document, name, traversalState);
+    const occurrences = findOccurrences(document, name, graph);
 
     result.push({
       name,
@@ -66,7 +61,215 @@ export function extractSchemaExamples(schema: OpenAPIV3.SchemaObject | OpenAPIV3
   return undefined;
 }
 
-function findOccurrences(document: OpenAPIV3.Document, name: string, traversalState: TraversalState): Record<string, Set<HttpMethod>> {
+function buildReferencesGraph(document: OpenAPIV3.Document): ReferencesGraph {
+  const schemas: [ReferenceGraphId, ReferencesGraphNode][] =
+    document.components?.schemas === undefined
+      ? []
+      : Object.keys(document.components.schemas).map((name) => [
+          `schema/${name}`,
+          { id: `schema/${name}`, references: new Set<ReferenceGraphId>(), referencedBy: new Set<ReferenceGraphId>() },
+        ]);
+  const parameters: [ReferenceGraphId, ReferencesGraphNode][] =
+    document.components?.parameters === undefined
+      ? []
+      : Object.keys(document.components.parameters).map((name) => [
+          `parameter/${name}`,
+          {
+            id: `parameter/${name}`,
+            references: new Set<ReferenceGraphId>(),
+            referencedBy: new Set<ReferenceGraphId>(),
+          },
+        ]);
+  const requestBodies: [ReferenceGraphId, ReferencesGraphNode][] =
+    document.components?.requestBodies === undefined
+      ? []
+      : Object.keys(document.components.requestBodies).map((name) => [
+          `request-body/${name}`,
+          { id: `request-body/${name}`, references: new Set<ReferenceGraphId>(), referencedBy: new Set<ReferenceGraphId>() },
+        ]);
+  const responses: [ReferenceGraphId, ReferencesGraphNode][] =
+    document.components?.responses === undefined
+      ? []
+      : Object.keys(document.components.responses).map((name) => [
+          `response/${name}`,
+          {
+            id: `response/${name}`,
+            references: new Set<ReferenceGraphId>(),
+            referencedBy: new Set<ReferenceGraphId>(),
+          },
+        ]);
+
+  const graph: ReferencesGraph = Object.fromEntries([...schemas, ...parameters, ...requestBodies, ...responses]);
+  const state: ReferencesGraphConstructionState = {};
+
+  if (document.components?.schemas !== undefined) {
+    for (const [name, schema] of Object.entries(document.components.schemas)) {
+      state[`schema/${name}`] = "open";
+      walkSchema(document, `schema/${name}`, schema, graph, state);
+      state[`schema/${name}`] = "closed";
+    }
+  }
+
+  if (document.components?.parameters !== undefined) {
+    for (const [name, parameter] of Object.entries(document.components.parameters)) {
+      state[`parameter/${name}`] = "open";
+      walkParameter(document, `parameter/${name}`, parameter, graph, state);
+      state[`parameter/${name}`] = "closed";
+    }
+  }
+
+  if (document.components?.requestBodies !== undefined) {
+    for (const [name, requestBody] of Object.entries(document.components.requestBodies)) {
+      state[`request-body/${name}`] = "open";
+      walkRequestBody(document, `request-body/${name}`, requestBody, graph, state);
+      state[`request-body/${name}`] = "closed";
+    }
+  }
+
+  if (document.components?.responses !== undefined) {
+    for (const [name, response] of Object.entries(document.components.responses)) {
+      state[`response/${name}`] = "open";
+      walkResponse(document, `response/${name}`, response, graph, state);
+      state[`response/${name}`] = "closed";
+    }
+  }
+
+  return graph;
+}
+
+function walkSchema(
+  document: OpenAPIV3.Document,
+  id: ReferenceGraphId,
+  schema: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject,
+  graph: ReferencesGraph,
+  state: ReferencesGraphConstructionState,
+): void {
+  if (state[id] === "closed") {
+    return;
+  }
+
+  if (isReferenceObject(schema)) {
+    const referencedSchemaId: ReferenceGraphId = `schema/${extractSchemaReferenceName(schema)}`;
+    graph[id].references.add(referencedSchemaId);
+  } else {
+    if (schema.not !== undefined) {
+      walkSchema(document, id, schema.not, graph, state);
+    }
+
+    if (schema.oneOf !== undefined) {
+      for (const oneOf of schema.oneOf) {
+        walkSchema(document, id, oneOf, graph, state);
+      }
+    }
+
+    if (schema.anyOf !== undefined) {
+      for (const anyOf of schema.anyOf) {
+        walkSchema(document, id, anyOf, graph, state);
+      }
+    }
+
+    if (schema.allOf !== undefined) {
+      for (const allOf of schema.allOf) {
+        walkSchema(document, id, allOf, graph, state);
+      }
+    }
+
+    if (schema.additionalProperties !== undefined && schema.additionalProperties !== true && schema.additionalProperties !== false) {
+      walkSchema(document, id, schema.additionalProperties, graph, state);
+    }
+
+    if (schema.properties !== undefined) {
+      for (const property of Object.values(schema.properties)) {
+        walkSchema(document, id, property, graph, state);
+      }
+    }
+
+    if (schema.type === "array") {
+      walkSchema(document, id, schema.items, graph, state);
+    }
+  }
+}
+
+function walkParameter(
+  document: OpenAPIV3.Document,
+  id: ReferenceGraphId,
+  parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject,
+  graph: ReferencesGraph,
+  state: ReferencesGraphConstructionState,
+): void {
+  if (state[id] === "closed") {
+    return;
+  }
+
+  if (isReferenceObject(parameter)) {
+    const referencedParameterId: ReferenceGraphId = `parameter/${extractParameterReferenceName(parameter)}`;
+    graph[id].references.add(referencedParameterId);
+  } else {
+    if (parameter.schema !== undefined) {
+      walkSchema(document, id, parameter.schema, graph, state);
+    }
+
+    if (parameter.content !== undefined) {
+      walkContent(document, id, parameter.content, graph, state);
+    }
+  }
+}
+
+function walkContent(
+  document: OpenAPIV3.Document,
+  id: ReferenceGraphId,
+  content: OpenAPIV3.MediaTypeObject,
+  graph: ReferencesGraph,
+  state: ReferencesGraphConstructionState,
+): void {
+  if (content.schema !== undefined) {
+    walkSchema(document, id, content.schema, graph, state);
+  }
+}
+
+function walkRequestBody(
+  document: OpenAPIV3.Document,
+  id: ReferenceGraphId,
+  requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
+  graph: ReferencesGraph,
+  state: ReferencesGraphConstructionState,
+): void {
+  if (state[id] === "closed") {
+    return;
+  }
+
+  if (isReferenceObject(requestBody)) {
+    const referencedRequestBodyId: ReferenceGraphId = `request-body/${extractRequestBodyReferenceName(requestBody)}`;
+    graph[id].references.add(referencedRequestBodyId);
+  } else {
+    if (requestBody.content !== undefined) {
+      walkContent(document, id, requestBody.content, graph, state);
+    }
+  }
+}
+
+function walkResponse(
+  document: OpenAPIV3.Document,
+  id: ReferenceGraphId,
+  response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject,
+  graph: ReferencesGraph,
+  state: ReferencesGraphConstructionState,
+): void {
+  if (state[id] === "closed") {
+    return;
+  }
+
+  if (isReferenceObject(response)) {
+    const referencedResponseId: ReferenceGraphId = `response/${extractResponseReferenceName(response)}`;
+    graph[id].references.add(referencedResponseId);
+  } else {
+    if (response.content !== undefined) {
+      walkContent(document, id, response.content, graph, state);
+    }
+  }
+}
+
+function findOccurrences(document: OpenAPIV3.Document, name: string, graph: ReferencesGraph): Record<string, Set<HttpMethod>> {
   const result: Record<string, Set<HttpMethod>> = {};
 
   for (const [path, methods] of Object.entries(document.paths)) {
@@ -78,7 +281,7 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
 
     if (methods.parameters !== undefined) {
       for (const parameter of methods.parameters) {
-        if (hasOccurrencesInParameter(document, parameter, name, traversalState)) {
+        if (hasOccurrencesInParameter(parameter, name, graph)) {
           for (const method of Object.keys(methods).filter(isHttpMethod)) {
             methodsOfPathContainingReference.add(method);
           }
@@ -95,7 +298,7 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
       const parameters = (operation as OpenAPIV3.OperationObject).parameters;
       if (parameters !== undefined) {
         for (const parameter of parameters) {
-          if (hasOccurrencesInParameter(document, parameter, name, traversalState)) {
+          if (hasOccurrencesInParameter(parameter, name, graph)) {
             methodsOfPathContainingReference.add(method);
           }
         }
@@ -103,7 +306,7 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
 
       const requestBody = (operation as OpenAPIV3.OperationObject).requestBody;
       if (requestBody !== undefined) {
-        if (hasOccurrencesInRequestBody(document, requestBody, name, traversalState)) {
+        if (hasOccurrencesInRequestBody(requestBody, name, graph)) {
           methodsOfPathContainingReference.add(method);
         }
       }
@@ -111,7 +314,7 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
       const responses = (operation as OpenAPIV3.OperationObject | undefined)?.responses;
       if (responses !== undefined) {
         for (const response of Object.values(responses)) {
-          if (hasOccurrencesInResponse(document, response, name, traversalState)) {
+          if (hasOccurrencesInResponse(response, name, graph)) {
             methodsOfPathContainingReference.add(method);
           }
         }
@@ -126,255 +329,166 @@ function findOccurrences(document: OpenAPIV3.Document, name: string, traversalSt
   return result;
 }
 
-function hasOccurrencesInParameter(
-  document: OpenAPIV3.Document,
-  parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(parameter)) {
-    const hasOccurrenceOfSchema = traversalState[schemaName].parameters[parameter.$ref];
-    if (hasOccurrenceOfSchema !== undefined) {
-      if (hasOccurrenceOfSchema === "exploring") {
-        // cycle
-        traversalState[schemaName].parameters[parameter.$ref] = false;
-        return false;
-      } else {
-        return hasOccurrenceOfSchema;
-      }
+function pathExists(graph: Partial<ReferencesGraph>, node1: ReferenceGraphId, node2: ReferenceGraphId): boolean {
+  const visited: Record<ReferenceGraphId, true | undefined> = {};
+  const queue: ReferenceGraphId[] = [];
+
+  visited[node1] = true;
+  queue.push(node1);
+
+  while (queue.length > 0) {
+    const next = queue.shift();
+    if (next === undefined) {
+      continue;
     }
 
-    traversalState[schemaName].parameters[parameter.$ref] = "exploring";
-    const result = hasOccurrencesInParameterImpl(document, parameter, schemaName, traversalState);
-    traversalState[schemaName].parameters[parameter.$ref] = result;
-    return result;
-  }
-
-  return hasOccurrencesInParameterImpl(document, parameter, schemaName, traversalState);
-}
-
-function hasOccurrencesInParameterImpl(
-  document: OpenAPIV3.Document,
-  parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(parameter)) {
-    const otherParameter = document.components?.parameters?.[parameter.$ref];
-    if (otherParameter === undefined) {
-      return false;
-    }
-
-    return hasOccurrencesInParameter(document, otherParameter, schemaName, traversalState);
-  }
-
-  if (parameter.schema !== undefined) {
-    return hasOccurrencesInSchema(document, parameter.schema, schemaName, traversalState);
-  }
-
-  if (parameter.content !== undefined) {
-    return Object.values(parameter.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
-  }
-
-  return false;
-}
-
-function hasOccurrencesInSchema(
-  document: OpenAPIV3.Document,
-  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(schema)) {
-    const hasOccurrenceOfSchema = traversalState[schemaName].schemas[schema.$ref];
-    if (hasOccurrenceOfSchema !== undefined) {
-      if (hasOccurrenceOfSchema === "exploring") {
-        // cycle
-        traversalState[schemaName].schemas[schema.$ref] = false;
-        return false;
-      } else {
-        return hasOccurrenceOfSchema;
-      }
-    }
-
-    traversalState[schemaName].schemas[schema.$ref] = "exploring";
-    const result = hasOccurrencesInSchemaImpl(document, schema, schemaName, traversalState);
-    traversalState[schemaName].schemas[schema.$ref] = result;
-    return result;
-  }
-
-  return hasOccurrencesInSchemaImpl(document, schema, schemaName, traversalState);
-}
-
-function hasOccurrencesInSchemaImpl(
-  document: OpenAPIV3.Document,
-  schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(schema)) {
-    if (isReferenceToSchema(schema, schemaName)) {
+    if (next === node2) {
       return true;
     }
 
-    const otherSchema = getReferencedObject(document, schema.$ref) as OpenAPIV3.SchemaObject | undefined;
-    if (otherSchema === undefined) {
-      return false;
+    if (graph[next]?.references !== undefined) {
+      for (const adjacent of graph[next].references) {
+        if (visited[adjacent] === true) {
+          continue;
+        }
+
+        queue.push(adjacent);
+        visited[adjacent] = true;
+      }
     }
-
-    return hasOccurrencesInSchema(document, otherSchema, schemaName, traversalState);
   }
 
-  switch (schema.type) {
-    case "array":
-      return hasOccurrencesInSchema(document, schema.items, schemaName, traversalState);
-    case "object":
-      if (schema.oneOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
-        return true;
-      }
-
-      if (schema.allOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
-        return true;
-      }
-
-      if (schema.anyOf?.some((s) => hasOccurrencesInSchema(document, s, schemaName, traversalState)) === true) {
-        return true;
-      }
-
-      if (schema.not !== undefined && hasOccurrencesInSchema(document, schema.not, schemaName, traversalState)) {
-        return true;
-      }
-
-      if (
-        schema.additionalProperties !== undefined &&
-        schema.additionalProperties !== true &&
-        schema.additionalProperties !== false &&
-        hasOccurrencesInSchema(document, schema.additionalProperties, schemaName, traversalState)
-      ) {
-        return true;
-      }
-
-      if (schema.properties !== undefined && Object.values(schema.properties).some((v) => hasOccurrencesInSchema(document, v, schemaName, traversalState))) {
-        return true;
-      }
-
-      return false;
-    default:
-      return false;
-  }
+  return false;
 }
 
-function hasOccurrencesInRequestBody(
-  document: OpenAPIV3.Document,
-  requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(requestBody)) {
-    const hasOccurrenceOfSchema = traversalState[schemaName].requestBodies[requestBody.$ref];
-    if (hasOccurrenceOfSchema !== undefined) {
-      if (hasOccurrenceOfSchema === "exploring") {
-        // cycle
-        traversalState[schemaName].requestBodies[requestBody.$ref] = false;
-        return false;
-      } else {
-        return hasOccurrenceOfSchema;
-      }
-    }
-
-    traversalState[schemaName].requestBodies[requestBody.$ref] = "exploring";
-    const result = hasOccurrencesInRequestBodyImpl(document, requestBody, schemaName, traversalState);
-    traversalState[schemaName].requestBodies[requestBody.$ref] = result;
-    return result;
+function hasOccurrencesInParameter(parameter: OpenAPIV3.ParameterObject | OpenAPIV3.ReferenceObject, schemaName: string, graph: ReferencesGraph): boolean {
+  if (isReferenceObject(parameter)) {
+    const referencedParameterName = extractParameterReferenceName(parameter);
+    return pathExists(graph, `parameter/${referencedParameterName}`, `schema/${schemaName}`);
   }
 
-  return hasOccurrencesInRequestBodyImpl(document, requestBody, schemaName, traversalState);
+  if (parameter.schema !== undefined) {
+    if (hasOccurrencesInSchema(parameter.schema, schemaName, graph)) {
+      return true;
+    }
+  }
+
+  if (parameter.content !== undefined) {
+    if (Object.values(parameter.content).some((c) => hasOccurrencesInContent(c, schemaName, graph))) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
-function hasOccurrencesInRequestBodyImpl(
-  document: OpenAPIV3.Document,
-  requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(requestBody)) {
-    const otherRequestBody = getReferencedObject(document, requestBody.$ref) as OpenAPIV3.RequestBodyObject | undefined;
-    if (otherRequestBody === undefined) {
-      return false;
-    }
+function hasOccurrencesInSchema(schema: OpenAPIV3.ReferenceObject | OpenAPIV3.SchemaObject, schemaName: string, graph: ReferencesGraph): boolean {
+  if (isReferenceObject(schema)) {
+    const referencedSchemaName = extractSchemaReferenceName(schema);
+    return pathExists(graph, `schema/${referencedSchemaName}`, `schema/${schemaName}`);
+  }
 
-    return hasOccurrencesInRequestBody(document, otherRequestBody, schemaName, traversalState);
+  if (schema.not !== undefined) {
+    if (hasOccurrencesInSchema(schema.not, schemaName, graph)) {
+      return true;
+    }
+  }
+
+  if (schema.oneOf !== undefined) {
+    for (const oneOf of schema.oneOf) {
+      if (hasOccurrencesInSchema(oneOf, schemaName, graph)) {
+        return true;
+      }
+    }
+  }
+
+  if (schema.anyOf !== undefined) {
+    for (const anyOf of schema.anyOf) {
+      if (hasOccurrencesInSchema(anyOf, schemaName, graph)) {
+        return true;
+      }
+    }
+  }
+
+  if (schema.allOf !== undefined) {
+    for (const allOf of schema.allOf) {
+      if (hasOccurrencesInSchema(allOf, schemaName, graph)) {
+        return true;
+      }
+    }
+  }
+
+  if (schema.additionalProperties !== undefined && schema.additionalProperties !== true && schema.additionalProperties !== false) {
+    if (hasOccurrencesInSchema(schema.additionalProperties, schemaName, graph)) {
+      return true;
+    }
+  }
+
+  if (schema.properties !== undefined) {
+    for (const property of Object.values(schema.properties)) {
+      if (hasOccurrencesInSchema(property, schemaName, graph)) {
+        return true;
+      }
+    }
+  }
+
+  if (schema.type === "array") {
+    if (hasOccurrencesInSchema(schema.items, schemaName, graph)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasOccurrencesInRequestBody(requestBody: OpenAPIV3.RequestBodyObject | OpenAPIV3.ReferenceObject, schemaName: string, graph: ReferencesGraph): boolean {
+  if (isReferenceObject(requestBody)) {
+    const referencedRequestBodyName = extractRequestBodyReferenceName(requestBody);
+    return pathExists(graph, `request-body/${referencedRequestBodyName}`, `schema/${schemaName}`);
   }
 
   if (requestBody.content !== undefined) {
-    return Object.values(requestBody.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
+    if (hasOccurrencesInContent(requestBody.content, schemaName, graph)) {
+      return true;
+    }
   }
 
   return false;
 }
 
-function hasOccurrencesInResponse(
-  document: OpenAPIV3.Document,
-  response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
+function hasOccurrencesInResponse(response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject, schemaName: string, graph: ReferencesGraph): boolean {
   if (isReferenceObject(response)) {
-    const hasOccurrenceOfSchema = traversalState[schemaName].responses[response.$ref];
-    if (hasOccurrenceOfSchema !== undefined) {
-      if (hasOccurrenceOfSchema === "exploring") {
-        // cycle
-        traversalState[schemaName].responses[response.$ref] = false;
-        return false;
-      } else {
-        return hasOccurrenceOfSchema;
-      }
-    }
-
-    traversalState[schemaName].responses[response.$ref] = "exploring";
-    const result = hasOccurrencesInResponseImpl(document, response, schemaName, traversalState);
-    traversalState[schemaName].responses[response.$ref] = result;
-    return result;
-  }
-
-  return hasOccurrencesInResponseImpl(document, response, schemaName, traversalState);
-}
-
-function hasOccurrencesInResponseImpl(
-  document: OpenAPIV3.Document,
-  response: OpenAPIV3.ResponseObject | OpenAPIV3.ReferenceObject,
-  schemaName: string,
-  traversalState: TraversalState,
-): boolean {
-  if (isReferenceObject(response)) {
-    const otherResponse = getReferencedObject(document, response.$ref) as OpenAPIV3.ResponseObject | undefined;
-    if (otherResponse === undefined) {
-      return false;
-    }
-
-    return hasOccurrencesInResponse(document, otherResponse, schemaName, traversalState);
+    const referencedRequestBodyName = extractRequestBodyReferenceName(response);
+    return pathExists(graph, `response/${referencedRequestBodyName}`, `schema/${schemaName}`);
   }
 
   if (response.content !== undefined) {
-    return Object.values(response.content).some((c) => hasOccurrencesInContent(document, c, schemaName, traversalState));
+    for (const contentType of Object.values(response.content)) {
+      if (hasOccurrencesInContent(contentType, schemaName, graph)) {
+        return true;
+      }
+    }
   }
 
   return false;
 }
 
-function hasOccurrencesInContent(document: OpenAPIV3.Document, content: OpenAPIV3.MediaTypeObject, name: string, traversalState: TraversalState): boolean {
+function hasOccurrencesInContent(content: OpenAPIV3.MediaTypeObject, schemaName: string, graph: ReferencesGraph): boolean {
   if (content.schema === undefined) {
     return false;
   }
 
-  return hasOccurrencesInSchema(document, content.schema, name, traversalState);
+  return hasOccurrencesInSchema(content.schema, schemaName, graph);
 }
 
-type TraversalState = Record<string, SchemaTraversalState>;
+type ReferencesGraphNodeKind = "schema" | "parameter" | "request-body" | "response";
+type ReferenceGraphId = `${ReferencesGraphNodeKind}/${string}`;
 
-interface SchemaTraversalState {
-  parameters: Partial<Record<string, boolean | "exploring">>;
-  schemas: Partial<Record<string, boolean | "exploring">>;
-  requestBodies: Partial<Record<string, boolean | "exploring">>;
-  responses: Partial<Record<string, boolean | "exploring">>;
+interface ReferencesGraphNode {
+  id: ReferenceGraphId;
+  references: Set<ReferenceGraphId>;
 }
+
+type ReferencesGraph = Record<ReferenceGraphId, ReferencesGraphNode>;
+
+type ReferencesGraphConstructionState = Record<string, "open" | "closed" | undefined>;

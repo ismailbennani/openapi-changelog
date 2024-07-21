@@ -17,8 +17,8 @@ export function diff(documents: OpenAPIV3.Document[], options?: OpenapiDiffOptio
   return detailedDiff(documents, options).map((d) => d.changes);
 }
 
-export async function diffFromFiles(documentPaths: string[], options?: OpenapiDiffOptions): Promise<OpenapiDocumentChanges[]> {
-  return (await detailedDiffFromFiles(documentPaths, options)).map((d) => d.changes);
+export function diffFromFiles(documentPaths: string[], options?: OpenapiDiffOptions): OpenapiDocumentChanges[] {
+  return detailedDiffFromFiles(documentPaths, options).map((d) => d.changes);
 }
 
 export function detailedDiff(
@@ -35,17 +35,17 @@ export function detailedDiff(
   return computeChanges(documentIrs, options);
 }
 
-export async function detailedDiffFromFiles(
+export function detailedDiffFromFiles(
   documentPaths: string[],
   options?: OpenapiDiffOptions,
-): Promise<{ oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[]> {
+): { oldDocument: OpenapiDocumentIntermediateRepresentation; newDocument: OpenapiDocumentIntermediateRepresentation; changes: OpenapiDocumentChanges }[] {
   if (documentPaths.length < 2) {
     throw new Error("Expected at least two documents");
   }
 
   const documentIrs: OpenapiDocumentIntermediateRepresentation[] = [];
   for (const path of documentPaths) {
-    const ir = await irFromFile(path, options);
+    const ir = irFromFile(path, options);
     if (ir === undefined) {
       continue;
     }
@@ -74,10 +74,10 @@ function ir(document: OpenAPIV3.Document, options: OpenapiDiffOptions | undefine
   return result;
 }
 
-async function irFromFile(path: string, options: OpenapiDiffOptions | undefined): Promise<OpenapiDocumentIntermediateRepresentation | undefined> {
+function irFromFile(path: string, options: OpenapiDiffOptions | undefined): OpenapiDocumentIntermediateRepresentation | undefined {
   Logger.info(`Reading document at ${path}...`);
 
-  const content = await parseOpenapiFile(path);
+  const content = parseOpenapiFile(path);
   if (content.result === undefined) {
     Logger.error(`Could not parse document at ${path}: ${content.errorMessage ?? ""}`);
     return undefined;

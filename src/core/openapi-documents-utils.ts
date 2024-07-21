@@ -2,7 +2,7 @@ import { OpenAPIV3 } from "openapi-types";
 import semver from "semver";
 import { isReferenceObject } from "../ir/utils";
 import { OpenapiDocumentIntermediateRepresentation } from "../ir/openapi-document-ir";
-import { readFile } from "fs/promises";
+import fs from "fs";
 import { load } from "js-yaml";
 import { Logger } from "./logging";
 
@@ -16,10 +16,10 @@ export function sortDocumentsByVersionDescInPlace(documents: OpenapiDocumentInte
   return documents.sort((a, b) => -semver.compareBuild(a.version, b.version, semverOptions));
 }
 
-export async function parseOpenapiFile(path: string): Promise<{ result?: OpenAPIV3.Document; errorMessage?: string }> {
+export function parseOpenapiFile(path: string): { result?: OpenAPIV3.Document; errorMessage?: string } {
   try {
     Logger.debug(`Start reading file at ${path}`);
-    const specContent = await readFile(path, "utf8");
+    const specContent = fs.readFileSync(path, "utf8");
     Logger.debug(`Done reading file at ${path}`);
 
     if (path.endsWith(".yml") || path.endsWith(".yaml")) {

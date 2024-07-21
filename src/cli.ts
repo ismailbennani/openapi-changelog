@@ -101,7 +101,7 @@ void yargsInstance
       const startTime = performance.now();
       let result: string;
       if (args.diff === true) {
-        const differences = await diffFromFiles(files, diffOptions);
+        const differences = diffFromFiles(files, diffOptions);
         result = JSON.stringify(differences, null, 2);
       } else {
         const exclude: OpenapiDocumentChange["type"][] = args.exclude?.map((e) => e as OpenapiDocumentChange["type"]) ?? [];

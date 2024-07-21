@@ -8,9 +8,9 @@ import { extractParameterType } from "./openapi-types-utils";
 export interface ParameterIntermediateRepresentation {
   name: string;
   type: string;
-  occurrences: Occurrence[];
   description: string | undefined;
   examples: string | undefined;
+  occurrences: Occurrence[];
 }
 
 interface Occurrence {

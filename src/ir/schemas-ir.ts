@@ -7,9 +7,9 @@ import { Logger } from "../core/logging";
 
 export interface SchemaIntermediateRepresentation {
   name: string;
-  occurrences: Occurrence[];
   description: string | undefined;
   examples: string | undefined;
+  computeOccurrences: () => Occurrence[];
 }
 
 interface Occurrence {
@@ -36,13 +36,14 @@ export function extractSchemas(document: OpenAPIV3.Document): SchemaIntermediate
       continue;
     }
 
-    const occurrences = findOccurrences(document, name, graph);
-
     result.push({
       name,
-      occurrences: Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method }))),
       description: evaluatedSchema.description === undefined ? undefined : escapeMarkdown(evaluatedSchema.description),
       examples: extractSchemaExamples(schema),
+      computeOccurrences: () => {
+        const occurrences = findOccurrences(document, name, graph);
+        return Object.entries(occurrences).flatMap(([path, methods]) => [...methods].map((method) => ({ path, method })));
+      },
     });
   }
 

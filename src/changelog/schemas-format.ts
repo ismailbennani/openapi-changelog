@@ -24,15 +24,17 @@ export function schemaBreakingChanges(
     }
 
     switch (change.type) {
-      case "schema-unclassified":
-        result.push(`- Changed schema ${change.name} used in ${schemaInNewDocument.occurrences.length.toString()} endpoints`);
+      case "schema-unclassified": {
+        const occurrences = schemaInNewDocument.computeOccurrences();
+        result.push(`- Changed schema ${change.name} used in ${occurrences.length.toString()} endpoints`);
 
         if (options.detailed === true) {
-          if (schemaInNewDocument.occurrences.length > 0) {
-            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument), innerBlockWidth, innerBlockPadding));
+          if (occurrences.length > 0) {
+            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument, occurrences), innerBlockWidth, innerBlockPadding));
           }
         }
         break;
+      }
     }
   }
 
@@ -60,11 +62,12 @@ export function schemaNonBreakingChanges(
 
     switch (change.type) {
       case "schema-documentation-change": {
-        result.push(`- Changed documentation of schema ${change.name} used in ${schemaInNewDocument.occurrences.length.toString()} endpoints`);
+        const occurrences = schemaInNewDocument.computeOccurrences();
+        result.push(`- Changed documentation of schema ${change.name} used in ${occurrences.length.toString()} endpoints`);
 
         if (options.detailed === true) {
-          if (schemaInNewDocument.occurrences.length > 0) {
-            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument), innerBlockWidth, innerBlockPadding));
+          if (occurrences.length > 0) {
+            result.push("", ...block(schemaEndpointsDetails(schemaInNewDocument, occurrences), innerBlockWidth, innerBlockPadding));
           }
 
           const details = schemaDocumentationDetails(schemaInOldDocument, schemaInNewDocument);
@@ -91,10 +94,10 @@ function schemaDocumentationDetails(oldSchema: SchemaIntermediateRepresentation,
   return undefined;
 }
 
-function schemaEndpointsDetails(schema: SchemaIntermediateRepresentation): string[] {
+function schemaEndpointsDetails(schema: SchemaIntermediateRepresentation, occurrences: { method: string; path: string }[]): string[] {
   const result: string[] = [];
 
-  for (const occurrence of schema.occurrences) {
+  for (const occurrence of occurrences) {
     result.push(`- Used in ${occurrence.method.toUpperCase()} ${occurrence.path}`);
   }
 

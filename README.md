@@ -605,9 +605,10 @@ Version 1.17.0 - MINOR
 
 Version 1.16.35 - PATCH
   - Changes
-    - Changed documentation of schema TravelMode used in 1 endpoints
+    - Changed documentation of schema TravelMode used in 2 endpoints
     
       - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/distanceMatrix/json
       - Changes:\
         ~~- \`driving\` (default) indicates distance calculation using the road network.~~\
         **- \`DRIVING\` (default) indicates calculation using the road network.**\
@@ -2178,9 +2179,10 @@ Version 1.17.0 - MINOR
 
 Version 1.16.35 - PATCH
   - Changes
-    - Changed documentation of schema TravelMode used in 1 endpoints
+    - Changed documentation of schema TravelMode used in 2 endpoints
     
       - Used in GET /maps/api/directions/json
+      - Used in GET /maps/api/distanceMatrix/json
       - Changes:\
         ~~- \`driving\` (default) indicates distance calculation using the road network.~~\
         **- \`DRIVING\` (default) indicates calculation using the road network.**\

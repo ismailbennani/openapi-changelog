@@ -1,11 +1,12 @@
 {
-  "name": "openapi-changelog",
+  "name": "@ismailbennani/openapi-changelog",
   "version": "1.0.4",
   "description": "Compute the changes between two OpenAPI specifications and output them nicely",
   "author": "Ismail Bennani",
   "license": "MIT",
-  "repository": "https://github.com/OpenAPI-Changelog/openapi-changelog",
-  "bugs": "https://github.com/OpenAPI-Changelog/openapi-changelog/issues",
+  "homepage": "https://ismailbennani.github.io/openapi-changelog/",
+  "repository": "https://github.com/ismailbennani/openapi-changelog",
+  "bugs": "https://github.com/ismailbennani/openapi-changelog/issues",
   "keywords": [
     "openapi",
     "changelog",

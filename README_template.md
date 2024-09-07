@@ -7,7 +7,7 @@
 ## Installation
 
 ```
-npm i openapi-changelog
+npm i ismailbennani/openapi-changelog
 ```
 
 ## Usage
@@ -43,7 +43,7 @@ console.log(result);
 {{include examples/openai/API-CHANGELOG.md}}
 ```
 
-See [examples/openai/API-CHANGELOG.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.md)
+See [examples/openai/API-CHANGELOG.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.md)
 
 As markdown:
 
@@ -56,7 +56,7 @@ As markdown:
 {{include examples/openai/API-CHANGELOG.detailed.md}}
 ```
 
-See [examples/openai/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed.md)
+See [examples/openai/API-CHANGELOG.detailed.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed.md)
 
 As markdown:
 
@@ -83,4 +83,4 @@ As markdown:
 {{include examples/googlemaps/API-CHANGELOG.detailed.md}}
 </details>
 
-See [examples/googlemaps/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed.md)
+See [examples/googlemaps/API-CHANGELOG.detailed.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed.md)

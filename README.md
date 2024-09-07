@@ -7,7 +7,7 @@
 ## Installation
 
 ```
-npm i openapi-changelog
+npm i ismailbennani/openapi-changelog
 ```
 
 ## Usage
@@ -71,7 +71,7 @@ Version 2.0.0 - MAJOR
 
 ```
 
-See [examples/openai/API-CHANGELOG.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.md)
+See [examples/openai/API-CHANGELOG.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.md)
 
 As markdown:
 
@@ -104,7 +104,7 @@ Version 2.0.0 - MAJOR
 
 ```
 
-See [examples/openai/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed.md)
+See [examples/openai/API-CHANGELOG.detailed.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/openai/API-CHANGELOG.detailed.md)
 
 As markdown:
 
@@ -3276,4 +3276,4 @@ Version 1.5.2 - PATCH
 
 </details>
 
-See [examples/googlemaps/API-CHANGELOG.detailed.md](https://github.com/OpenAPI-Changelog/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed.md)
+See [examples/googlemaps/API-CHANGELOG.detailed.md](https://github.com/ismailbennani/openapi-changelog/blob/main/examples/googlemaps/API-CHANGELOG.detailed.md)

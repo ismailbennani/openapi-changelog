@@ -1,0 +1,39 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Deploy package to Github Packages
+
+on:
+  release:
+    types: [ published ]
+  
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+        
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.4.1' # Change back to 22.x once bug of 22.5.0 is fixed
+          registry-url: https://registry.npmjs.org/
+
+      - name: Write .npmrc
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > .npmrc
+          echo "@ismailbennani:registry=https://npm.pkg.github.com" >> .npmrc
+          cat .npmrc
+
+      - name: NPM restore 
+        run: npm ci
+
+      - name: NPM pack
+        run: npm run pack
+
+      - name: NPM publish
+        run: npm publish

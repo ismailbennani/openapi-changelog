@@ -2,13 +2,16 @@
 
 ## Demo
 
-[https://openapi-changelog.github.io/openapi-changelog/](https://openapi-changelog.github.io/openapi-changelog/)
+[http://www.ismailbennani.fr/openapi-changelog/](http://www.ismailbennani.fr/openapi-changelog/)
 
 ## Installation
 
 ```
 npm i ismailbennani/openapi-changelog
 ```
+
+> [!WARNING]
+> Do not use the NPM version of the package because it is out of date. I cannot access the package anymore to update it and NPM support doesn't want to help, the official package is now the one hosted by github packages.
 
 ## Usage
 
